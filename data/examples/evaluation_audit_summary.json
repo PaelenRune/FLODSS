@@ -1,0 +1,320 @@
+{
+  "timestamp": "2026-10-10T12:17:08Z",
+  "problem_hashes": {
+    "problem_id": "FLP_INDUSTRIAL_10",
+    "composite_data_hash": "1beead643d6dbe44f5c4b05fe8cb49892112be06e3e46cf00d66677a35910179",
+    "department_geometry_hash": "bbb0484a59142f81c177c5b31d0bb207ce65bdf892d97d0b9942fbf9edbb0558",
+    "flow_matrix_hash": "690a518984db96eb99edb2914215187e8deb123be513c6716bbf7721c459357c",
+    "rel_matrix_hash": "2cfc537a55a0796495d6730fd58e7c4851b7d0279e83dd5989cec9d771385bb6",
+    "constraint_definitions_hash": "c3b24af76998b47b866a2f640e6c420cbad6c459c74716bb0714f7c14bc18ec2"
+  },
+  "canonical_results": {
+    "Manual Baseline": {
+      "problem_id": "FLP_INDUSTRIAL_10",
+      "layout_signature": "b6459286bc1fb50b6e50b596e7acc0757e942240539a4daa5aec730445411402",
+      "evaluation_config_hash": "eb0c6a65de43d685de8a995638289a9189876cb4d43b40d175072d6409cf7811",
+      "problem_composite_hash": "1beead643d6dbe44f5c4b05fe8cb49892112be06e3e46cf00d66677a35910179",
+      "flow_matrix_hash": "690a518984db96eb99edb2914215187e8deb123be513c6716bbf7721c459357c",
+      "rel_matrix_hash": "2cfc537a55a0796495d6730fd58e7c4851b7d0279e83dd5989cec9d771385bb6",
+      "constraint_definitions_hash": "c3b24af76998b47b866a2f640e6c420cbad6c459c74716bb0714f7c14bc18ec2",
+      "distance_metric": "manhattan",
+      "material_handling_cost": 139498.75,
+      "flow_distance": 117893.75,
+      "relationship_raw_score": 66.56,
+      "relationship_satisfaction_percentage": 55.47,
+      "area_utilization": 91.67,
+      "hard_violations_count": 0,
+      "soft_violations_count": 0,
+      "soft_penalty": 0.0,
+      "is_feasible": true,
+      "is_complete": true,
+      "violations": []
+    },
+    "Guillotine Baseline": {
+      "problem_id": "FLP_INDUSTRIAL_10",
+      "layout_signature": "61c4bf88996517780fd1f43839d1e1654c6be9276072a9799c4a7e1c8fc12174",
+      "evaluation_config_hash": "eb0c6a65de43d685de8a995638289a9189876cb4d43b40d175072d6409cf7811",
+      "problem_composite_hash": "1beead643d6dbe44f5c4b05fe8cb49892112be06e3e46cf00d66677a35910179",
+      "flow_matrix_hash": "690a518984db96eb99edb2914215187e8deb123be513c6716bbf7721c459357c",
+      "rel_matrix_hash": "2cfc537a55a0796495d6730fd58e7c4851b7d0279e83dd5989cec9d771385bb6",
+      "constraint_definitions_hash": "c3b24af76998b47b866a2f640e6c420cbad6c459c74716bb0714f7c14bc18ec2",
+      "distance_metric": "manhattan",
+      "material_handling_cost": 180263.99,
+      "flow_distance": 153551.19,
+      "relationship_raw_score": 53.0,
+      "relationship_satisfaction_percentage": 44.17,
+      "area_utilization": 91.67,
+      "hard_violations_count": 0,
+      "soft_violations_count": 1,
+      "soft_penalty": 62500.0,
+      "is_feasible": true,
+      "is_complete": true,
+      "violations": [
+        {
+          "constraint_id": "CST_SOFT_VIBRATION_SEP",
+          "classification": "soft",
+          "magnitude": 25.0,
+          "penalty_cost": 62500.0,
+          "message": "Clearance between 'DEP_MACHINING' and 'DEP_QUALITY' is 0.00m, violating required minimum 25.00m (deficit: 25.00m)."
+        }
+      ]
+    },
+    "GA Best Solution": {
+      "problem_id": "FLP_INDUSTRIAL_10",
+      "layout_signature": "fa36b29c4fa43e85984c1b8885a93ed9bf8f3d98e38ecdf6d0cc0104fd58ed60",
+      "evaluation_config_hash": "eb0c6a65de43d685de8a995638289a9189876cb4d43b40d175072d6409cf7811",
+      "problem_composite_hash": "1beead643d6dbe44f5c4b05fe8cb49892112be06e3e46cf00d66677a35910179",
+      "flow_matrix_hash": "690a518984db96eb99edb2914215187e8deb123be513c6716bbf7721c459357c",
+      "rel_matrix_hash": "2cfc537a55a0796495d6730fd58e7c4851b7d0279e83dd5989cec9d771385bb6",
+      "constraint_definitions_hash": "c3b24af76998b47b866a2f640e6c420cbad6c459c74716bb0714f7c14bc18ec2",
+      "distance_metric": "manhattan",
+      "material_handling_cost": 93876.54,
+      "flow_distance": 78675.22,
+      "relationship_raw_score": 76.43,
+      "relationship_satisfaction_percentage": 63.7,
+      "area_utilization": 91.67,
+      "hard_violations_count": 0,
+      "soft_violations_count": 0,
+      "soft_penalty": 0.0,
+      "is_feasible": true,
+      "is_complete": true,
+      "violations": []
+    }
+  },
+  "ablation_5seed": {
+    "A_Init_Only": {
+      "best_mhc": 141969.58,
+      "mean_mhc": 152331.64,
+      "median_mhc": 151531.95,
+      "worst_mhc": 159771.1,
+      "std_dev_mhc": 7624.31,
+      "mean_runtime": 0.044,
+      "mean_evaluations": 40,
+      "feasible_rate_pct": 100.0,
+      "seed_records": [
+        {
+          "seed": 42,
+          "best_mhc": 141969.58,
+          "initial_mhc": 141969.58,
+          "runtime": 0.047,
+          "is_feasible": true,
+          "evaluations": 40,
+          "generations": 0
+        },
+        {
+          "seed": 101,
+          "best_mhc": 159771.1,
+          "initial_mhc": 159771.1,
+          "runtime": 0.042,
+          "is_feasible": true,
+          "evaluations": 40,
+          "generations": 0
+        },
+        {
+          "seed": 2024,
+          "best_mhc": 159771.1,
+          "initial_mhc": 159771.1,
+          "runtime": 0.045,
+          "is_feasible": true,
+          "evaluations": 40,
+          "generations": 0
+        },
+        {
+          "seed": 777,
+          "best_mhc": 148614.48,
+          "initial_mhc": 148614.48,
+          "runtime": 0.044,
+          "is_feasible": true,
+          "evaluations": 40,
+          "generations": 0
+        },
+        {
+          "seed": 999,
+          "best_mhc": 151531.95,
+          "initial_mhc": 151531.95,
+          "runtime": 0.044,
+          "is_feasible": true,
+          "evaluations": 40,
+          "generations": 0
+        }
+      ]
+    },
+    "B_Mutation_Only": {
+      "best_mhc": 113904.36,
+      "mean_mhc": 121010.15,
+      "median_mhc": 118027.92,
+      "worst_mhc": 133057.78,
+      "std_dev_mhc": 7538.05,
+      "mean_runtime": 3.347,
+      "mean_evaluations": 3840,
+      "feasible_rate_pct": 100.0,
+      "seed_records": [
+        {
+          "seed": 42,
+          "best_mhc": 133057.78,
+          "initial_mhc": 141969.58,
+          "runtime": 3.298,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 101,
+          "best_mhc": 118027.92,
+          "initial_mhc": 159771.1,
+          "runtime": 3.273,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 2024,
+          "best_mhc": 123258.14,
+          "initial_mhc": 159771.1,
+          "runtime": 3.37,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 777,
+          "best_mhc": 113904.36,
+          "initial_mhc": 148614.48,
+          "runtime": 3.431,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 999,
+          "best_mhc": 116802.53,
+          "initial_mhc": 151531.95,
+          "runtime": 3.364,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        }
+      ]
+    },
+    "C_Crossover_Only": {
+      "best_mhc": 106787.6,
+      "mean_mhc": 130636.19,
+      "median_mhc": 129444.41,
+      "worst_mhc": 151531.95,
+      "std_dev_mhc": 19502.55,
+      "mean_runtime": 3.443,
+      "mean_evaluations": 3840,
+      "feasible_rate_pct": 100.0,
+      "seed_records": [
+        {
+          "seed": 42,
+          "best_mhc": 116802.53,
+          "initial_mhc": 141969.58,
+          "runtime": 3.477,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 101,
+          "best_mhc": 106787.6,
+          "initial_mhc": 159771.1,
+          "runtime": 3.525,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 2024,
+          "best_mhc": 129444.41,
+          "initial_mhc": 159771.1,
+          "runtime": 3.298,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 777,
+          "best_mhc": 148614.48,
+          "initial_mhc": 148614.48,
+          "runtime": 3.399,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 999,
+          "best_mhc": 151531.95,
+          "initial_mhc": 151531.95,
+          "runtime": 3.518,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        }
+      ]
+    },
+    "D_Full_GA": {
+      "best_mhc": 93876.54,
+      "mean_mhc": 109039.06,
+      "median_mhc": 107922.59,
+      "worst_mhc": 121190.46,
+      "std_dev_mhc": 10166.86,
+      "mean_runtime": 3.455,
+      "mean_evaluations": 3840,
+      "feasible_rate_pct": 100.0,
+      "seed_records": [
+        {
+          "seed": 42,
+          "best_mhc": 121190.46,
+          "initial_mhc": 141969.58,
+          "runtime": 3.503,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 101,
+          "best_mhc": 107487.83,
+          "initial_mhc": 159771.1,
+          "runtime": 3.557,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 2024,
+          "best_mhc": 93876.54,
+          "initial_mhc": 159771.1,
+          "runtime": 3.403,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 777,
+          "best_mhc": 107922.59,
+          "initial_mhc": 148614.48,
+          "runtime": 3.44,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        },
+        {
+          "seed": 999,
+          "best_mhc": 114717.87,
+          "initial_mhc": 151531.95,
+          "runtime": 3.373,
+          "is_feasible": true,
+          "evaluations": 3840,
+          "generations": 100
+        }
+      ]
+    }
+  },
+  "seed_2024_reproduction": {
+    "signature_match": true,
+    "signature": "fa36b29c4fa43e85984c1b8885a93ed9bf8f3d98e38ecdf6d0cc0104fd58ed60",
+    "best_mhc": 93876.54,
+    "initial_mhc": 159771.1
+  }
+}

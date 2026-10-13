@@ -1,0 +1,144 @@
+{
+  "problem_id": "FLP_INDUSTRIAL_10",
+  "algorithm_name": "genetic_algorithm",
+  "algorithm_version": "1.0.0",
+  "random_seed": 2024,
+  "config": {
+    "population_size": 40,
+    "generations": 100,
+    "crossover_rate": 0.8,
+    "mutation_rate": 0.2,
+    "stagnation_limit": 100
+  },
+  "chromosome": {
+    "order": [
+      "DEP_WELDING",
+      "DEP_CUTTING",
+      "DEP_MACHINING",
+      "DEP_SURFACE_TREAT",
+      "DEP_ASSEMBLY",
+      "DEP_MAINTENANCE",
+      "DEP_RAW_MATERIAL",
+      "DEP_SHIPPING",
+      "DEP_FINISHED_GOODS",
+      "DEP_QUALITY"
+    ],
+    "bay_sizes": [
+      5,
+      5
+    ],
+    "orientation": "horizontal"
+  },
+  "layout_signature": "fa36b29c4fa43e85984c1b8885a93ed9bf8f3d98e38ecdf6d0cc0104fd58ed60",
+  "is_feasible": true,
+  "placements": {
+    "DEP_WELDING": {
+      "department_id": "DEP_WELDING",
+      "x": 0.0,
+      "y": 0.0,
+      "width": 26.1905,
+      "height": 42.0,
+      "area": 1100.001,
+      "aspect_ratio": 1.6036
+    },
+    "DEP_CUTTING": {
+      "department_id": "DEP_CUTTING",
+      "x": 26.1905,
+      "y": 0.0,
+      "width": 21.4286,
+      "height": 42.0,
+      "area": 900.0012,
+      "aspect_ratio": 1.96
+    },
+    "DEP_MACHINING": {
+      "department_id": "DEP_MACHINING",
+      "x": 47.619,
+      "y": 0.0,
+      "width": 35.7143,
+      "height": 42.0,
+      "area": 1500.0006,
+      "aspect_ratio": 1.176
+    },
+    "DEP_SURFACE_TREAT": {
+      "department_id": "DEP_SURFACE_TREAT",
+      "x": 83.3333,
+      "y": 0.0,
+      "width": 26.1905,
+      "height": 42.0,
+      "area": 1100.001,
+      "aspect_ratio": 1.6036
+    },
+    "DEP_ASSEMBLY": {
+      "department_id": "DEP_ASSEMBLY",
+      "x": 109.5238,
+      "y": 0.0,
+      "width": 40.4762,
+      "height": 42.0,
+      "area": 1700.0004,
+      "aspect_ratio": 1.0376
+    },
+    "DEP_MAINTENANCE": {
+      "department_id": "DEP_MAINTENANCE",
+      "x": 0.0,
+      "y": 42.0,
+      "width": 22.3404,
+      "height": 31.3333,
+      "area": 699.9985,
+      "aspect_ratio": 1.4025
+    },
+    "DEP_RAW_MATERIAL": {
+      "department_id": "DEP_RAW_MATERIAL",
+      "x": 22.3404,
+      "y": 42.0,
+      "width": 41.4894,
+      "height": 31.3333,
+      "area": 1299.9998,
+      "aspect_ratio": 1.3241
+    },
+    "DEP_SHIPPING": {
+      "department_id": "DEP_SHIPPING",
+      "x": 63.8298,
+      "y": 42.0,
+      "width": 28.7234,
+      "height": 31.3333,
+      "area": 899.9989,
+      "aspect_ratio": 1.0909
+    },
+    "DEP_FINISHED_GOODS": {
+      "department_id": "DEP_FINISHED_GOODS",
+      "x": 92.5532,
+      "y": 42.0,
+      "width": 41.4894,
+      "height": 31.3333,
+      "area": 1299.9998,
+      "aspect_ratio": 1.3241
+    },
+    "DEP_QUALITY": {
+      "department_id": "DEP_QUALITY",
+      "x": 134.0426,
+      "y": 42.0,
+      "width": 15.9574,
+      "height": 31.3333,
+      "area": 499.998,
+      "aspect_ratio": 1.9636
+    }
+  },
+  "evaluation": {
+    "material_handling_cost": 93876.54,
+    "flow_distance": 0.0,
+    "relationship_score": 0.0,
+    "hard_violations": 0,
+    "soft_penalty": 0.0,
+    "combined_fitness": 93876.54,
+    "initial_mhc": 159771.1,
+    "improvement_mhc": 65894.56,
+    "improvement_percentage": 41.24
+  },
+  "validation": {
+    "rectangular_feasibility_valid": true,
+    "layout_validator_valid": true,
+    "constraint_engine_hard_violations": 0,
+    "zero_overlap": true,
+    "department_count": 10
+  }
+}

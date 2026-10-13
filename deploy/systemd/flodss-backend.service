@@ -1,0 +1,41 @@
+[Unit]
+Description=FLODSS Facility Layout Optimization Backend Service (Private Research)
+After=network.target
+
+[Service]
+Type=simple
+User=flodss
+Group=flodss
+WorkingDirectory=/opt/flodss/backend
+EnvironmentFile=/opt/flodss/.env.production
+
+# Single-worker uvicorn execution ensures strict local in-memory concurrency & rate limit tracking
+ExecStart=/opt/flodss/backend/.venv/bin/python -m uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 1 \
+    --timeout-keep-alive 30 \
+    --limit-concurrency 50 \
+    --no-access-log
+
+# Sandboxing and Security Isolation
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ReadWritePaths=/opt/flodss/data /opt/flodss/backend/logs
+CapabilityBoundingSet=
+
+# Lifecycle Management
+Restart=on-failure
+RestartSec=5s
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=flodss-backend
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+{
+  "problem_ids": [
+    "FLP_ACADEMIC_4",
+    "FLP_MEDIUM_6",
+    "FLP_INDUSTRIAL_10"
+  ],
+  "aldep_seeds": [
+    42,
+    101,
+    2024,
+    777,
+    999
+  ],
+  "aldep_candidates_per_seed": 20,
+  "aldep_cell_size": 5.0,
+  "aldep_strip_width_cells": 2,
+  "aldep_allow_strip_splitting": true,
+  "craft_max_iterations": 50,
+  "evaluation_config": {
+    "distance_metric": "manhattan",
+    "default_cost_per_unit_distance": 1.0,
+    "normalization_method": "min_max",
+    "numerical_tolerance": 0.0001
+  }
+}

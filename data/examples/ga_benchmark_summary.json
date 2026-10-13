@@ -1,0 +1,189 @@
+{
+  "standalone_guillotine_mhc": 180263.94,
+  "manual_baseline_mhc": 139498.75,
+  "benchmark_records": [
+    {
+      "seed": 42,
+      "runtime_seconds": 3.36,
+      "generations": 100,
+      "termination_reason": "max_generations_reached",
+      "is_feasible": true,
+      "A_guillotine_mhc": 180263.94,
+      "B_init_mhc": 141969.58,
+      "C_final_mhc": 121190.46,
+      "D_init_adv": 38294.36,
+      "E_evo_adv": 20779.12,
+      "F_total_adv": 59073.48,
+      "init_share_pct": 64.8,
+      "evo_share_pct": 35.2,
+      "signature": "6f43a3486eacfeb408d5384b23d16f8892192ce9ebc3b4d17ec0c815545b88ca",
+      "soft_penalty": 0.0,
+      "fitness": 121190.46
+    },
+    {
+      "seed": 101,
+      "runtime_seconds": 3.344,
+      "generations": 100,
+      "termination_reason": "max_generations_reached",
+      "is_feasible": true,
+      "A_guillotine_mhc": 180263.94,
+      "B_init_mhc": 159771.1,
+      "C_final_mhc": 107487.83,
+      "D_init_adv": 20492.84,
+      "E_evo_adv": 52283.27,
+      "F_total_adv": 72776.11,
+      "init_share_pct": 28.2,
+      "evo_share_pct": 71.8,
+      "signature": "8bd18a640c27f00da29929056776bac707e3e5470deb86641ce76c85bbeef406",
+      "soft_penalty": 0.0,
+      "fitness": 107487.83
+    },
+    {
+      "seed": 2024,
+      "runtime_seconds": 3.378,
+      "generations": 100,
+      "termination_reason": "max_generations_reached",
+      "is_feasible": true,
+      "A_guillotine_mhc": 180263.94,
+      "B_init_mhc": 159771.1,
+      "C_final_mhc": 93876.54,
+      "D_init_adv": 20492.84,
+      "E_evo_adv": 65894.56,
+      "F_total_adv": 86387.4,
+      "init_share_pct": 23.7,
+      "evo_share_pct": 76.3,
+      "signature": "fa36b29c4fa43e85984c1b8885a93ed9bf8f3d98e38ecdf6d0cc0104fd58ed60",
+      "soft_penalty": 0.0,
+      "fitness": 93876.54
+    },
+    {
+      "seed": 777,
+      "runtime_seconds": 3.448,
+      "generations": 100,
+      "termination_reason": "max_generations_reached",
+      "is_feasible": true,
+      "A_guillotine_mhc": 180263.94,
+      "B_init_mhc": 148614.48,
+      "C_final_mhc": 107922.59,
+      "D_init_adv": 31649.46,
+      "E_evo_adv": 40691.89,
+      "F_total_adv": 72341.35,
+      "init_share_pct": 43.8,
+      "evo_share_pct": 56.2,
+      "signature": "d4edd83bed8e4ee1b40652e455239476b39fb1dd982fdc36f89e6b539d600f29",
+      "soft_penalty": 12195.0,
+      "fitness": 120117.59
+    },
+    {
+      "seed": 999,
+      "runtime_seconds": 3.44,
+      "generations": 100,
+      "termination_reason": "max_generations_reached",
+      "is_feasible": true,
+      "A_guillotine_mhc": 180263.94,
+      "B_init_mhc": 151531.95,
+      "C_final_mhc": 114717.87,
+      "D_init_adv": 28731.99,
+      "E_evo_adv": 36814.08,
+      "F_total_adv": 65546.07,
+      "init_share_pct": 43.8,
+      "evo_share_pct": 56.2,
+      "signature": "68889ab01381828f4a3672fdbbadf5f3442a29583412dcd8133eff5a496e0030",
+      "soft_penalty": 0.0,
+      "fitness": 114717.87
+    }
+  ],
+  "stagnation_records": [
+    {
+      "seed": 42,
+      "generations": 33,
+      "best_mhc": 121190.46,
+      "init_mhc": 141969.58,
+      "runtime": 1.15,
+      "termination": "stagnation_limit_reached"
+    },
+    {
+      "seed": 101,
+      "generations": 49,
+      "best_mhc": 107487.83,
+      "init_mhc": 159771.1,
+      "runtime": 1.69,
+      "termination": "stagnation_limit_reached"
+    },
+    {
+      "seed": 2024,
+      "generations": 52,
+      "best_mhc": 96940.05,
+      "init_mhc": 159771.1,
+      "runtime": 1.78,
+      "termination": "stagnation_limit_reached"
+    },
+    {
+      "seed": 777,
+      "generations": 55,
+      "best_mhc": 107922.59,
+      "init_mhc": 148614.48,
+      "runtime": 1.85,
+      "termination": "stagnation_limit_reached"
+    },
+    {
+      "seed": 999,
+      "generations": 43,
+      "best_mhc": 130127.91,
+      "init_mhc": 151531.95,
+      "runtime": 1.52,
+      "termination": "stagnation_limit_reached"
+    }
+  ],
+  "statistics": {
+    "best_mhc": 93876.54,
+    "mean_mhc": 109039.06,
+    "median_mhc": 107922.59,
+    "worst_mhc": 121190.46,
+    "sample_std_dev": 10166.86,
+    "feasible_run_rate_pct": 100.0,
+    "total_runtime_seconds": 16.97,
+    "distinct_signatures": 5
+  },
+  "ablation_results": {
+    "A_Init_Only": {
+      "best_mhc": 141969.58,
+      "initial_mhc": 141969.58,
+      "improvement_mhc": 0.0,
+      "improvement_pct": 0.0,
+      "generations": 0,
+      "runtime_seconds": 0.044,
+      "feasible": true
+    },
+    "B_Mutation_Only": {
+      "best_mhc": 133057.78,
+      "initial_mhc": 141969.58,
+      "improvement_mhc": 8911.8,
+      "improvement_pct": 6.28,
+      "generations": 100,
+      "runtime_seconds": 3.344,
+      "feasible": true
+    },
+    "C_Crossover_Only": {
+      "best_mhc": 116802.53,
+      "initial_mhc": 141969.58,
+      "improvement_mhc": 25167.05,
+      "improvement_pct": 17.73,
+      "generations": 100,
+      "runtime_seconds": 3.362,
+      "feasible": true
+    },
+    "D_Full_GA": {
+      "best_mhc": 121190.46,
+      "initial_mhc": 141969.58,
+      "improvement_mhc": 20779.12,
+      "improvement_pct": 14.64,
+      "generations": 100,
+      "runtime_seconds": 3.4,
+      "feasible": true
+    }
+  },
+  "reported_seed_101_mhc": 107487.83,
+  "best_overall_seed": 2024,
+  "best_overall_mhc": 93876.54
+}

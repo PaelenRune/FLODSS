@@ -1,0 +1,201 @@
+{
+  "run_id": "bench_20261012_150715",
+  "timestamp": "2026-10-12T15:07:15.737645+00:00",
+  "config": {
+    "problem_ids": [
+      "FLP_ACADEMIC_4"
+    ],
+    "aldep_seeds": [
+      42
+    ],
+    "aldep_candidates_per_seed": 2,
+    "aldep_cell_size": 5.0,
+    "aldep_strip_width_cells": 2,
+    "aldep_allow_strip_splitting": true,
+    "craft_max_iterations": 50,
+    "evaluation_config": {
+      "distance_metric": "manhattan",
+      "default_cost_per_unit_distance": 1.0,
+      "normalization_method": "min_max",
+      "numerical_tolerance": 0.0001,
+      "adjacency_tolerance": 0.0001,
+      "objective_weights": {},
+      "max_top_contributors": 10,
+      "engine_version": "1.0.0",
+      "metadata": {}
+    }
+  },
+  "comparison_table": [
+    {
+      "algorithm": "CORELAP",
+      "problem_id": "FLP_ACADEMIC_4",
+      "run_or_seed": "Deterministic",
+      "complete": true,
+      "feasible": true,
+      "mhc": 700.0,
+      "flow_distance": 700.0,
+      "relationship_satisfaction": 21.71,
+      "constraint_violations": 0,
+      "runtime_seconds": 0.03056,
+      "notes": "Deterministic construction"
+    },
+    {
+      "algorithm": "ALDEP (Best Feasible)",
+      "problem_id": "FLP_ACADEMIC_4",
+      "run_or_seed": "5 Seeds (2 trials)",
+      "complete": true,
+      "feasible": true,
+      "mhc": 900.0,
+      "flow_distance": null,
+      "relationship_satisfaction": null,
+      "constraint_violations": 0,
+      "runtime_seconds": 0.0021,
+      "notes": "Best feasible of 2 trials (Feasibility: 100.0%)"
+    },
+    {
+      "algorithm": "CRAFT (from CORELAP Initial)",
+      "problem_id": "FLP_ACADEMIC_4",
+      "run_or_seed": "2 swaps",
+      "complete": true,
+      "feasible": true,
+      "mhc": 450.0,
+      "flow_distance": null,
+      "relationship_satisfaction": null,
+      "constraint_violations": 0,
+      "runtime_seconds": 0.00395,
+      "notes": "Init MHC: 700.00 -> Final: 450.00 (-35.7%)"
+    },
+    {
+      "algorithm": "CRAFT (from ALDEP Best Feasible)",
+      "problem_id": "FLP_ACADEMIC_4",
+      "run_or_seed": "0 swaps",
+      "complete": true,
+      "feasible": true,
+      "mhc": 900.0,
+      "flow_distance": null,
+      "relationship_satisfaction": null,
+      "constraint_violations": 0,
+      "runtime_seconds": 0.00208,
+      "notes": "Init MHC: 900.00 -> Final: 900.00 (-0.0%)"
+    }
+  ],
+  "aldep_summaries": {
+    "FLP_ACADEMIC_4": {
+      "problem_id": "FLP_ACADEMIC_4",
+      "total_trials": 2,
+      "complete_count": 2,
+      "completion_rate": 1.0,
+      "feasible_count": 2,
+      "feasibility_rate": 1.0,
+      "unique_layout_count": 2,
+      "duplicate_count": 0,
+      "best_mhc": 900.0,
+      "median_mhc": 1050.0,
+      "worst_mhc": 1200.0,
+      "std_mhc": 150.0,
+      "sample_size_mhc": 2,
+      "sample_description": "Computed over 2 feasible & complete candidates out of 2 generated trials.",
+      "best_feasible_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
+      "mean_runtime_seconds": 0.00103,
+      "total_runtime_seconds": 0.0021
+    }
+  },
+  "aldep_candidates": [
+    {
+      "problem_id": "FLP_ACADEMIC_4",
+      "seed": 42,
+      "candidate_id": "FLP_ACADEMIC_4_s42_c0",
+      "candidate_index": 0,
+      "completion_status": true,
+      "placed_department_count": 4,
+      "total_department_count": 4,
+      "geometric_feasibility": true,
+      "hard_constraint_violations": 0,
+      "layout_signature": "548992acdd649628496adf93f3a5af81f933273f7757af13f0b1b95cd879009a",
+      "is_duplicate": false,
+      "duplicate_of_id": null,
+      "mhc": 1200.0,
+      "flow_distance": 1200.0,
+      "relationship_satisfaction": 19.53,
+      "execution_time_seconds": 0.00103,
+      "failure_reason": null
+    },
+    {
+      "problem_id": "FLP_ACADEMIC_4",
+      "seed": 42,
+      "candidate_id": "FLP_ACADEMIC_4_s42_c1",
+      "candidate_index": 1,
+      "completion_status": true,
+      "placed_department_count": 4,
+      "total_department_count": 4,
+      "geometric_feasibility": true,
+      "hard_constraint_violations": 0,
+      "layout_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
+      "is_duplicate": false,
+      "duplicate_of_id": null,
+      "mhc": 900.0,
+      "flow_distance": 900.0,
+      "relationship_satisfaction": 20.11,
+      "execution_time_seconds": 0.00103,
+      "failure_reason": null
+    }
+  ],
+  "corelap_records": [
+    {
+      "problem_id": "FLP_ACADEMIC_4",
+      "selected_mode": "classical_adjacency",
+      "completion": true,
+      "feasibility": true,
+      "placed_department_count": 4,
+      "total_department_count": 4,
+      "unplaced_departments": [],
+      "mhc": 700.0,
+      "relationship_score": 21.71,
+      "flow_distance": 700.0,
+      "hard_constraint_violations": 0,
+      "termination_reason": "SUCCESS_COMPLETE",
+      "failure_diagnostics": null,
+      "layout_signature": "12886a6d7678037d40fb1116952021a84540f262122ac7e0088fe2b4b98f7b96",
+      "runtime_seconds": 0.03056
+    }
+  ],
+  "craft_records": [
+    {
+      "problem_id": "FLP_ACADEMIC_4",
+      "initial_source": "CORELAP Initial",
+      "initial_mhc": 700.0,
+      "final_mhc": 450.0,
+      "absolute_improvement": 250.0,
+      "percentage_improvement": 35.71,
+      "accepted_swaps": 2,
+      "termination_reason": "NO_IMPROVING_SWAP",
+      "initial_layout_signature": "12886a6d7678037d40fb1116952021a84540f262122ac7e0088fe2b4b98f7b96",
+      "final_layout_signature": "59ecd19acdb097f01fe6434ed886dd5652633e403f115ee55cc155c56eba7956",
+      "runtime_seconds": 0.00395
+    },
+    {
+      "problem_id": "FLP_ACADEMIC_4",
+      "initial_source": "ALDEP Best Feasible",
+      "initial_mhc": 900.0,
+      "final_mhc": 900.0,
+      "absolute_improvement": 0.0,
+      "percentage_improvement": 0.0,
+      "accepted_swaps": 0,
+      "termination_reason": "NO_IMPROVING_SWAP",
+      "initial_layout_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
+      "final_layout_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
+      "runtime_seconds": 0.00208
+    }
+  ],
+  "metadata": {
+    "execution_environment": "Python 3.12 / Antigravity FLODSS",
+    "algorithms_evaluated": [
+      "CORELAP",
+      "ALDEP",
+      "CRAFT"
+    ],
+    "problem_count": 1,
+    "aldep_total_candidates_generated": 2,
+    "craft_experiments_executed": 2
+  }
+}

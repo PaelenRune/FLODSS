@@ -1,0 +1,497 @@
+{
+  "id": "HIGH_DENSITY_20",
+  "name": "Synthetic High-Density Advanced Manufacturing Complex (20 Departments)",
+  "facility": {
+    "id": "FAC_HD_20",
+    "name": "Advanced Manufacturing Complex",
+    "width": 200.0,
+    "height": 120.0,
+    "area": 24000.0,
+    "metadata": {
+      "synthetic": true,
+      "created_for": "Phase 13 Industrial Validation"
+    }
+  },
+  "departments": [
+    {
+      "id": "DEP_01_INB",
+      "name": "Inbound Logistics Hub",
+      "required_area": 1600.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_02_RAWA",
+      "name": "Raw Steel Storage Bay A",
+      "required_area": 1400.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_03_RAWB",
+      "name": "Raw Alloy Storage Bay B",
+      "required_area": 1400.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_04_SAW",
+      "name": "Sawing & Blank Preparation",
+      "required_area": 1000.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_05_MILL",
+      "name": "CNC Milling Cell",
+      "required_area": 1200.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_06_TURN",
+      "name": "CNC Turning Lathe Cell",
+      "required_area": 1200.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_07_GRIND",
+      "name": "Precision Cylindrical Grinding",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_08_PRESS",
+      "name": "Heavy Hydraulic Stamping",
+      "required_area": 1500.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_09_RWELD",
+      "name": "Robotic Seam Welding",
+      "required_area": 1300.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_10_MWELD",
+      "name": "Manual TIG/MIG Welding",
+      "required_area": 1000.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_11_WASH",
+      "name": "Industrial Degreasing & Wash",
+      "required_area": 700.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_12_HEAT",
+      "name": "Annealing & Heat Treatment",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_13_COAT",
+      "name": "Electroplating & Protective Coating",
+      "required_area": 1100.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_14_CLEAN",
+      "name": "Cleanroom Precision Assembly",
+      "required_area": 1000.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_15_MOD1",
+      "name": "Sub-Assembly Module 1",
+      "required_area": 1100.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_16_MOD2",
+      "name": "Sub-Assembly Module 2",
+      "required_area": 1100.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_17_INTEG",
+      "name": "Final System Integration",
+      "required_area": 1500.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_18_METRO",
+      "name": "Coordinate Metrology & Testing",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_19_AUTO_PACK",
+      "name": "Automated Packaging Cell",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_20_OUTB",
+      "name": "Outbound Logistics Hub",
+      "required_area": 1600.0,
+      "min_width": 15.0,
+      "max_width": 75.0,
+      "min_height": 15.0,
+      "max_height": 75.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    }
+  ],
+  "flows": [
+    {
+      "source_department": "DEP_01_INB",
+      "target_department": "DEP_02_RAWA",
+      "quantity": 100.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "t/day"
+    },
+    {
+      "source_department": "DEP_01_INB",
+      "target_department": "DEP_03_RAWB",
+      "quantity": 100.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "t/day"
+    },
+    {
+      "source_department": "DEP_02_RAWA",
+      "target_department": "DEP_04_SAW",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "t/day"
+    },
+    {
+      "source_department": "DEP_03_RAWB",
+      "target_department": "DEP_08_PRESS",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "t/day"
+    },
+    {
+      "source_department": "DEP_04_SAW",
+      "target_department": "DEP_05_MILL",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_04_SAW",
+      "target_department": "DEP_06_TURN",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_05_MILL",
+      "target_department": "DEP_07_GRIND",
+      "quantity": 35.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_06_TURN",
+      "target_department": "DEP_07_GRIND",
+      "quantity": 35.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_08_PRESS",
+      "target_department": "DEP_09_RWELD",
+      "quantity": 50.0,
+      "cost_per_unit_distance": 1.3,
+      "unit": "frames/day"
+    },
+    {
+      "source_department": "DEP_08_PRESS",
+      "target_department": "DEP_10_MWELD",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "frames/day"
+    },
+    {
+      "source_department": "DEP_09_RWELD",
+      "target_department": "DEP_11_WASH",
+      "quantity": 45.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "assemblies/day"
+    },
+    {
+      "source_department": "DEP_10_MWELD",
+      "target_department": "DEP_11_WASH",
+      "quantity": 25.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "assemblies/day"
+    },
+    {
+      "source_department": "DEP_07_GRIND",
+      "target_department": "DEP_12_HEAT",
+      "quantity": 60.0,
+      "cost_per_unit_distance": 1.4,
+      "unit": "baskets/day"
+    },
+    {
+      "source_department": "DEP_12_HEAT",
+      "target_department": "DEP_13_COAT",
+      "quantity": 60.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "baskets/day"
+    },
+    {
+      "source_department": "DEP_11_WASH",
+      "target_department": "DEP_13_COAT",
+      "quantity": 60.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "frames/day"
+    },
+    {
+      "source_department": "DEP_13_COAT",
+      "target_department": "DEP_18_METRO",
+      "quantity": 100.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "kits/day"
+    },
+    {
+      "source_department": "DEP_18_METRO",
+      "target_department": "DEP_14_CLEAN",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.5,
+      "unit": "optics/day"
+    },
+    {
+      "source_department": "DEP_18_METRO",
+      "target_department": "DEP_15_MOD1",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "kits/day"
+    },
+    {
+      "source_department": "DEP_18_METRO",
+      "target_department": "DEP_16_MOD2",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "kits/day"
+    },
+    {
+      "source_department": "DEP_14_CLEAN",
+      "target_department": "DEP_17_INTEG",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.5,
+      "unit": "sensors/day"
+    },
+    {
+      "source_department": "DEP_15_MOD1",
+      "target_department": "DEP_17_INTEG",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.3,
+      "unit": "subsystems/day"
+    },
+    {
+      "source_department": "DEP_16_MOD2",
+      "target_department": "DEP_17_INTEG",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.3,
+      "unit": "subsystems/day"
+    },
+    {
+      "source_department": "DEP_17_INTEG",
+      "target_department": "DEP_19_AUTO_PACK",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "products/day"
+    },
+    {
+      "source_department": "DEP_19_AUTO_PACK",
+      "target_department": "DEP_20_OUTB",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pallets/day"
+    }
+  ],
+  "relationships": [
+    {
+      "department_a": "DEP_01_INB",
+      "department_b": "DEP_02_RAWA",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Immediate raw delivery"
+    },
+    {
+      "department_a": "DEP_01_INB",
+      "department_b": "DEP_03_RAWB",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Immediate raw delivery"
+    },
+    {
+      "department_a": "DEP_17_INTEG",
+      "department_b": "DEP_19_AUTO_PACK",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Packaging feed line"
+    },
+    {
+      "department_a": "DEP_19_AUTO_PACK",
+      "department_b": "DEP_20_OUTB",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Outbound dock buffering"
+    },
+    {
+      "department_a": "DEP_14_CLEAN",
+      "department_b": "DEP_17_INTEG",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "Cleanroom assembly delivery"
+    },
+    {
+      "department_a": "DEP_08_PRESS",
+      "department_b": "DEP_18_METRO",
+      "relationship_type": "X",
+      "score": -8.0,
+      "reason": "Vibration isolation between press and CMM"
+    },
+    {
+      "department_a": "DEP_12_HEAT",
+      "department_b": "DEP_14_CLEAN",
+      "relationship_type": "X",
+      "score": -8.0,
+      "reason": "Thermal/particulate hazard isolation"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C_NON_OVERLAP",
+      "type": "non_overlapping",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "Strict physical boundary non-overlap"
+    },
+    {
+      "id": "C_BOUNDARY",
+      "type": "boundary",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "All departments strictly within facility boundaries"
+    },
+    {
+      "id": "C_VIBRATION_SEP",
+      "type": "min_distance",
+      "involved_departments": [
+        "DEP_08_PRESS",
+        "DEP_18_METRO"
+      ],
+      "parameters": {
+        "distance": 40.0
+      },
+      "classification": "soft",
+      "penalty": 5000.0,
+      "description": "Vibration damping buffer between press and CMM"
+    }
+  ],
+  "metadata": {
+    "is_synthetic": true,
+    "validation_suite": "Phase 13 Industrial Benchmark Suite",
+    "density_category": "very_high_density",
+    "department_count": 20,
+    "target_utilization": 0.9167
+  }
+}

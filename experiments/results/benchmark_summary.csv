@@ -1,0 +1,5 @@
+algorithm,problem_id,run_or_seed,complete,feasible,mhc,flow_distance,relationship_satisfaction,constraint_violations,runtime_seconds,notes
+CORELAP,FLP_ACADEMIC_4,Deterministic,True,True,700.0,700.0,21.71,0,0.03056,Deterministic construction
+ALDEP (Best Feasible),FLP_ACADEMIC_4,5 Seeds (2 trials),True,True,900.0,,,0,0.0021,Best feasible of 2 trials (Feasibility: 100.0%)
+CRAFT (from CORELAP Initial),FLP_ACADEMIC_4,2 swaps,True,True,450.0,,,0,0.00395,Init MHC: 700.00 -> Final: 450.00 (-35.7%)
+CRAFT (from ALDEP Best Feasible),FLP_ACADEMIC_4,0 swaps,True,True,900.0,,,0,0.00208,Init MHC: 900.00 -> Final: 900.00 (-0.0%)

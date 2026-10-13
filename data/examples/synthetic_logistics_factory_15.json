@@ -1,0 +1,351 @@
+{
+  "id": "LOGISTICS_FACTORY_15",
+  "name": "Synthetic High-Throughput Electronics Logistics & Assembly Plant (15 Departments)",
+  "facility": {
+    "id": "FAC_LOG_15",
+    "name": "Electronics Contract Assembly Facility",
+    "width": 200.0,
+    "height": 90.0,
+    "area": 18000.0,
+    "metadata": {
+      "synthetic": true,
+      "created_for": "Phase 13 Industrial Validation"
+    }
+  },
+  "departments": [
+    {
+      "id": "DEP_01_INB",
+      "name": "Primary Inbound Docks",
+      "required_area": 1200.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_02_BULK",
+      "name": "Bulk High-Bay Storage",
+      "required_area": 2000.0,
+      "min_width": 30.0,
+      "max_width": 80.0,
+      "min_height": 25.0,
+      "max_height": 70.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_03_DEVAN",
+      "name": "De-Vanning & De-Palletizing",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_04_KITTING",
+      "name": "Component Kitting & Sort",
+      "required_area": 1100.0,
+      "min_width": 18.0,
+      "max_width": 55.0,
+      "min_height": 18.0,
+      "max_height": 55.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_05_SMT1",
+      "name": "Surface Mount Line 1",
+      "required_area": 1000.0,
+      "min_width": 18.0,
+      "max_width": 50.0,
+      "min_height": 18.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_06_SMT2",
+      "name": "Surface Mount Line 2",
+      "required_area": 1000.0,
+      "min_width": 18.0,
+      "max_width": 50.0,
+      "min_height": 18.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_07_ROBOT",
+      "name": "Robotic Insertion Cell",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 45.0,
+      "min_height": 15.0,
+      "max_height": 45.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_08_WAVE",
+      "name": "Selective Wave Soldering",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 45.0,
+      "min_height": 15.0,
+      "max_height": 45.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_09_TEST",
+      "name": "Automated ICT & Burn-in",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_10_FINAL",
+      "name": "Box-Build Final Assembly",
+      "required_area": 1300.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_11_PACK",
+      "name": "Retail Packaging Line",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_12_FG",
+      "name": "Finished Goods Automated Bay",
+      "required_area": 1500.0,
+      "min_width": 22.0,
+      "max_width": 65.0,
+      "min_height": 22.0,
+      "max_height": 65.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_13_DISP",
+      "name": "Cross-Dock Dispatch Bays",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.2
+    },
+    {
+      "id": "DEP_14_RET",
+      "name": "Reverse Logistics & RMA",
+      "required_area": 500.0,
+      "min_width": 12.0,
+      "max_width": 35.0,
+      "min_height": 12.0,
+      "max_height": 35.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    },
+    {
+      "id": "DEP_15_MAINT",
+      "name": "Facility Maintenance Central",
+      "required_area": 500.0,
+      "min_width": 12.0,
+      "max_width": 35.0,
+      "min_height": 12.0,
+      "max_height": 35.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.0
+    }
+  ],
+  "flows": [
+    {
+      "source_department": "DEP_01_INB",
+      "target_department": "DEP_02_BULK",
+      "quantity": 140.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pallets/day"
+    },
+    {
+      "source_department": "DEP_02_BULK",
+      "target_department": "DEP_03_DEVAN",
+      "quantity": 90.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "pallets/day"
+    },
+    {
+      "source_department": "DEP_03_DEVAN",
+      "target_department": "DEP_04_KITTING",
+      "quantity": 85.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "totes/day"
+    },
+    {
+      "source_department": "DEP_04_KITTING",
+      "target_department": "DEP_05_SMT1",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "reels/day"
+    },
+    {
+      "source_department": "DEP_04_KITTING",
+      "target_department": "DEP_06_SMT2",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "reels/day"
+    },
+    {
+      "source_department": "DEP_05_SMT1",
+      "target_department": "DEP_03_DEVAN",
+      "quantity": 15.0,
+      "cost_per_unit_distance": 0.5,
+      "unit": "empty_totes/day"
+    },
+    {
+      "source_department": "DEP_06_SMT2",
+      "target_department": "DEP_03_DEVAN",
+      "quantity": 15.0,
+      "cost_per_unit_distance": 0.5,
+      "unit": "empty_totes/day"
+    },
+    {
+      "source_department": "DEP_05_SMT1",
+      "target_department": "DEP_07_ROBOT",
+      "quantity": 38.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pcb_magazines/day"
+    },
+    {
+      "source_department": "DEP_06_SMT2",
+      "target_department": "DEP_07_ROBOT",
+      "quantity": 38.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pcb_magazines/day"
+    },
+    {
+      "source_department": "DEP_07_ROBOT",
+      "target_department": "DEP_08_WAVE",
+      "quantity": 72.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "carriers/day"
+    },
+    {
+      "source_department": "DEP_08_WAVE",
+      "target_department": "DEP_09_TEST",
+      "quantity": 70.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "carriers/day"
+    },
+    {
+      "source_department": "DEP_09_TEST",
+      "target_department": "DEP_10_FINAL",
+      "quantity": 68.0,
+      "cost_per_unit_distance": 1.3,
+      "unit": "tested_boards/day"
+    },
+    {
+      "source_department": "DEP_14_RET",
+      "target_department": "DEP_09_TEST",
+      "quantity": 10.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "returns/day"
+    },
+    {
+      "source_department": "DEP_10_FINAL",
+      "target_department": "DEP_11_PACK",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "devices/day"
+    },
+    {
+      "source_department": "DEP_11_PACK",
+      "target_department": "DEP_12_FG",
+      "quantity": 80.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "cartons/day"
+    },
+    {
+      "source_department": "DEP_12_FG",
+      "target_department": "DEP_13_DISP",
+      "quantity": 110.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pallets/day"
+    }
+  ],
+  "relationships": [
+    {
+      "department_a": "DEP_01_INB",
+      "department_b": "DEP_02_BULK",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Immediate intake high-bay feed"
+    },
+    {
+      "department_a": "DEP_12_FG",
+      "department_b": "DEP_13_DISP",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Direct loading to dispatch bay"
+    },
+    {
+      "department_a": "DEP_10_FINAL",
+      "department_b": "DEP_11_PACK",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Continuous assembly offload"
+    },
+    {
+      "department_a": "DEP_01_INB",
+      "department_b": "DEP_13_DISP",
+      "relationship_type": "O",
+      "score": 2.0,
+      "reason": "Facility exterior perimeter layout"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C_NON_OVERLAP",
+      "type": "non_overlapping",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "Strict physical boundary non-overlap"
+    },
+    {
+      "id": "C_BOUNDARY",
+      "type": "boundary",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "All departments strictly within facility boundaries"
+    }
+  ],
+  "metadata": {
+    "is_synthetic": true,
+    "validation_suite": "Phase 13 Industrial Benchmark Suite",
+    "density_category": "high_throughput_logistics",
+    "department_count": 15,
+    "target_utilization": 0.85
+  }
+}

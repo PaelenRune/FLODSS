@@ -1,0 +1,128 @@
+{
+  "problem_id": "FLP_INDUSTRIAL_10",
+  "problem_name": "Precision Machinery Manufacturing Plant (10 Departments)",
+  "timestamp": "2026-10-08T08:45:00.000000+00:00",
+  "status": "incomplete",
+  "comparable_to_baseline": false,
+  "academic_statement": "Incomplete greedy construction cannot be meaningfully compared against complete manual layout. Numbers are partial diagnostics only.",
+  "algorithm": {
+    "name": "corelap",
+    "version": "1.0.0",
+    "category": "construction"
+  },
+  "corelap_results": {
+    "status": "incomplete",
+    "comparable": false,
+    "feasibility": false,
+    "termination_reason": "FAILED_NO_FEASIBLE_CANDIDATE",
+    "failure_reason": "No feasible candidate position found for department 'DEP_ASSEMBLY' within facility boundary [150.0x80.0]. Rejections: {'out_of_bounds': 3306, 'overlap_department': 1784, 'overlap_reserved_zone': 0, 'not_adjacent': 0}",
+    "placed_count": 5,
+    "total_departments": 10,
+    "unplaced_departments": [
+      "DEP_ASSEMBLY",
+      "DEP_FINISHED_GOODS",
+      "DEP_QUALITY",
+      "DEP_SHIPPING",
+      "DEP_SURFACE_TREAT"
+    ],
+    "placement_order": [
+      "DEP_CUTTING",
+      "DEP_MACHINING",
+      "DEP_RAW_MATERIAL",
+      "DEP_MAINTENANCE",
+      "DEP_WELDING"
+    ],
+    "layout_signature": "3d6d02a8747c2dca2fd3cb3def966792733f25901e1bb7946e574cdb7fc8b47c",
+    "execution_time_seconds": 0.0888,
+    "tcr_values": {
+      "DEP_RAW_MATERIAL": 8.0,
+      "DEP_CUTTING": 36.0,
+      "DEP_MACHINING": 20.0,
+      "DEP_WELDING": 0.0,
+      "DEP_SURFACE_TREAT": 8.0,
+      "DEP_ASSEMBLY": 32.0,
+      "DEP_QUALITY": 24.0,
+      "DEP_FINISHED_GOODS": 32.0,
+      "DEP_MAINTENANCE": 8.0,
+      "DEP_SHIPPING": 8.0
+    },
+    "validation": {
+      "is_valid": false,
+      "errors": [
+        "Missing placements for required departments: ['DEP_ASSEMBLY', 'DEP_FINISHED_GOODS', 'DEP_QUALITY', 'DEP_SHIPPING', 'DEP_SURFACE_TREAT']."
+      ],
+      "warnings": []
+    },
+    "diagnostic_partial_values": {
+      "partial_material_handling_cost": 28902.5,
+      "partial_flow_distance": 24162.5,
+      "partial_relationship_score": 38.59,
+      "partial_area_utilization": 45.83,
+      "partial_constraint_penalty": 0.0
+    }
+  },
+  "manual_baseline_results": {
+    "layout_id": "LAYOUT_SAMPLE_INDUSTRIAL_10",
+    "status": "complete",
+    "comparable": true,
+    "feasibility": true,
+    "objective_values": {
+      "material_handling_cost": 139498.75,
+      "flow_distance": 117893.75,
+      "relationship_score": 66.56,
+      "area_utilization": 91.67,
+      "constraint_penalty": 0.0
+    }
+  },
+  "comparison": {
+    "comparable": false,
+    "note": "Direct numerical comparison is invalid: CORELAP generated a partial layout (5 of 10 departments placed due to dense packing trap), whereas the manual baseline is a complete layout of all 10 departments. Do NOT claim optimization improvements based on partial costs.",
+    "material_handling_cost": {
+      "corelap_partial": 28902.5,
+      "manual_baseline_complete": 139498.75,
+      "valid_comparison": false
+    },
+    "area_utilization": {
+      "corelap_partial": 45.83,
+      "manual_baseline_complete": 91.67,
+      "valid_comparison": false
+    }
+  },
+  "placements": [
+    {
+      "department_id": "DEP_CUTTING",
+      "x": 65.0,
+      "y": 17.5,
+      "width": 20.0,
+      "height": 45.0
+    },
+    {
+      "department_id": "DEP_MACHINING",
+      "x": 35.0,
+      "y": 15.0,
+      "width": 30.0,
+      "height": 50.0
+    },
+    {
+      "department_id": "DEP_RAW_MATERIAL",
+      "x": 85.0,
+      "y": 14.0,
+      "width": 25.0,
+      "height": 52.0
+    },
+    {
+      "department_id": "DEP_MAINTENANCE",
+      "x": 20.0,
+      "y": 16.665,
+      "width": 15.0,
+      "height": 46.67
+    },
+    {
+      "department_id": "DEP_WELDING",
+      "x": 110.0,
+      "y": 12.5,
+      "width": 20.0,
+      "height": 55.0
+    }
+  ]
+}

@@ -1,0 +1,421 @@
+{
+  "id": "HIGH_DENSITY_15",
+  "name": "Synthetic High-Density Heavy Machinery Plant (15 Departments)",
+  "facility": {
+    "id": "FAC_HD_15",
+    "name": "Heavy Machinery Plant",
+    "width": 180.0,
+    "height": 100.0,
+    "area": 18000.0,
+    "metadata": {
+      "synthetic": true,
+      "created_for": "Phase 13 Industrial Validation"
+    }
+  },
+  "departments": [
+    {
+      "id": "DEP_01_REC",
+      "name": "Receiving Dock",
+      "required_area": 1200.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_02_RAW",
+      "name": "Raw Material Warehouse",
+      "required_area": 1800.0,
+      "min_width": 25.0,
+      "max_width": 70.0,
+      "min_height": 25.0,
+      "max_height": 70.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_03_MAC1",
+      "name": "Heavy Machining Cell 1",
+      "required_area": 1500.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_04_MAC2",
+      "name": "Heavy Machining Cell 2",
+      "required_area": 1500.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_05_MILL",
+      "name": "Light Milling & Drilling",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_06_STAMP",
+      "name": "Sheet Metal Stamping",
+      "required_area": 1200.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_07_WELD",
+      "name": "Robotic Welding Bay",
+      "required_area": 1400.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_08_HEAT",
+      "name": "Heat Treatment Furnaces",
+      "required_area": 800.0,
+      "min_width": 15.0,
+      "max_width": 40.0,
+      "min_height": 15.0,
+      "max_height": 40.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_09_SURF",
+      "name": "Surface Finishing & Paint",
+      "required_area": 900.0,
+      "min_width": 15.0,
+      "max_width": 50.0,
+      "min_height": 15.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_10_QC",
+      "name": "Quality Control & CMM",
+      "required_area": 600.0,
+      "min_width": 12.0,
+      "max_width": 40.0,
+      "min_height": 12.0,
+      "max_height": 40.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_11_SUBA",
+      "name": "Sub-Assembly Line A",
+      "required_area": 1000.0,
+      "min_width": 18.0,
+      "max_width": 50.0,
+      "min_height": 18.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_12_SUBB",
+      "name": "Sub-Assembly Line B",
+      "required_area": 1000.0,
+      "min_width": 18.0,
+      "max_width": 50.0,
+      "min_height": 18.0,
+      "max_height": 50.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_13_ASSY",
+      "name": "Final System Assembly",
+      "required_area": 1200.0,
+      "min_width": 20.0,
+      "max_width": 60.0,
+      "min_height": 20.0,
+      "max_height": 60.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_14_PACK",
+      "name": "Packaging & Crating",
+      "required_area": 700.0,
+      "min_width": 15.0,
+      "max_width": 40.0,
+      "min_height": 15.0,
+      "max_height": 40.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    },
+    {
+      "id": "DEP_15_SHIP",
+      "name": "Shipping & Logistics Dock",
+      "required_area": 500.0,
+      "min_width": 12.0,
+      "max_width": 35.0,
+      "min_height": 12.0,
+      "max_height": 35.0,
+      "min_aspect_ratio": 1.0,
+      "max_aspect_ratio": 2.5
+    }
+  ],
+  "flows": [
+    {
+      "source_department": "DEP_01_REC",
+      "target_department": "DEP_02_RAW",
+      "quantity": 180.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "pallets/day"
+    },
+    {
+      "source_department": "DEP_02_RAW",
+      "target_department": "DEP_03_MAC1",
+      "quantity": 60.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "totes/day"
+    },
+    {
+      "source_department": "DEP_02_RAW",
+      "target_department": "DEP_04_MAC2",
+      "quantity": 55.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "totes/day"
+    },
+    {
+      "source_department": "DEP_02_RAW",
+      "target_department": "DEP_06_STAMP",
+      "quantity": 70.0,
+      "cost_per_unit_distance": 1.5,
+      "unit": "coils/day"
+    },
+    {
+      "source_department": "DEP_03_MAC1",
+      "target_department": "DEP_05_MILL",
+      "quantity": 45.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_04_MAC2",
+      "target_department": "DEP_08_HEAT",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.5,
+      "unit": "baskets/day"
+    },
+    {
+      "source_department": "DEP_06_STAMP",
+      "target_department": "DEP_07_WELD",
+      "quantity": 65.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "frames/day"
+    },
+    {
+      "source_department": "DEP_07_WELD",
+      "target_department": "DEP_09_SURF",
+      "quantity": 60.0,
+      "cost_per_unit_distance": 1.3,
+      "unit": "chassis/day"
+    },
+    {
+      "source_department": "DEP_08_HEAT",
+      "target_department": "DEP_10_QC",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "batches/day"
+    },
+    {
+      "source_department": "DEP_05_MILL",
+      "target_department": "DEP_10_QC",
+      "quantity": 45.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "parts/day"
+    },
+    {
+      "source_department": "DEP_09_SURF",
+      "target_department": "DEP_11_SUBA",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "panels/day"
+    },
+    {
+      "source_department": "DEP_09_SURF",
+      "target_department": "DEP_12_SUBB",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.1,
+      "unit": "panels/day"
+    },
+    {
+      "source_department": "DEP_10_QC",
+      "target_department": "DEP_11_SUBA",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "kits/day"
+    },
+    {
+      "source_department": "DEP_10_QC",
+      "target_department": "DEP_12_SUBB",
+      "quantity": 40.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "kits/day"
+    },
+    {
+      "source_department": "DEP_11_SUBA",
+      "target_department": "DEP_13_ASSY",
+      "quantity": 70.0,
+      "cost_per_unit_distance": 1.4,
+      "unit": "modules/day"
+    },
+    {
+      "source_department": "DEP_12_SUBB",
+      "target_department": "DEP_13_ASSY",
+      "quantity": 70.0,
+      "cost_per_unit_distance": 1.4,
+      "unit": "modules/day"
+    },
+    {
+      "source_department": "DEP_13_ASSY",
+      "target_department": "DEP_14_PACK",
+      "quantity": 90.0,
+      "cost_per_unit_distance": 1.2,
+      "unit": "machines/day"
+    },
+    {
+      "source_department": "DEP_14_PACK",
+      "target_department": "DEP_15_SHIP",
+      "quantity": 90.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "crates/day"
+    }
+  ],
+  "relationships": [
+    {
+      "department_a": "DEP_01_REC",
+      "department_b": "DEP_02_RAW",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Immediate raw material receiving buffer"
+    },
+    {
+      "department_a": "DEP_02_RAW",
+      "department_b": "DEP_03_MAC1",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "Direct batch transfer to machining"
+    },
+    {
+      "department_a": "DEP_06_STAMP",
+      "department_b": "DEP_07_WELD",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Stampings feed welding fixtures"
+    },
+    {
+      "department_a": "DEP_07_WELD",
+      "department_b": "DEP_09_SURF",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "Weldments to shot blast and painting"
+    },
+    {
+      "department_a": "DEP_11_SUBA",
+      "department_b": "DEP_13_ASSY",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Primary feeder to final line"
+    },
+    {
+      "department_a": "DEP_12_SUBB",
+      "department_b": "DEP_13_ASSY",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Secondary feeder to final line"
+    },
+    {
+      "department_a": "DEP_13_ASSY",
+      "department_b": "DEP_14_PACK",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Continuous assembly offload"
+    },
+    {
+      "department_a": "DEP_14_PACK",
+      "department_b": "DEP_15_SHIP",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Packaged freight loading dock"
+    },
+    {
+      "department_a": "DEP_08_HEAT",
+      "department_b": "DEP_10_QC",
+      "relationship_type": "I",
+      "score": 4.0,
+      "reason": "Metallurgical inspection"
+    },
+    {
+      "department_a": "DEP_08_HEAT",
+      "department_b": "DEP_15_SHIP",
+      "relationship_type": "X",
+      "score": -8.0,
+      "reason": "Thermal hazard isolation from dock"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C_NON_OVERLAP",
+      "type": "non_overlapping",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "Strict physical boundary non-overlap"
+    },
+    {
+      "id": "C_BOUNDARY",
+      "type": "boundary",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "description": "All departments strictly within facility boundaries"
+    },
+    {
+      "id": "C_HEAT_ISOLATION",
+      "type": "min_distance",
+      "involved_departments": [
+        "DEP_08_HEAT",
+        "DEP_15_SHIP"
+      ],
+      "parameters": {
+        "distance": 30.0
+      },
+      "classification": "soft",
+      "penalty": 4000.0,
+      "description": "Thermal buffer requirement between heat treat and shipping dock"
+    }
+  ],
+  "metadata": {
+    "is_synthetic": true,
+    "validation_suite": "Phase 13 Industrial Benchmark Suite",
+    "density_category": "high_density",
+    "department_count": 15,
+    "target_utilization": 0.9
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "id": "LAYOUT_GENERATED_INDUSTRIAL_10",
+  "problem_id": "FLP_INDUSTRIAL_10",
+  "name": "Guillotine Row Packing Generated Layout - FLP_INDUSTRIAL_10",
+  "representation_type": "continuous",
+  "facility_width": 150.0,
+  "facility_height": 80.0,
+  "generator_version": "1.0.0",
+  "algorithm_name": "feasible_layout_generator",
+  "configuration": {
+    "strategy": "guillotine_row_packing",
+    "ordering_strategy": "most_constrained_first",
+    "max_nodes": 3000,
+    "max_backtracks": 1500,
+    "max_runtime_seconds": 10.0,
+    "max_shape_alternatives": 8,
+    "candidate_limit_per_department": 12,
+    "tolerance": 0.0001,
+    "random_seed": 42
+  },
+  "layout_signature": "61c4bf88996517780fd1f43839d1e1654c6be9276072a9799c4a7e1c8fc12174",
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [],
+    "total_overlap_area": 0.0,
+    "checked_departments": [
+      "DEP_ASSEMBLY",
+      "DEP_CUTTING",
+      "DEP_FINISHED_GOODS",
+      "DEP_MACHINING",
+      "DEP_MAINTENANCE",
+      "DEP_QUALITY",
+      "DEP_RAW_MATERIAL",
+      "DEP_SHIPPING",
+      "DEP_SURFACE_TREAT",
+      "DEP_WELDING"
+    ],
+    "metrics": {
+      "occupied_area": 11000.0,
+      "free_area": 1000.0,
+      "utilization_ratio": 0.9167,
+      "total_overlap_area": 0.0,
+      "bounding_envelope_area": 11969.63,
+      "compactness": 0.919
+    }
+  },
+  "placements": {
+    "DEP_ASSEMBLY": {
+      "department_id": "DEP_ASSEMBLY",
+      "x": 0.0,
+      "y": 0.0,
+      "width": 70.0,
+      "height": 24.2857,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_MACHINING": {
+      "department_id": "DEP_MACHINING",
+      "x": 70.0,
+      "y": 0.0,
+      "width": 60.0,
+      "height": 25.0,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_RAW_MATERIAL": {
+      "department_id": "DEP_RAW_MATERIAL",
+      "x": 0.0,
+      "y": 26.67,
+      "width": 51.25,
+      "height": 25.3659,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_FINISHED_GOODS": {
+      "department_id": "DEP_FINISHED_GOODS",
+      "x": 51.25,
+      "y": 26.67,
+      "width": 51.25,
+      "height": 25.3659,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_WELDING": {
+      "department_id": "DEP_WELDING",
+      "x": 102.5,
+      "y": 26.67,
+      "width": 42.5,
+      "height": 25.8824,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_SURFACE_TREAT": {
+      "department_id": "DEP_SURFACE_TREAT",
+      "x": 0.0,
+      "y": 53.34,
+      "width": 43.75,
+      "height": 25.1429,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_CUTTING": {
+      "department_id": "DEP_CUTTING",
+      "x": 43.75,
+      "y": 53.34,
+      "width": 35.0,
+      "height": 25.7143,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_SHIPPING": {
+      "department_id": "DEP_SHIPPING",
+      "x": 78.75,
+      "y": 53.34,
+      "width": 35.0,
+      "height": 25.7143,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_MAINTENANCE": {
+      "department_id": "DEP_MAINTENANCE",
+      "x": 113.75,
+      "y": 53.34,
+      "width": 26.4575,
+      "height": 26.4575,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    },
+    "DEP_QUALITY": {
+      "department_id": "DEP_QUALITY",
+      "x": 130.0,
+      "y": 0.0,
+      "width": 20.0,
+      "height": 25.0,
+      "orientation_degrees": 0.0,
+      "metadata": {}
+    }
+  },
+  "metadata": {
+    "generated_at": "2026-10-10T11:04:54.527690+00:00",
+    "strategy": "guillotine_row_packing",
+    "ordering_strategy": "most_constrained_first",
+    "runtime_seconds": 0.009,
+    "nodes_explored": 290,
+    "backtracks": 276,
+    "placed_department_count": 10,
+    "total_department_count": 10,
+    "termination_reason": "SUCCESS_FEASIBLE_FOUND"
+  }
+}

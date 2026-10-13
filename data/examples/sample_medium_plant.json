@@ -1,0 +1,198 @@
+{
+  "id": "FLP_MEDIUM_6",
+  "name": "Medium Manufacturing & Assembly Facility (6 Departments)",
+  "facility": {
+    "id": "FAC_MEDIUM_PLANT",
+    "name": "Medium Discrete Assembly Hall",
+    "width": 100.0,
+    "height": 70.0,
+    "area": 7000.0,
+    "metadata": {
+      "building": "Building B",
+      "industrial_zone": "East Tech Park",
+      "floor_type": "Epoxy Coated Concrete",
+      "clear_height_meters": 7.0
+    }
+  },
+  "departments": [
+    {
+      "id": "DEP_RECEIVING",
+      "name": "Receiving & Raw Inventory",
+      "required_area": 800.0,
+      "min_width": 20.0,
+      "max_width": 45.0,
+      "metadata": { "dock_access": true }
+    },
+    {
+      "id": "DEP_MACHINING",
+      "name": "Machining & Fabrication",
+      "required_area": 900.0,
+      "min_width": 20.0,
+      "max_width": 50.0,
+      "metadata": { "vibration_level": "medium" }
+    },
+    {
+      "id": "DEP_ASSEMBLY",
+      "name": "Mechanical Assembly",
+      "required_area": 800.0,
+      "min_width": 20.0,
+      "max_width": 45.0,
+      "metadata": { "air_conditioning": true }
+    },
+    {
+      "id": "DEP_TESTING",
+      "name": "Quality & Inspection",
+      "required_area": 500.0,
+      "min_width": 15.0,
+      "max_width": 35.0,
+      "metadata": { "cleanliness": "high" }
+    },
+    {
+      "id": "DEP_PACKAGING",
+      "name": "Packaging & Boxing",
+      "required_area": 500.0,
+      "min_width": 15.0,
+      "max_width": 35.0,
+      "metadata": { "carton_storage": true }
+    },
+    {
+      "id": "DEP_SHIPPING",
+      "name": "Warehousing & Shipping",
+      "required_area": 600.0,
+      "min_width": 15.0,
+      "max_width": 40.0,
+      "metadata": { "dock_access": true }
+    }
+  ],
+  "flows": [
+    {
+      "source_department": "DEP_RECEIVING",
+      "target_department": "DEP_MACHINING",
+      "quantity": 250.0,
+      "cost_per_unit_distance": 1.5,
+      "product_or_process_id": "STEEL_BILLETS"
+    },
+    {
+      "source_department": "DEP_MACHINING",
+      "target_department": "DEP_ASSEMBLY",
+      "quantity": 220.0,
+      "cost_per_unit_distance": 1.5,
+      "product_or_process_id": "MACHINED_SUBCOMPONENTS"
+    },
+    {
+      "source_department": "DEP_ASSEMBLY",
+      "target_department": "DEP_TESTING",
+      "quantity": 200.0,
+      "cost_per_unit_distance": 1.0,
+      "product_or_process_id": "ASSEMBLED_UNITS"
+    },
+    {
+      "source_department": "DEP_TESTING",
+      "target_department": "DEP_PACKAGING",
+      "quantity": 190.0,
+      "cost_per_unit_distance": 1.0,
+      "product_or_process_id": "VALIDATED_PRODUCTS"
+    },
+    {
+      "source_department": "DEP_PACKAGING",
+      "target_department": "DEP_SHIPPING",
+      "quantity": 190.0,
+      "cost_per_unit_distance": 1.2,
+      "product_or_process_id": "PACKAGED_CARTONS"
+    }
+  ],
+  "relationships": [
+    {
+      "department_a": "DEP_RECEIVING",
+      "department_b": "DEP_MACHINING",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "1: Direct material feed"
+    },
+    {
+      "department_a": "DEP_MACHINING",
+      "department_b": "DEP_ASSEMBLY",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "1: High component flow"
+    },
+    {
+      "department_a": "DEP_ASSEMBLY",
+      "department_b": "DEP_TESTING",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "2: Frequent batch verification"
+    },
+    {
+      "department_a": "DEP_TESTING",
+      "department_b": "DEP_PACKAGING",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "2: Inline packaging queue"
+    },
+    {
+      "department_a": "DEP_PACKAGING",
+      "department_b": "DEP_SHIPPING",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "1: Finished product buffer"
+    },
+    {
+      "department_a": "DEP_RECEIVING",
+      "department_b": "DEP_SHIPPING",
+      "relationship_type": "X",
+      "score": -8.0,
+      "reason": "4: Cross-dock logistics interference"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "CST_HARD_NON_OVERLAP",
+      "type": "non_overlapping",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "metadata": { "description": "Strict physical department non-overlap" }
+    },
+    {
+      "id": "CST_HARD_BOUNDARY",
+      "type": "boundary",
+      "involved_departments": [],
+      "classification": "hard",
+      "penalty": 10000.0,
+      "metadata": { "description": "All departments must remain within facility perimeter" }
+    }
+  ],
+  "objectives": {
+    "material_handling_cost": {
+      "enabled": true,
+      "weight": 1.0,
+      "direction": "minimize"
+    },
+    "flow_distance": {
+      "enabled": true,
+      "weight": 0.8,
+      "direction": "minimize"
+    },
+    "relationship_score": {
+      "enabled": true,
+      "weight": 0.6,
+      "direction": "maximize"
+    },
+    "area_utilization": {
+      "enabled": true,
+      "weight": 0.3,
+      "direction": "maximize"
+    },
+    "constraint_penalty": {
+      "enabled": true,
+      "weight": 1.0,
+      "direction": "minimize"
+    }
+  },
+  "metadata": {
+    "source": "Medium Industrial Assembly Benchmark",
+    "version": "1.0.0",
+    "created_by": "FLODSS Architecture Team"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "id": "FLP_ACADEMIC_4",
+  "name": "Academic Hand-Calculated Problem (4 Departments)",
+  "facility": {
+    "id": "FAC_TEST",
+    "name": "Test Plant",
+    "width": 120.0,
+    "height": 120.0,
+    "area": 14400.0,
+    "metadata": {
+      "building": "Academic Verification Facility",
+      "floor_type": "Standard Industrial Slab"
+    }
+  },
+  "departments": [
+    {
+      "id": "DEP_A",
+      "name": "Milling",
+      "required_area": 100.0,
+      "min_width": 5.0,
+      "max_width": 20.0
+    },
+    {
+      "id": "DEP_B",
+      "name": "Drilling",
+      "required_area": 100.0,
+      "min_width": 5.0,
+      "max_width": 20.0
+    },
+    {
+      "id": "DEP_C",
+      "name": "Welding",
+      "required_area": 100.0,
+      "min_width": 5.0,
+      "max_width": 20.0
+    },
+    {
+      "id": "DEP_D",
+      "name": "Storage",
+      "required_area": 100.0,
+      "min_width": 5.0,
+      "max_width": 20.0
+    }
+  ],
+  "relationships": [
+    {
+      "department_a": "DEP_A",
+      "department_b": "DEP_B",
+      "relationship_type": "A",
+      "score": 16.0,
+      "reason": "Direct heavy flow"
+    },
+    {
+      "department_a": "DEP_A",
+      "department_b": "DEP_C",
+      "relationship_type": "E",
+      "score": 8.0,
+      "reason": "Important transfer"
+    },
+    {
+      "department_a": "DEP_B",
+      "department_b": "DEP_C",
+      "relationship_type": "I",
+      "score": 4.0,
+      "reason": "Routine transfer"
+    },
+    {
+      "department_a": "DEP_B",
+      "department_b": "DEP_D",
+      "relationship_type": "O",
+      "score": 2.0,
+      "reason": "Occasional scrap"
+    },
+    {
+      "department_a": "DEP_C",
+      "department_b": "DEP_D",
+      "relationship_type": "X",
+      "score": -8.0,
+      "reason": "Fire hazard separation"
+    }
+  ],
+  "flows": [
+    {
+      "source_department": "DEP_A",
+      "target_department": "DEP_B",
+      "quantity": 50.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "loads/day"
+    },
+    {
+      "source_department": "DEP_B",
+      "target_department": "DEP_C",
+      "quantity": 30.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "loads/day"
+    },
+    {
+      "source_department": "DEP_C",
+      "target_department": "DEP_D",
+      "quantity": 10.0,
+      "cost_per_unit_distance": 1.0,
+      "unit": "loads/day"
+    }
+  ],
+  "constraints": [],
+  "objective_config": {
+    "primary_objective": "minimize_flow_distance",
+    "weights": {
+      "material_handling_cost": 1.0,
+      "relationship_score": 0.5
+    }
+  }
+}

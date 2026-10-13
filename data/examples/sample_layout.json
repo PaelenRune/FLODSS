@@ -1,0 +1,106 @@
+{
+  "id": "LAYOUT_SAMPLE_INDUSTRIAL_10",
+  "problem_id": "FLP_INDUSTRIAL_10",
+  "name": "Baseline Feasible Layout - Precision Machinery Plant",
+  "representation_type": "continuous",
+  "facility_width": 150.0,
+  "facility_height": 80.0,
+  "placements": {
+    "DEP_RAW_MATERIAL": {
+      "department_id": "DEP_RAW_MATERIAL",
+      "x": 0.0,
+      "y": 0.0,
+      "width": 32.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "bottom", "dock_access": true }
+    },
+    "DEP_CUTTING": {
+      "department_id": "DEP_CUTTING",
+      "x": 32.5,
+      "y": 0.0,
+      "width": 30.0,
+      "height": 30.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "bottom" }
+    },
+    "DEP_MACHINING": {
+      "department_id": "DEP_MACHINING",
+      "x": 62.5,
+      "y": 0.0,
+      "width": 37.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "bottom" }
+    },
+    "DEP_WELDING": {
+      "department_id": "DEP_WELDING",
+      "x": 100.0,
+      "y": 0.0,
+      "width": 27.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "bottom" }
+    },
+    "DEP_SHIPPING": {
+      "department_id": "DEP_SHIPPING",
+      "x": 127.5,
+      "y": 0.0,
+      "width": 22.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "bottom", "dock_access": true }
+    },
+    "DEP_QUALITY": {
+      "department_id": "DEP_QUALITY",
+      "x": 0.0,
+      "y": 40.0,
+      "width": 20.0,
+      "height": 25.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "top" }
+    },
+    "DEP_MAINTENANCE": {
+      "department_id": "DEP_MAINTENANCE",
+      "x": 20.0,
+      "y": 40.0,
+      "width": 20.0,
+      "height": 35.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "top" }
+    },
+    "DEP_SURFACE_TREAT": {
+      "department_id": "DEP_SURFACE_TREAT",
+      "x": 40.0,
+      "y": 40.0,
+      "width": 27.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "top" }
+    },
+    "DEP_ASSEMBLY": {
+      "department_id": "DEP_ASSEMBLY",
+      "x": 67.5,
+      "y": 40.0,
+      "width": 42.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "top" }
+    },
+    "DEP_FINISHED_GOODS": {
+      "department_id": "DEP_FINISHED_GOODS",
+      "x": 110.0,
+      "y": 40.0,
+      "width": 32.5,
+      "height": 40.0,
+      "orientation_degrees": 0.0,
+      "metadata": { "row": "top" }
+    }
+  },
+  "reserved_zones": [],
+  "metadata": {
+    "version": "1.0.0",
+    "status": "feasible_baseline",
+    "description": "Human-engineered baseline arrangement conforming strictly to FLP_INDUSTRIAL_10 constraints."
+  }
+}

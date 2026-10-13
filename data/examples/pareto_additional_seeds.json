@@ -1,0 +1,414 @@
+[
+  {
+    "id": "GA_SEED_101",
+    "algorithm_name": "GA (Seed 101)",
+    "problem_id": "FLP_INDUSTRIAL_10",
+    "facility_width": 150.0,
+    "facility_height": 80.0,
+    "layout_signature": "8bd18a640c27f00da29929056776bac707e3e5470deb86641ce76c85bbeef406",
+    "placements": {
+      "DEP_WELDING": {
+        "department_id": "DEP_WELDING",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 47.1429,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_RAW_MATERIAL": {
+        "department_id": "DEP_RAW_MATERIAL",
+        "x": 47.1429,
+        "y": 0.0,
+        "width": 55.7143,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SURFACE_TREAT": {
+        "department_id": "DEP_SURFACE_TREAT",
+        "x": 102.8571,
+        "y": 0.0,
+        "width": 47.1429,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MACHINING": {
+        "department_id": "DEP_MACHINING",
+        "x": 0.0,
+        "y": 23.3333,
+        "width": 54.878,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_CUTTING": {
+        "department_id": "DEP_CUTTING",
+        "x": 54.878,
+        "y": 23.3333,
+        "width": 32.9268,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_ASSEMBLY": {
+        "department_id": "DEP_ASSEMBLY",
+        "x": 87.8049,
+        "y": 23.3333,
+        "width": 62.1951,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SHIPPING": {
+        "department_id": "DEP_SHIPPING",
+        "x": 0.0,
+        "y": 50.6667,
+        "width": 39.7059,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_FINISHED_GOODS": {
+        "department_id": "DEP_FINISHED_GOODS",
+        "x": 39.7059,
+        "y": 50.6667,
+        "width": 57.3529,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_QUALITY": {
+        "department_id": "DEP_QUALITY",
+        "x": 97.0588,
+        "y": 50.6667,
+        "width": 22.0588,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MAINTENANCE": {
+        "department_id": "DEP_MAINTENANCE",
+        "x": 119.1176,
+        "y": 50.6667,
+        "width": 30.8824,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      }
+    },
+    "metadata": {
+      "random_seed": 101
+    }
+  },
+  {
+    "id": "GA_SEED_42",
+    "algorithm_name": "GA (Seed 42)",
+    "problem_id": "FLP_INDUSTRIAL_10",
+    "facility_width": 150.0,
+    "facility_height": 80.0,
+    "layout_signature": "6f43a3486eacfeb408d5384b23d16f8892192ce9ebc3b4d17ec0c815545b88ca",
+    "placements": {
+      "DEP_WELDING": {
+        "department_id": "DEP_WELDING",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_CUTTING": {
+        "department_id": "DEP_CUTTING",
+        "x": 50.0,
+        "y": 0.0,
+        "width": 40.9091,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_RAW_MATERIAL": {
+        "department_id": "DEP_RAW_MATERIAL",
+        "x": 90.9091,
+        "y": 0.0,
+        "width": 59.0909,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MACHINING": {
+        "department_id": "DEP_MACHINING",
+        "x": 0.0,
+        "y": 22.0,
+        "width": 57.6923,
+        "height": 26.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_ASSEMBLY": {
+        "department_id": "DEP_ASSEMBLY",
+        "x": 57.6923,
+        "y": 22.0,
+        "width": 65.3846,
+        "height": 26.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MAINTENANCE": {
+        "department_id": "DEP_MAINTENANCE",
+        "x": 123.0769,
+        "y": 22.0,
+        "width": 26.9231,
+        "height": 26.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SURFACE_TREAT": {
+        "department_id": "DEP_SURFACE_TREAT",
+        "x": 0.0,
+        "y": 48.0,
+        "width": 43.4211,
+        "height": 25.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_FINISHED_GOODS": {
+        "department_id": "DEP_FINISHED_GOODS",
+        "x": 43.4211,
+        "y": 48.0,
+        "width": 51.3158,
+        "height": 25.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_QUALITY": {
+        "department_id": "DEP_QUALITY",
+        "x": 94.7368,
+        "y": 48.0,
+        "width": 19.7368,
+        "height": 25.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SHIPPING": {
+        "department_id": "DEP_SHIPPING",
+        "x": 114.4737,
+        "y": 48.0,
+        "width": 35.5263,
+        "height": 25.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      }
+    },
+    "metadata": {
+      "random_seed": 42
+    }
+  },
+  {
+    "id": "GA_SEED_777",
+    "algorithm_name": "GA (Seed 777)",
+    "problem_id": "FLP_INDUSTRIAL_10",
+    "facility_width": 150.0,
+    "facility_height": 80.0,
+    "layout_signature": "d4edd83bed8e4ee1b40652e455239476b39fb1dd982fdc36f89e6b539d600f29",
+    "placements": {
+      "DEP_RAW_MATERIAL": {
+        "department_id": "DEP_RAW_MATERIAL",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 59.0909,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_CUTTING": {
+        "department_id": "DEP_CUTTING",
+        "x": 59.0909,
+        "y": 0.0,
+        "width": 40.9091,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_WELDING": {
+        "department_id": "DEP_WELDING",
+        "x": 100.0,
+        "y": 0.0,
+        "width": 50.0,
+        "height": 22.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SHIPPING": {
+        "department_id": "DEP_SHIPPING",
+        "x": 0.0,
+        "y": 22.0,
+        "width": 32.9268,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_ASSEMBLY": {
+        "department_id": "DEP_ASSEMBLY",
+        "x": 32.9268,
+        "y": 22.0,
+        "width": 62.1951,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MACHINING": {
+        "department_id": "DEP_MACHINING",
+        "x": 95.122,
+        "y": 22.0,
+        "width": 54.878,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_FINISHED_GOODS": {
+        "department_id": "DEP_FINISHED_GOODS",
+        "x": 0.0,
+        "y": 49.3333,
+        "width": 54.1667,
+        "height": 24.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_QUALITY": {
+        "department_id": "DEP_QUALITY",
+        "x": 54.1667,
+        "y": 49.3333,
+        "width": 20.8333,
+        "height": 24.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SURFACE_TREAT": {
+        "department_id": "DEP_SURFACE_TREAT",
+        "x": 75.0,
+        "y": 49.3333,
+        "width": 45.8333,
+        "height": 24.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MAINTENANCE": {
+        "department_id": "DEP_MAINTENANCE",
+        "x": 120.8333,
+        "y": 49.3333,
+        "width": 29.1667,
+        "height": 24.0,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      }
+    },
+    "metadata": {
+      "random_seed": 777
+    }
+  },
+  {
+    "id": "GA_SEED_999",
+    "algorithm_name": "GA (Seed 999)",
+    "problem_id": "FLP_INDUSTRIAL_10",
+    "facility_width": 150.0,
+    "facility_height": 80.0,
+    "layout_signature": "68889ab01381828f4a3672fdbbadf5f3442a29583412dcd8133eff5a496e0030",
+    "placements": {
+      "DEP_ASSEMBLY": {
+        "department_id": "DEP_ASSEMBLY",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 62.1951,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_CUTTING": {
+        "department_id": "DEP_CUTTING",
+        "x": 62.1951,
+        "y": 0.0,
+        "width": 32.9268,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MACHINING": {
+        "department_id": "DEP_MACHINING",
+        "x": 95.122,
+        "y": 0.0,
+        "width": 54.878,
+        "height": 27.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SURFACE_TREAT": {
+        "department_id": "DEP_SURFACE_TREAT",
+        "x": 0.0,
+        "y": 27.3333,
+        "width": 47.1429,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_RAW_MATERIAL": {
+        "department_id": "DEP_RAW_MATERIAL",
+        "x": 47.1429,
+        "y": 27.3333,
+        "width": 55.7143,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_WELDING": {
+        "department_id": "DEP_WELDING",
+        "x": 102.8571,
+        "y": 27.3333,
+        "width": 47.1429,
+        "height": 23.3333,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_QUALITY": {
+        "department_id": "DEP_QUALITY",
+        "x": 0.0,
+        "y": 50.6667,
+        "width": 22.0588,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_FINISHED_GOODS": {
+        "department_id": "DEP_FINISHED_GOODS",
+        "x": 22.0588,
+        "y": 50.6667,
+        "width": 57.3529,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_SHIPPING": {
+        "department_id": "DEP_SHIPPING",
+        "x": 79.4118,
+        "y": 50.6667,
+        "width": 39.7059,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      },
+      "DEP_MAINTENANCE": {
+        "department_id": "DEP_MAINTENANCE",
+        "x": 119.1176,
+        "y": 50.6667,
+        "width": 30.8824,
+        "height": 22.6667,
+        "orientation_degrees": 0.0,
+        "metadata": {}
+      }
+    },
+    "metadata": {
+      "random_seed": 999
+    }
+  }
+]
