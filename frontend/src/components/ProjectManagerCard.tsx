@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   OptimizationRunRecord,
   ContinuousLayout,
@@ -37,6 +38,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
     canEdit,
     refreshProjects,
   } = useAuth();
+  const { t } = useLanguage();
 
   const [runs, setRuns] = useState<OptimizationRunRecord[]>([]);
   const [loadingRuns, setLoadingRuns] = useState(false);
@@ -75,15 +77,18 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
       setIsCreatingProj(false);
       setNewProjName('');
       setNewProjDesc('');
-      setStatusMsg({ text: 'Project created successfully.', type: 'success' });
+      setStatusMsg({ text: t('Proje başarıyla oluşturuldu.', 'Project created successfully.'), type: 'success' });
     } catch (e: any) {
-      setStatusMsg({ text: e.message || 'Failed to create project', type: 'error' });
+      setStatusMsg({ text: e.message || t('Proje oluşturulamadı', 'Failed to create project'), type: 'error' });
     }
   };
 
   const handleSaveCurrentExperiment = async () => {
     if (!activeProject || !currentProblemId || !currentMetrics) {
-      setStatusMsg({ text: 'Please ensure a problem and optimization run are active.', type: 'error' });
+      setStatusMsg({
+        text: t('Lütfen aktif bir problem ve optimizasyon çözümünün bulunduğundan emin olun.', 'Please ensure a problem and optimization run are active.'),
+        type: 'error',
+      });
       return;
     }
     setIsSavingRun(true);
@@ -106,11 +111,11 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
       };
 
       await saveExperimentApi(activeProject.id, req);
-      setStatusMsg({ text: 'Experiment run archived to project history.', type: 'success' });
+      setStatusMsg({ text: t('Deney sonucu proje geçmişine kaydedildi.', 'Experiment run archived to project history.'), type: 'success' });
       await loadRuns(activeProject.id);
       await refreshProjects();
     } catch (e: any) {
-      setStatusMsg({ text: e.message || 'Failed to archive experiment run.', type: 'error' });
+      setStatusMsg({ text: e.message || t('Deney sonucu kaydedilemedi.', 'Failed to archive experiment run.'), type: 'error' });
     } finally {
       setIsSavingRun(false);
     }
@@ -125,12 +130,15 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
           layout: detail.layout as ContinuousLayout,
           metrics: detail.run.canonical_metrics || {},
         });
-        setStatusMsg({ text: `Experiment run ${runId.substring(0, 8)} restored to canvas.`, type: 'success' });
+        setStatusMsg({
+          text: t(`Deney (${runId.substring(0, 8)}) 2D Layout kanvasına yüklendi.`, `Experiment run ${runId.substring(0, 8)} restored to canvas.`),
+          type: 'success',
+        });
       } else {
-        setStatusMsg({ text: 'Run does not have associated geometric layout data.', type: 'error' });
+        setStatusMsg({ text: t('Bu kayda ait geometrik yerleşim verisi bulunamadı.', 'Run does not have associated geometric layout data.'), type: 'error' });
       }
     } catch (e: any) {
-      setStatusMsg({ text: e.message || 'Failed to load run details.', type: 'error' });
+      setStatusMsg({ text: e.message || t('Deney detayları yüklenemedi.', 'Failed to load run details.'), type: 'error' });
     }
   };
 
@@ -159,10 +167,10 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
           </div>
           <div>
             <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>
-              Active Research Project
+              {t('Aktif Araştırma Projesi', 'Active Research Project')}
             </h3>
             <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>
-              Isolated workspace & reproducible experiment run archive
+              {t('İzole çalışma alanı & tekrarlanabilir deney (Experiment Run) arşivi', 'Isolated workspace & reproducible experiment run archive')}
             </p>
           </div>
         </div>
@@ -188,10 +196,10 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name} ({p.run_count} runs)
+                {p.name} ({p.run_count} {t('deney', 'runs')})
               </option>
             ))}
-            {projects.length === 0 && <option value="">No projects available</option>}
+            {projects.length === 0 && <option value="">{t('Proje bulunmuyor', 'No projects available')}</option>}
           </select>
 
           {canEdit && (
@@ -208,7 +216,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
                 cursor: 'pointer',
               }}
             >
-              {isCreatingProj ? 'Cancel' : '+ New Project'}
+              {isCreatingProj ? t('İptal', 'Cancel') : t('+ Yeni Proje', '+ New Project')}
             </button>
           )}
 
@@ -228,7 +236,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
                 opacity: isSavingRun || !activeProject ? 0.7 : 1,
               }}
             >
-              {isSavingRun ? 'Archiving...' : '💾 Save Current Run'}
+              {isSavingRun ? t('Kaydediliyor...', 'Archiving...') : t('💾 Mevcut Çözümü Kaydet', '💾 Save Current Run')}
             </button>
           )}
         </div>
@@ -258,7 +266,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
               type="text"
               value={newProjName}
               onChange={(e) => setNewProjName(e.target.value)}
-              placeholder="Project Name (e.g. Master Thesis Study A)"
+              placeholder={t('Proje Adı (Örn: Yüksek Lisans Tez Çalışması A)', 'Project Name (e.g. Master Thesis Study A)')}
               required
               style={{ padding: '0.45rem 0.75rem', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '0.825rem' }}
             />
@@ -266,14 +274,14 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
               type="text"
               value={newProjDesc}
               onChange={(e) => setNewProjDesc(e.target.value)}
-              placeholder="Description / Hypothesis (optional)"
+              placeholder={t('Açıklama / Hipotez (isteğe bağlı)', 'Description / Hypothesis (optional)')}
               style={{ padding: '0.45rem 0.75rem', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '0.825rem' }}
             />
             <button
               type="submit"
               style={{ padding: '0.45rem 1rem', backgroundColor: '#10b981', color: '#fff', borderRadius: '6px', border: 'none', fontWeight: 600, fontSize: '0.825rem', cursor: 'pointer' }}
             >
-              Create Project
+              {t('Projeyi Oluştur', 'Create Project')}
             </button>
           </div>
         </form>
@@ -283,25 +291,30 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
       {activeProject && (
         <div style={{ marginTop: '0.5rem' }}>
           <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span>Project Experiment History ({runs.length} runs archived)</span>
-            {loadingRuns && <span>Loading runs...</span>}
+            <span>
+              {t(`Proje Deney Geçmişi (${runs.length} kayıt)`, `Project Experiment History (${runs.length} runs archived)`)}
+            </span>
+            {loadingRuns && <span>{t('Yükleniyor...', 'Loading runs...')}</span>}
           </div>
 
           {runs.length === 0 ? (
             <div style={{ fontSize: '0.775rem', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0' }}>
-              No optimization runs saved in this project yet. Run an algorithm and click "Save Current Run" to persist results.
+              {t(
+                'Bu projede henüz kaydedilmiş bir optimizasyon deneyi yok. Bir algoritma çalıştırıp "Mevcut Çözümü Kaydet" butonuna tıklayarak sonuçları arşivleyebilirsiniz.',
+                'No optimization runs saved in this project yet. Run an algorithm and click "Save Current Run" to persist results.'
+              )}
             </div>
           ) : (
             <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.775rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #334155', color: '#94a3b8', textAlign: 'left' }}>
-                    <th style={{ padding: '0.4rem' }}>Algorithm</th>
+                    <th style={{ padding: '0.4rem' }}>{t('Algoritma', 'Algorithm')}</th>
                     <th style={{ padding: '0.4rem' }}>Problem</th>
                     <th style={{ padding: '0.4rem' }}>MHC Cost</th>
                     <th style={{ padding: '0.4rem' }}>Runtime</th>
-                    <th style={{ padding: '0.4rem' }}>Feasible</th>
-                    <th style={{ padding: '0.4rem', textAlign: 'right' }}>Action</th>
+                    <th style={{ padding: '0.4rem' }}>Feasibility</th>
+                    <th style={{ padding: '0.4rem', textAlign: 'right' }}>{t('İşlem', 'Action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -328,7 +341,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
                               fontWeight: 600,
                             }}
                           >
-                            Load Run
+                            {t('Kanvasa Yükle', 'Load Run')}
                           </button>
                         </td>
                       </tr>

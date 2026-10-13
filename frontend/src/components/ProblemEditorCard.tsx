@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FacilityLayoutProblem, Department, ProblemValidationReport } from '../types/api';
 import { validateProblemPayload } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ProblemEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -15,6 +16,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
   onLoadExample,
   availableExamples,
 }) => {
+  const { t } = useLanguage();
   const [validating, setValidating] = useState(false);
   const [validationReport, setValidationReport] = useState<ProblemValidationReport | null>(null);
   const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
@@ -32,7 +34,9 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
   if (!problem) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <p style={{ color: 'var(--text-muted)' }}>No problem loaded. Select a benchmark or create a new problem.</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          {t('Yüklü problem bulunmuyor. Bir benchmark seçin veya yeni problem oluşturun.', 'No problem loaded. Select a benchmark or create a new problem.')}
+        </p>
       </div>
     );
   }
@@ -55,7 +59,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
   const handleAddDepartment = () => {
     const cleanId = newDeptId.trim().toUpperCase() || `DEP_${(problem.departments.length + 1).toString().padStart(2, '0')}`;
     if (problem.departments.some(d => d.id === cleanId)) {
-      alert(`Department with ID '${cleanId}' already exists.`);
+      alert(t(`'${cleanId}' ID'li bölüm zaten mevcut.`, `Department with ID '${cleanId}' already exists.`));
       return;
     }
     const newDept: Department = {
@@ -147,7 +151,11 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       }}>
         <span style={{ fontSize: '1.25rem' }}>⚠️</span>
         <div style={{ fontSize: '0.825rem', color: '#ea580c', lineHeight: 1.45 }}>
-          <strong>Confidential Research Pilot Notice:</strong> This web pilot is restricted to <strong>synthetic benchmarks and academic test instances</strong> (e.g., Simple 4, Industrial 10, Warehouse 12). Do not enter, paste, or upload real-world proprietary factory layouts, sensitive customer bill-of-materials, or confidential production flow matrices.
+          <strong>{t('Gizlilik & Akademik Veri Notu:', 'Confidential Research Pilot Notice:')}</strong>{' '}
+          {t(
+            'Bu web pilotu sentetik benchmark ve akademik test örnekleri (Simple 4, Industrial 10, Warehouse 12 vb.) için yapılandırılmıştır. Lütfen gerçek fabrika gizli verilerini veya ticari sır içeren üretim matrislerini yüklemeyiniz.',
+            'This web pilot is restricted to synthetic benchmarks and academic test instances (e.g., Simple 4, Industrial 10, Warehouse 12). Do not enter, paste, or upload real-world proprietary factory layouts, sensitive customer bill-of-materials, or confidential production flow matrices.'
+          )}
         </div>
       </div>
 
@@ -155,16 +163,19 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            Factory Problem Editor
+            {t('Tesis Yerleşim Problemi Tanımlama (FLP Problem Editor)', 'Factory Problem Editor')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-            Configure plant boundaries, production departments, aspect ratio constraints, and fixed locations without editing raw JSON.
+            {t(
+              'Tesis sınırlarını, üretim/lojistik bölümlerini, Aspect Ratio kısıtlarını ve Fixed Position koordinatlarını yapılandırın.',
+              'Configure plant boundaries, production departments, aspect ratio constraints, and fixed locations without editing raw JSON.'
+            )}
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            Load Template:
+            {t('Benchmark Şablonu:', 'Load Template:')}
           </label>
           <select
             value={problem.id}
@@ -200,7 +211,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
               cursor: 'pointer',
             }}
           >
-            {validating ? 'Validating...' : '✓ Validate Problem'}
+            {validating ? t('Doğrulanıyor...', 'Validating...') : t('✓ Problemi Doğrula', '✓ Validate Problem')}
           </button>
         </div>
       </div>
@@ -215,7 +226,9 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
           border: `1px solid ${validationReport.is_valid ? '#10b981' : '#ef4444'}`,
         }}>
           <div style={{ fontWeight: 700, color: validationReport.is_valid ? '#34d399' : '#f87171', fontSize: '0.9rem' }}>
-            {validationReport.is_valid ? '✓ Problem Definition Valid & Solver Ready' : '⚠ Validation Issues Detected'}
+            {validationReport.is_valid
+              ? t('✓ Problem Tanımı Geçerli & Çözücüye (Solver) Hazır', '✓ Problem Definition Valid & Solver Ready')
+              : t('⚠ Doğrulama Sorunları Tespit Edildi', '⚠ Validation Issues Detected')}
           </div>
           {validationReport.errors && validationReport.errors.length > 0 && (
             <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', color: '#f87171', fontSize: '0.8rem' }}>
@@ -247,7 +260,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       }}>
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            Facility Width (X-axis meters):
+            {t('Tesis Genişliği (Width X - metre):', 'Facility Width (X-axis meters):')}
           </label>
           <input
             type="number"
@@ -270,7 +283,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
 
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            Facility Height (Y-axis meters):
+            {t('Tesis Yüksekliği (Height Y - metre):', 'Facility Height (Y-axis meters):')}
           </label>
           <input
             type="number"
@@ -293,25 +306,25 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
 
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            Facility Footprint:
+            {t('Toplam Tesis Alanı (Footprint):', 'Facility Footprint:')}
           </label>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
             {facArea.toLocaleString()} m²
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Available Gross Boundary Area
+            {t('Kullanılabilir Brüt Zemin Alanı', 'Available Gross Boundary Area')}
           </span>
         </div>
 
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            Department Utilization:
+            {t('Alan Kullanım Oranı (Utilization):', 'Department Utilization:')}
           </label>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: utilPct > 95 ? '#ef4444' : utilPct >= 80 ? '#10b981' : '#f59e0b', marginTop: '0.2rem' }}>
             {utilPct.toFixed(1)}% ({totalReqArea.toLocaleString()} m²)
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            {problem.departments.length} Functional Activity Centers
+            {problem.departments.length} {t('Fonksiyonel Bölüm (Activity Center)', 'Functional Activity Centers')}
           </span>
         </div>
       </div>
@@ -320,10 +333,10 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            Production & Logistics Departments ({problem.departments.length})
+            {t(`Üretim & Lojistik Bölümleri (${problem.departments.length})`, `Production & Logistics Departments (${problem.departments.length})`)}
           </h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            All areas must sum $\le$ facility gross area
+            {t('Toplam bölüm alanı ≤ brüt tesis alanı olmalıdır', 'All areas must sum ≤ facility gross area')}
           </span>
         </div>
 
@@ -332,12 +345,12 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                 <th style={{ padding: '0.65rem 0.85rem' }}>ID</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Department Name</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Req Area (m²)</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Min Aspect</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Max Aspect</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Bölüm Adı (Department)', 'Department Name')}</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Gerekli Alan (m²)', 'Req Area (m²)')}</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>Min Aspect Ratio</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>Max Aspect Ratio</th>
                 <th style={{ padding: '0.65rem 0.85rem' }}>Fixed Position</th>
-                <th style={{ padding: '0.65rem 0.85rem', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '0.65rem 0.85rem', textAlign: 'right' }}>{t('İşlemler', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -420,7 +433,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                           color: 'var(--text-primary)',
                         }}
                       >
-                        {isEditing ? 'Done' : 'Edit'}
+                        {isEditing ? t('Tamam', 'Done') : t('Düzenle', 'Edit')}
                       </button>
                       <button
                         onClick={() => handleRemoveDepartment(dept.id)}
@@ -433,7 +446,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                           color: '#f87171',
                         }}
                       >
-                        Delete
+                        {t('Sil', 'Delete')}
                       </button>
                     </td>
                   </tr>
@@ -452,7 +465,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
         border: '1px solid var(--border-color)',
       }}>
         <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.85rem', color: 'var(--text-primary)' }}>
-          + Add New Department
+          {t('+ Yeni Bölüm (Department) Ekle', '+ Add New Department')}
         </h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', alignItems: 'end' }}>
           <div>
@@ -466,17 +479,21 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Name:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
+              {t('Bölüm Adı:', 'Name:')}
+            </label>
             <input
               type="text"
-              placeholder="Packaging Unit"
+              placeholder={t('Örn: Paketleme Birimi', 'Packaging Unit')}
               value={newDeptName}
               onChange={(e) => setNewDeptName(e.target.value)}
               style={{ width: '100%', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Area (m²):</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
+              {t('Alan (m²):', 'Area (m²):')}
+            </label>
             <input
               type="number"
               value={newDeptArea}
@@ -485,7 +502,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Min Aspect:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Min Aspect Ratio:</label>
             <input
               type="number"
               step="0.1"
@@ -495,7 +512,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Max Aspect:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Max Aspect Ratio:</label>
             <input
               type="number"
               step="0.1"
@@ -511,7 +528,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                 checked={newDeptIsFixed}
                 onChange={(e) => setNewDeptIsFixed(e.target.checked)}
               />
-              Fixed Location?
+              Fixed Position?
             </label>
             {newDeptIsFixed && (
               <div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -547,7 +564,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Add Department
+              {t('Bölüm Ekle', 'Add Department')}
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ContinuousLayout, LayoutValidationResult, FacilityLayoutProblem } from '../types/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LayoutCanvasProps {
   layout: ContinuousLayout | null;
@@ -32,6 +33,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
   selectedDeptId,
   onSelectDept,
 }) => {
+  const { t } = useLanguage();
   const [showCentroids, setShowCentroids] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
   const [showDimensions, setShowDimensions] = useState(true);
@@ -89,9 +91,14 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
         color: 'var(--text-muted)',
       }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📐</div>
-        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.1rem' }}>No Layout Solution Selected</div>
+        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.1rem' }}>
+          {t('Seçili Yerleşim Çözümü Yok', 'No Layout Solution Selected')}
+        </div>
         <div style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
-          Execute an optimization algorithm or load a benchmark layout to view the 2D factory floor plan.
+          {t(
+            '2D fabrika yerleşim planını (Continuous 2D Floor Plan) görüntülemek için bir optimizasyon algoritması çalıştırın veya Benchmark yükleyin.',
+            'Execute an optimization algorithm or load a benchmark layout to view the 2D factory floor plan.'
+          )}
         </div>
       </div>
     );
@@ -210,7 +217,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '1.25rem' }}>🏭</span>
             <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>
-              {layout.name || layout.id || '2D Factory Layout Plan'}
+              {layout.name || layout.id || t('2D Fabrika Yerleşim Planı (Continuous Layout)', '2D Factory Layout Plan')}
             </span>
             <span style={{
               fontSize: '0.75rem',
@@ -221,7 +228,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               color: validation?.is_valid ? '#10b981' : '#ef4444',
               border: `1px solid ${validation?.is_valid ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
             }}>
-              {validation?.is_valid ? '✓ Complete & Feasible' : '⚠ Feasibility Notice'}
+              {validation?.is_valid ? t('✓ Tam & Feasible', '✓ Complete & Feasible') : t('⚠ Feasibility Uyarısı', '⚠ Feasibility Notice')}
             </span>
             {overlappingDeptIds.size > 0 && (
               <span style={{
@@ -237,7 +244,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
             )}
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-            Facility: {facW}m × {facH}m ({(facW * facH).toLocaleString()} m²) &bull; {placements.length} Placed Departments &bull; Zoom: {Math.round(zoom * 100)}%
+            {t('Tesis:', 'Facility:')} {facW}m × {facH}m ({(facW * facH).toLocaleString()} m²) &bull; {placements.length} {t('Yerleşen Departman', 'Placed Departments')} &bull; Zoom: {Math.round(zoom * 100)}%
           </div>
         </div>
 
@@ -288,7 +295,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
                 fontWeight: 600,
               }}
             >
-              Fit
+              {t('Sığdır', 'Fit')}
             </button>
           </div>
 
@@ -305,7 +312,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               fontWeight: 500,
             }}
           >
-            Grid
+            {t('Izgara (Grid)', 'Grid')}
           </button>
           <button
             onClick={() => setShowCentroids(!showCentroids)}
@@ -335,7 +342,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               fontWeight: 500,
             }}
           >
-            Dimensions
+            {t('Boyutlar', 'Dimensions')}
           </button>
           <button
             onClick={() => setShowLegend(!showLegend)}
@@ -350,7 +357,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               fontWeight: 500,
             }}
           >
-            Legend
+            {t('Lejant', 'Legend')}
           </button>
 
           {/* Export buttons */}
@@ -668,7 +675,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
             zIndex: 10,
           }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f3f4f6', marginBottom: '0.5rem' }}>
-              Department Legend
+              {t('Departman Lejantı', 'Department Legend')}
             </div>
             {placements.map((p, idx) => {
               const color = DEPARTMENT_COLORS[idx % DEPARTMENT_COLORS.length];
@@ -717,17 +724,17 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
             </span>
             {fixedDeptIds.has(activePlacement.department_id) && (
               <span style={{ backgroundColor: '#fbbf2420', color: '#fbbf24', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
-                📌 Fixed Location
+                📌 Fixed Position
               </span>
             )}
             <span style={{ color: 'var(--text-secondary)' }}>
               Origin: (x={activePlacement.x.toFixed(1)}m, y={activePlacement.y.toFixed(1)}m)
             </span>
             <span style={{ color: 'var(--text-secondary)' }}>
-              Size: {activePlacement.width.toFixed(1)}m × {activePlacement.height.toFixed(1)}m
+              {t('Boyut:', 'Size:')} {activePlacement.width.toFixed(1)}m × {activePlacement.height.toFixed(1)}m
             </span>
             <span style={{ color: 'var(--text-secondary)' }}>
-              Area: {(activePlacement.width * activePlacement.height).toLocaleString()} m²
+              {t('Alan:', 'Area:')} {(activePlacement.width * activePlacement.height).toLocaleString()} m²
               {activeProblemDept ? ` (Req: ${activeProblemDept.required_area} m²)` : ''}
             </span>
           </div>
@@ -757,7 +764,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
       }}>
         <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
           <div>
-            <span style={{ color: 'var(--text-muted)' }}>Occupied: </span>
+            <span style={{ color: 'var(--text-muted)' }}>{t('Kullanılan Alan (Occupied): ', 'Occupied: ')}</span>
             <span style={{ fontWeight: 600 }}>
               {validation?.metrics.occupied_area ? `${validation.metrics.occupied_area.toLocaleString()} m²` : `${placements.reduce((acc, p) => acc + p.width * p.height, 0).toLocaleString()} m²`}
             </span>

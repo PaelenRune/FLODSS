@@ -32,6 +32,7 @@ import { AlgorithmRunnerCard } from '../components/AlgorithmRunnerCard';
 import { LayoutEvaluationCard } from '../components/LayoutEvaluationCard';
 import { ProblemDefinitionCard } from '../components/ProblemDefinitionCard';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { LoginModal } from '../components/LoginModal';
 import { InvitationAcceptModal } from '../components/InvitationAcceptModal';
 import { UserManagementModal } from '../components/UserManagementModal';
@@ -94,6 +95,7 @@ export const Dashboard: React.FC = () => {
   } | null>(null);
 
   const { user, isLoading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showUserMgmtModal, setShowUserMgmtModal] = useState<boolean>(false);
@@ -200,15 +202,15 @@ export const Dashboard: React.FC = () => {
   };
 
   const tabs: TabItem[] = [
-    { id: 'problem', label: '1. Problem Editor', icon: <Sliders size={16} /> },
-    { id: 'matrices', label: '2. Flow & REL', icon: <Grid size={16} /> },
-    { id: 'constraints', label: '3. Constraints', icon: <ShieldAlert size={16} /> },
-    { id: 'solvers', label: '4. Optimization', icon: <Play size={16} />, badge: '6 Solvers' },
-    { id: 'layout', label: '5. 2D Layout Viewer', icon: <Maximize2 size={16} />, badge: layout ? 'Active' : undefined },
-    { id: 'pareto', label: '6. Pareto & Trade-offs', icon: <TrendingUp size={16} /> },
-    { id: 'decision', label: '7. AI Decision Support', icon: <Sparkles size={16} /> },
-    { id: 'export', label: '8. Export Center', icon: <Package size={16} />, badge: 'v1.0' },
-    { id: 'overview', label: 'System Overview', icon: <LayoutDashboard size={16} /> },
+    { id: 'problem', label: t('1. Problem Tanımı', '1. Problem Editor'), icon: <Sliders size={16} /> },
+    { id: 'matrices', label: t('2. Flow & REL Matrisleri', '2. Flow & REL'), icon: <Grid size={16} /> },
+    { id: 'constraints', label: t('3. Kısıtlar (Constraints)', '3. Constraints'), icon: <ShieldAlert size={16} /> },
+    { id: 'solvers', label: t('4. Optimizasyon', '4. Optimization'), icon: <Play size={16} />, badge: t('6 Çözücü', '6 Solvers') },
+    { id: 'layout', label: t('5. 2D Layout Görünümü', '5. 2D Layout Viewer'), icon: <Maximize2 size={16} />, badge: layout ? t('Aktif', 'Active') : undefined },
+    { id: 'pareto', label: t('6. Pareto Front & Trade-offs', '6. Pareto & Trade-offs'), icon: <TrendingUp size={16} /> },
+    { id: 'decision', label: t('7. AI Karar Destek', '7. AI Decision Support'), icon: <Sparkles size={16} /> },
+    { id: 'export', label: t('8. Dışa Aktarım (Export)', '8. Export Center'), icon: <Package size={16} />, badge: 'v1.0' },
+    { id: 'overview', label: t('Sistem Özeti', 'System Overview'), icon: <LayoutDashboard size={16} /> },
   ];
 
   return (
@@ -348,7 +350,11 @@ export const Dashboard: React.FC = () => {
               }}
             >
               <Layers size={14} />
-              <span>{viewMode === 'workspace' ? 'Show All Modules' : 'Tabbed Workspace'}</span>
+              <span>
+                {viewMode === 'workspace'
+                  ? t('Tüm Modülleri Göster', 'Show All Modules')
+                  : t('Sekmeli Görünüm (Workspace)', 'Tabbed Workspace')}
+              </span>
             </button>
           </div>
         </div>
@@ -413,10 +419,13 @@ export const Dashboard: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-                      Interactive 2D Facility Layout Viewer
+                      {t('Etkileşimli 2D Facility Layout Görünümü', 'Interactive 2D Facility Layout Viewer')}
                     </h2>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-                      Continuous 1:1 solver coordinates &bull; Real-time zoom & pan &bull; Overlap & fixed position detection
+                      {t(
+                        'Continuous 1:1 koordinat düzlemi • Gerçek zamanlı Zoom & Pan • Overlap & Fixed Position denetimi',
+                        'Continuous 1:1 solver coordinates • Real-time zoom & pan • Overlap & fixed position detection'
+                      )}
                     </p>
                   </div>
                   {layout && (
@@ -438,7 +447,7 @@ export const Dashboard: React.FC = () => {
                         }}
                       >
                         <Package size={14} />
-                        Export Solution
+                        {t('Çözümü Dışa Aktar (Export)', 'Export Solution')}
                       </button>
                     </div>
                   )}
@@ -491,11 +500,16 @@ export const Dashboard: React.FC = () => {
               <div>
                 <div style={{ marginBottom: '2rem' }}>
                   <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
-                    Facility Layout Optimization & Decision Support System (FLODSS)
+                    {t(
+                      'Tesis Yerleşim Optimizasyon & Karar Destek Sistemi (FLODSS)',
+                      'Facility Layout Optimization & Decision Support System (FLODSS)'
+                    )}
                   </h1>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '850px', lineHeight: 1.6 }}>
-                    An advanced Operations Research and Industrial Engineering platform for modular facility layout generation,
-                    multi-criteria algorithmic evaluation, and explainable decision support.
+                    {t(
+                      'Modüler tesis yerleşim üretimi (FLP), çok ölçütlü algoritmik değerlendirme (MHC, TCR, Adjacency, Dead Space) ve açıklanabilir karar destek için geliştirilmiş ileri seviye Yöneylem Araştırması ve Endüstri Mühendisliği platformu.',
+                      'An advanced Operations Research and Industrial Engineering platform for modular facility layout generation, multi-criteria algorithmic evaluation, and explainable decision support.'
+                    )}
                   </p>
                 </div>
                 <RoadmapStepper />
@@ -516,10 +530,13 @@ export const Dashboard: React.FC = () => {
           <div>
             <div style={{ marginBottom: '2rem' }}>
               <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
-                FLODSS Complete Architecture Overview
+                {t('FLODSS Tam Mimari Görünümü', 'FLODSS Complete Architecture Overview')}
               </h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '850px', lineHeight: 1.6 }}>
-                Full system diagnostic view displaying all integrated algorithmic and analysis modules.
+                {t(
+                  'Entegre edilmiş tüm algoritmik çözücüleri ve analiz modüllerini gösteren tam sistem görünümü.',
+                  'Full system diagnostic view displaying all integrated algorithmic and analysis modules.'
+                )}
               </p>
             </div>
 
@@ -580,7 +597,7 @@ export const Dashboard: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <strong>FLODSS v1.0.0-rc.1</strong>
           <span>&bull;</span>
-          <span>Confidential Private Research Release Candidate</span>
+          <span>{t('Özel Araştırma & Tez Pilot Sürümü', 'Confidential Private Research Release Candidate')}</span>
           <span>&bull;</span>
           <span style={{ color: '#34d399' }}>Local-First Execution</span>
         </div>

@@ -6,8 +6,10 @@ import {
 } from '../types/api';
 import { fetchParetoAnalysis } from '../services/api';
 import { LayoutCanvas } from './LayoutCanvas';
+import { useLanguage } from '../context/LanguageContext';
 
 export const ParetoAnalysisCard: React.FC = () => {
+  const { t } = useLanguage();
   const [analysisResult, setAnalysisResult] = useState<ParetoAnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export const ParetoAnalysisCard: React.FC = () => {
         setSelectedCandidateId(data.candidates[0].candidate_id);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load Pareto analysis');
+      setError(err.message || t('Pareto analizi yüklenemedi', 'Failed to load Pareto analysis'));
     } finally {
       setLoading(false);
     }
@@ -150,10 +152,13 @@ export const ParetoAnalysisCard: React.FC = () => {
               color: 'var(--text-primary, #0f172a)',
             }}
           >
-            <span>🎯</span> Multi-Objective Pareto Frontier & Decision Support (Phase 10)
+            <span>🎯</span> {t('Çok Amaçlı Pareto Frontier & Karar Destek Sistemi', 'Multi-Objective Pareto Frontier & Decision Support (Phase 10)')}
           </h2>
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.875rem', color: 'var(--text-secondary, #64748b)' }}>
-            Rigorous non-dominated sorting and trade-off analysis across Material Handling Cost ($), Muther Relationship Satisfaction (%), and Soft Penalties ($).
+            {t(
+              'Material Handling Cost (MHC $), Muther REL Satisfaction (%) ve Soft Constraint Penalty ($) eksenlerinde Non-Dominated Sorting ve ödünleşim (Trade-Off) analizi.',
+              'Rigorous non-dominated sorting and trade-off analysis across Material Handling Cost ($), Muther Relationship Satisfaction (%), and Soft Penalties ($).'
+            )}
           </p>
         </div>
         <div>
@@ -174,7 +179,7 @@ export const ParetoAnalysisCard: React.FC = () => {
               gap: '0.5rem',
             }}
           >
-            {loading ? 'Evaluating Frontier...' : '↻ Re-evaluate Pareto Portfolio'}
+            {loading ? t('Frontier Hesaplanıyor...', 'Evaluating Frontier...') : t('↻ Pareto Portföyünü Yeniden Değerlendir', '↻ Re-evaluate Pareto Portfolio')}
           </button>
         </div>
       </div>
@@ -208,30 +213,30 @@ export const ParetoAnalysisCard: React.FC = () => {
           <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.85rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#166534', textTransform: 'uppercase' }}>Pareto Frontier (Rank 1)</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#15803d' }}>
-              {analysisResult.frontier_count} Solutions
+              {analysisResult.frontier_count} {t('Çözüm', 'Solutions')}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#166534' }}>Strictly non-dominated optimal choices</div>
+            <div style={{ fontSize: '0.75rem', color: '#166534' }}>{t('Kesin Non-Dominated optimal alternatifler', 'Strictly non-dominated optimal choices')}</div>
           </div>
           <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>Valid Candidates</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>{t('Geçerli Adaylar (Valid)', 'Valid Candidates')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1d4ed8' }}>
-              {analysisResult.valid_candidates_count} Layouts
+              {analysisResult.valid_candidates_count} {t('Yerleşim', 'Layouts')}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>100% complete & feasible geometries</div>
+            <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>{t('%100 tam ve Feasible geometriler', '100% complete & feasible geometries')}</div>
           </div>
           <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.85rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Pareto Layers</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#334155' }}>
               {Object.keys(analysisResult.ranks).length} Ranks
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#475569' }}>Hierarchical non-dominated peeling</div>
+            <div style={{ fontSize: '0.75rem', color: '#475569' }}>{t('Hiyerarşik Non-Dominated katmanlama', 'Hierarchical non-dominated peeling')}</div>
           </div>
           <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>Excluded Layouts</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>{t('Hariç Tutulanlar (Excluded)', 'Excluded Layouts')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#b91c1c' }}>
               {analysisResult.excluded_candidates_count}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#991b1b' }}>Duplicates, overlaps or incomplete</div>
+            <div style={{ fontSize: '0.75rem', color: '#991b1b' }}>{t('Kopya, çakışmalı veya eksik yerleşimler', 'Duplicates, overlaps or incomplete')}</div>
           </div>
         </div>
       )}
@@ -250,10 +255,10 @@ export const ParetoAnalysisCard: React.FC = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>
-                📈 Multi-Objective Frontier Chart (MHC vs. Relationship)
+                📈 {t('Çok Amaçlı Pareto Frontier Grafiği (MHC vs. REL Satisfaction)', 'Multi-Objective Frontier Chart (MHC vs. Relationship)')}
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                Ideal: Bottom-Right (Low Cost, High Rel)
+                {t('İdeal: Sol-Üst (Düşük MHC, Yüksek REL)', 'Ideal: Top-Left (Low Cost, High Rel)')}
               </div>
             </div>
 
@@ -287,7 +292,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                   fill="#475569"
                   fontWeight="600"
                 >
-                  Material Handling Cost (MHC in $) ➔ [Lower is Better]
+                  {t('Material Handling Cost (MHC $) ➔ [Düşük Daha İyi / Minimize]', 'Material Handling Cost (MHC in $) ➔ [Lower is Better]')}
                 </text>
                 <text
                   x={16}
@@ -298,7 +303,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                   fontWeight="600"
                   transform={`rotate(-90 16 ${chartData.height / 2})`}
                 >
-                  Relationship Satisfaction (%) ➔ [Higher is Better]
+                  {t('REL Satisfaction (%) ➔ [Yüksek Daha İyi / Maximize]', 'Relationship Satisfaction (%) ➔ [Higher is Better]')}
                 </text>
 
                 {/* X Axis Ticks */}
@@ -406,10 +411,10 @@ export const ParetoAnalysisCard: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
               <div>
                 <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
-                  Candidate Floor Plan Preview
+                  {t('Aday Yerleşim Planı Önizlemesi', 'Candidate Floor Plan Preview')}
                 </div>
                 <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
-                  {selectedCandidate?.candidate_id || 'None Selected'}
+                  {selectedCandidate?.candidate_id || t('Seçilmedi', 'None Selected')}
                 </div>
               </div>
               {selectedCandidate && (
@@ -439,7 +444,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                   </div>
                 </div>
                 <div style={{ padding: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Rel Satisfaction</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>REL Satisfaction</div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#16a34a' }}>
                     {selectedCandidate.objective_values.relationship_satisfaction?.toFixed(2)}%
                   </div>
@@ -482,20 +487,23 @@ export const ParetoAnalysisCard: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>
-                🧭 Decision Support: Multi-Criteria Preference Profiles
+                🧭 {t('Karar Destek: Çok Kriterli Tercih Profilleri (Multi-Criteria Profiles)', 'Decision Support: Multi-Criteria Preference Profiles')}
               </div>
               <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                Select a business priority profile to evaluate trade-off utility and receive a recommended layout.
+                {t(
+                  'Ödünleşim faydasını değerlendirmek ve önerilen yerleşimi görmek için bir işletme öncelik profili seçin.',
+                  'Select a business priority profile to evaluate trade-off utility and receive a recommended layout.'
+                )}
               </div>
             </div>
 
             {/* Profile Selection Buttons */}
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {[
-                { id: 'cost_priority', label: '💰 Cost Priority (70% MHC)' },
-                { id: 'relationship_priority', label: '🤝 Rel Priority (70% Rel)' },
-                { id: 'soft_constraint_priority', label: '🛡️ Penalty Aversion (70% Soft)' },
-                { id: 'balanced', label: '⚖️ Balanced (Equal Weights)' },
+                { id: 'cost_priority', label: t('💰 Maliyet Öncelikli (70% MHC)', '💰 Cost Priority (70% MHC)') },
+                { id: 'relationship_priority', label: t('🤝 Yakınlık Öncelikli (70% REL)', '🤝 Rel Priority (70% Rel)') },
+                { id: 'soft_constraint_priority', label: t('🛡️ Ceza Kaçınımlı (70% Soft)', '🛡️ Penalty Aversion (70% Soft)') },
+                { id: 'balanced', label: t('⚖️ Dengeli (Eşit Ağırlık)', '⚖️ Balanced (Equal Weights)') },
               ].map((prof) => (
                 <button
                   key={prof.id}
@@ -536,7 +544,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ fontSize: '1.25rem' }}>🏆</span>
                   <span style={{ fontWeight: 700, color: '#1e3a8a', fontSize: '0.95rem' }}>
-                    Recommended: {activeRecommendation.recommended_candidate_id}
+                    {t('Önerilen Aday:', 'Recommended:')} {activeRecommendation.recommended_candidate_id}
                   </span>
                   <span
                     style={{
@@ -569,7 +577,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                   cursor: 'pointer',
                 }}
               >
-                Inspect Layout ➔
+                {t('Yerleşimi İncele ➔', 'Inspect Layout ➔')}
               </button>
             </div>
           )}
@@ -580,7 +588,7 @@ export const ParetoAnalysisCard: React.FC = () => {
       {analysisResult && (
         <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
           <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: '0.6rem' }}>
-            📋 Evaluated Candidates Portfolio Ranking
+            📋 {t('Değerlendirilen Aday Portföy Sıralaması (Portfolio Ranking)', 'Evaluated Candidates Portfolio Ranking')}
           </div>
           <table
             style={{
@@ -593,14 +601,14 @@ export const ParetoAnalysisCard: React.FC = () => {
             <thead>
               <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
                 <th style={{ padding: '0.6rem 0.8rem' }}>Rank</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Candidate ID</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Algorithm Source</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Aday ID', 'Candidate ID')}</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Kaynak Algoritma', 'Algorithm Source')}</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>MHC Cost ($)</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Rel Satisfaction (%)</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>REL Satisfaction (%)</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>Soft Penalty ($)</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>Flow-Distance</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Status</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Action</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Durum', 'Status')}</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('İşlem', 'Action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -679,7 +687,7 @@ export const ParetoAnalysisCard: React.FC = () => {
                           cursor: 'pointer',
                         }}
                       >
-                        {isSelected ? 'Viewing' : 'Select'}
+                        {isSelected ? t('İnceleniyor', 'Viewing') : t('Seç', 'Select')}
                       </button>
                     </td>
                   </tr>
@@ -694,7 +702,7 @@ export const ParetoAnalysisCard: React.FC = () => {
       {analysisResult && analysisResult.excluded.length > 0 && (
         <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px' }}>
           <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#991b1b', marginBottom: '0.4rem' }}>
-            🚫 Excluded Candidates ({analysisResult.excluded.length})
+            🚫 {t('Hariç Tutulan Adaylar (Excluded Candidates)', 'Excluded Candidates')} ({analysisResult.excluded.length})
           </div>
           <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8rem', color: '#7f1d1d' }}>
             {analysisResult.excluded.map((exc, idx) => (

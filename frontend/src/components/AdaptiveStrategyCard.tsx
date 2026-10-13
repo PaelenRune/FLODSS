@@ -8,6 +8,7 @@ import {
 } from '../types/api';
 import { analyzeStrategy, solveAdaptiveStrategy } from '../services/api';
 import { LayoutCanvas } from './LayoutCanvas';
+import { useLanguage } from '../context/LanguageContext';
 
 const BENCHMARK_PROBLEMS = [
   { id: 'FLP_INDUSTRIAL_10', name: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
@@ -22,6 +23,7 @@ const BENCHMARK_PROBLEMS = [
 ];
 
 export const AdaptiveStrategyCard: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedProblemId, setSelectedProblemId] = useState<string>('FLP_INDUSTRIAL_10');
   const [budgetSeconds, setBudgetSeconds] = useState<number>(15.0);
   const [maxCalls, setMaxCalls] = useState<number>(5);
@@ -48,7 +50,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
       const data = await analyzeStrategy({ problem_id: selectedProblemId });
       setAnalysis(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to analyze problem');
+      setError(err.message || t('Problem analiz edilemedi', 'Failed to analyze problem'));
     } finally {
       setAnalyzing(false);
     }
@@ -77,7 +79,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
         setSelectedCandidateSig(res.candidate_portfolio.items[0].output_layout_signature);
       }
     } catch (err: any) {
-      setError(err.message || 'Adaptive execution failed');
+      setError(err.message || t('Adaptive çalıştırma başarısız oldu', 'Adaptive execution failed'));
     } finally {
       setSolving(false);
     }
@@ -127,7 +129,10 @@ export const AdaptiveStrategyCard: React.FC = () => {
             </h2>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
-            Automated fingerprint extraction, rule-based algorithm selection, fallback resilience, and shared candidate portfolio.
+            {t(
+              'Otomatik Problem Fingerprint çıkarımı, kural tabanlı algoritma seçimi, Fallback dayanıklılığı ve paylaşımlı aday portföyü.',
+              'Automated fingerprint extraction, rule-based algorithm selection, fallback resilience, and shared candidate portfolio.'
+            )}
           </p>
         </div>
 
@@ -139,7 +144,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
             disabled={analyzing || solving}
             style={{ fontSize: '0.85rem' }}
           >
-            {analyzing ? 'Analyzing...' : 'Re-Analyze Fingerprint'}
+            {analyzing ? t('Analiz Ediliyor...', 'Analyzing...') : t('Fingerprint Yeniden Analiz Et', 'Re-Analyze Fingerprint')}
           </button>
           <button
             className="btn btn-primary"
@@ -147,7 +152,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
             disabled={solving}
             style={{ fontSize: '0.85rem', fontWeight: 600, backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
           >
-            {solving ? 'Solving Adaptively...' : 'Launch Adaptive Optimization'}
+            {solving ? t('Adaptif Çözülüyor...', 'Solving Adaptively...') : t('Adaptive Optimizasyonu Başlat', 'Launch Adaptive Optimization')}
           </button>
         </div>
       </div>
@@ -156,7 +161,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            PROBLEM INSTANCE
+            {t('PROBLEM ÖRNEĞİ (INSTANCE)', 'PROBLEM INSTANCE')}
           </label>
           <select
             value={selectedProblemId}
@@ -174,7 +179,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            TIME BUDGET (SECONDS)
+            {t('ZAMAN BÜTÇESİ / TIME BUDGET (SN)', 'TIME BUDGET (SECONDS)')}
           </label>
           <input
             type="number"
@@ -190,7 +195,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            MAX ALGORITHM CALLS
+            {t('MAKS ALGORİTMA ÇAĞRISI', 'MAX ALGORITHM CALLS')}
           </label>
           <input
             type="number"
@@ -224,17 +229,17 @@ export const AdaptiveStrategyCard: React.FC = () => {
               onChange={(e) => setFallbackEnabled(e.target.checked)}
               disabled={solving}
             />
-            <span style={{ fontWeight: 600 }}>Enable Adaptive Fallback</span>
+            <span style={{ fontWeight: 600 }}>{t('Adaptive Fallback Etkin', 'Enable Adaptive Fallback')}</span>
           </label>
           <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-            Auto-switch to secondary solver if primary heuristic fails
+            {t('Birincil sezgisel başarısız olursa otomatik ikincil çözücüye geç', 'Auto-switch to secondary solver if primary heuristic fails')}
           </span>
         </div>
       </div>
 
       {error && (
         <div style={{ padding: '0.75rem 1rem', borderRadius: '6px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', marginBottom: '1.25rem', fontSize: '0.85rem' }}>
-          <strong>Error:</strong> {error}
+          <strong>{t('Hata:', 'Error:')}</strong> {error}
         </div>
       )}
 
@@ -248,13 +253,13 @@ export const AdaptiveStrategyCard: React.FC = () => {
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Departments:</span> <strong>{analysis.fingerprint.department_count}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Departmanlar:', 'Departments:')}</span> <strong>{analysis.fingerprint.department_count}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Utilization:</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Area Utilization:</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Plant Footprint:</span> <strong>{analysis.fingerprint.facility_width} × {analysis.fingerprint.facility_height} m</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Tesis Boyutu:', 'Plant Footprint:')}</span> <strong>{analysis.fingerprint.facility_width} × {analysis.fingerprint.facility_height} m</strong>
               </div>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>Area Variation:</span> <strong>{analysis.fingerprint.area_variation}</strong>
@@ -266,7 +271,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
                 <span style={{ color: 'var(--text-muted)' }}>REL Density:</span> <strong>{(analysis.fingerprint.rel_density ? (analysis.fingerprint.rel_density * 100).toFixed(1) : 0)}%</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Aspect Bounds:</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} Depts` : 'None'}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Aspect Ratio Bounds:</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} Depts` : 'None'}</strong>
               </div>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>Reserved Zones:</span> <strong>{analysis.fingerprint.reserved_zone_count ? `${analysis.fingerprint.reserved_zone_count} (${(analysis.fingerprint.reserved_zone_ratio! * 100).toFixed(1)}%)` : 'None'}</strong>
@@ -280,7 +285,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
             </div>
             {analysis.fingerprint.unavailable_features && analysis.fingerprint.unavailable_features.length > 0 && (
               <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                <em>Unavailable features (not modeled):</em> {analysis.fingerprint.unavailable_features.join(', ')}
+                <em>{t('Modellenmeyen özellikler:', 'Unavailable features (not modeled):')}</em> {analysis.fingerprint.unavailable_features.join(', ')}
               </div>
             )}
           </div>
@@ -289,7 +294,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
           <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-                Recommended Strategy Pipeline
+                {t('Önerilen Strateji Hattı (Recommended Pipeline)', 'Recommended Strategy Pipeline')}
               </h4>
               <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '4px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 600 }}>
                 {analysis.selected_strategy.rule_id}
@@ -362,19 +367,19 @@ export const AdaptiveStrategyCard: React.FC = () => {
           {/* Explainable Decision Trace Table */}
           <div style={{ marginBottom: '1.5rem' }}>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-              Explainable Decision & Execution Trace (Honest Audit Record)
+              {t('Açıklanabilir Karar & Çalıştırma İzi (Explainable Execution Trace)', 'Explainable Decision & Execution Trace (Honest Audit Record)')}
             </h4>
             <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                 <thead>
                   <tr style={{ backgroundColor: 'var(--bg-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '0.5rem' }}>Step</th>
-                    <th style={{ padding: '0.5rem' }}>Action / Algorithm</th>
-                    <th style={{ padding: '0.5rem' }}>Category</th>
-                    <th style={{ padding: '0.5rem' }}>Result Status</th>
+                    <th style={{ padding: '0.5rem' }}>{t('Adım', 'Step')}</th>
+                    <th style={{ padding: '0.5rem' }}>{t('İşlem / Algoritma', 'Action / Algorithm')}</th>
+                    <th style={{ padding: '0.5rem' }}>{t('Kategori', 'Category')}</th>
+                    <th style={{ padding: '0.5rem' }}>{t('Sonuç Durumu', 'Result Status')}</th>
                     <th style={{ padding: '0.5rem' }}>MHC ($)</th>
                     <th style={{ padding: '0.5rem' }}>Runtime</th>
-                    <th style={{ padding: '0.5rem' }}>Audit Reason & Next Action</th>
+                    <th style={{ padding: '0.5rem' }}>{t('Denetim Gerekçesi & Sonraki Adım', 'Audit Reason & Next Action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -414,11 +419,11 @@ export const AdaptiveStrategyCard: React.FC = () => {
             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>
-                  Layout Preview: {selectedCandidateSig ? `Sig ${selectedCandidateSig.substring(0, 8)}...` : 'None'}
+                  {t('Yerleşim Önizlemesi:', 'Layout Preview:')} {selectedCandidateSig ? `Sig ${selectedCandidateSig.substring(0, 8)}...` : 'None'}
                 </h4>
                 {result.final_recommendation?.layout_signature === selectedCandidateSig && (
                   <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', backgroundColor: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>
-                    RECOMMENDED BEST
+                    {t('ÖNERİLEN EN İYİ', 'RECOMMENDED BEST')}
                   </span>
                 )}
               </div>
@@ -429,7 +434,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
                 </div>
               ) : (
                 <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                  No visual placement available for this candidate.
+                  {t('Bu aday için görsel yerleşim mevcut değil.', 'No visual placement available for this candidate.')}
                 </div>
               )}
             </div>
@@ -437,10 +442,10 @@ export const AdaptiveStrategyCard: React.FC = () => {
             {/* Candidate Portfolio Selection List */}
             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
               <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>
-                Candidate Portfolio ({result.candidate_portfolio.unique_candidates_count} Unique)
+                {t('Aday Portföyü', 'Candidate Portfolio')} ({result.candidate_portfolio.unique_candidates_count} Unique)
               </h4>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.75rem 0' }}>
-                Deduplicated signatures with preserved algorithm provenance. Click candidate to view layout.
+                {t('Algoritma Provenance kaydı korunmuş tekil imzalar. Görselleştirmek için bir adaya tıklayın.', 'Deduplicated signatures with preserved algorithm provenance. Click candidate to view layout.')}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '360px', overflowY: 'auto' }}>
@@ -465,7 +470,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
                         </span>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        MHC: <strong>{cand.material_handling_cost ? `$${cand.material_handling_cost.toLocaleString()}` : 'N/A'}</strong> | Rel Sat: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : 'N/A'}
+                        MHC: <strong>{cand.material_handling_cost ? `$${cand.material_handling_cost.toLocaleString()}` : 'N/A'}</strong> | REL Sat: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : 'N/A'}
                       </div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                         Provenance: {cand.provenance_sources.map((p) => p.algorithm_name).join(', ')}

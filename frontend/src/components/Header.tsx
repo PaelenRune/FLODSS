@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HeaderProps {
   status: string | null;
@@ -17,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLogin,
 }) => {
   const { user, isAdmin, logout } = useAuth();
+  const { lang, setLang, t } = useLanguage();
 
   return (
     <header style={{
@@ -48,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
             <h1 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.025em', margin: 0, color: '#f8fafc' }}>
-              Facility Layout Optimization System (FLODSS)
+              {t('Tesis Yerleşim Optimizasyon Sistemi (FLODSS)', 'Facility Layout Optimization System (FLODSS)')}
             </h1>
             <span style={{
               fontSize: '0.725rem',
@@ -70,16 +72,68 @@ export const Header: React.FC<HeaderProps> = ({
               border: '1px solid #6366f140',
               fontWeight: 600,
             }}>
-              Controlled Research Access
+              {t('Araştırma & Tez Pilotu', 'Controlled Research Access')}
             </span>
           </div>
           <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
-            Decision Support & Modular Operations Research Platform &bull; Multi-Tenant Local-First
+            {t(
+              'Karar Destek & Modüler Yöneylem Araştırması (Operations Research) Platformu • Multi-Tenant Local-First',
+              'Decision Support & Modular Operations Research Platform • Multi-Tenant Local-First'
+            )}
           </p>
         </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {/* Language Toggle (TR / EN) */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: '#1e293b',
+            border: '1px solid #334155',
+            borderRadius: '8px',
+            padding: '0.2rem',
+            gap: '0.2rem',
+          }}
+          title={t('Arayüz Dilini Değiştir (Teknik literatür kavramları korunur)', 'Switch Interface Language (Literature terms preserved)')}
+        >
+          <button
+            type="button"
+            onClick={() => setLang('tr')}
+            style={{
+              padding: '0.25rem 0.6rem',
+              borderRadius: '6px',
+              border: 'none',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              backgroundColor: lang === 'tr' ? '#2563eb' : 'transparent',
+              color: lang === 'tr' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            🇹🇷 TR
+          </button>
+          <button
+            type="button"
+            onClick={() => setLang('en')}
+            style={{
+              padding: '0.25rem 0.6rem',
+              borderRadius: '6px',
+              border: 'none',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              backgroundColor: lang === 'en' ? '#2563eb' : 'transparent',
+              color: lang === 'en' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            🇬🇧 EN
+          </button>
+        </div>
+
         {/* Backend health status badge */}
         <div style={{
           display: 'flex',
@@ -101,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({
             display: 'inline-block',
             boxShadow: `0 0 8px ${error ? '#ef4444' : status ? '#10b981' : '#f59e0b'}`,
           }} />
-          {loading ? 'Checking...' : error ? 'Offline' : 'Online'}
+          {loading ? t('Kontrol ediliyor...', 'Checking...') : error ? t('Çevrimdışı', 'Offline') : t('Çevrimiçi', 'Online')}
         </div>
 
         {/* User Profile & Auth Controls */}
@@ -144,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
             {isAdmin && onOpenUserManagement && (
               <button
                 onClick={onOpenUserManagement}
-                title="Manage Research Users & Invitations"
+                title={t('Araştırmacıları ve Davetleri Yönet', 'Manage Research Users & Invitations')}
                 style={{
                   padding: '0.3rem 0.6rem',
                   borderRadius: '6px',
@@ -157,13 +211,13 @@ export const Header: React.FC<HeaderProps> = ({
                   marginLeft: '0.3rem',
                 }}
               >
-                👥 Users
+                👥 {t('Kullanıcılar', 'Users')}
               </button>
             )}
 
             <button
               onClick={() => logout()}
-              title="Sign Out"
+              title={t('Oturumu Kapat', 'Sign Out')}
               style={{
                 padding: '0.3rem 0.6rem',
                 borderRadius: '6px',
@@ -175,7 +229,7 @@ export const Header: React.FC<HeaderProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Logout
+              {t('Çıkış', 'Logout')}
             </button>
           </div>
         ) : (
@@ -193,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
               boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
             }}
           >
-            Sign In
+            {t('Giriş Yap', 'Sign In')}
           </button>
         )}
       </div>

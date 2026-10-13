@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FacilityLayoutProblem } from '../types/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface MatrixEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -16,12 +17,18 @@ const REL_OPTIONS = [
 ];
 
 export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onUpdateProblem }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'flows' | 'relationships'>('flows');
 
   if (!problem || !problem.departments || problem.departments.length === 0) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <p style={{ color: 'var(--text-muted)' }}>Define at least two departments in the Problem Editor to build flow and relationship matrices.</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          {t(
+            'Flow ve REL matrislerini oluşturmak için Problem Tanımı sekmesinde en az iki bölüm tanımlayın.',
+            'Define at least two departments in the Problem Editor to build flow and relationship matrices.'
+          )}
+        </p>
       </div>
     );
   }
@@ -158,10 +165,13 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            Flow & Relationship Matrices
+            {t('Malzeme Akış & Yakınlık Matrisleri (Flow & REL Matrices)', 'Flow & Relationship Matrices')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-            Interactive matrix table editors for From-To material transfers and Systematic Layout Planning (SLP) closeness ratings.
+            {t(
+              'Bölümler arası malzeme taşıma miktarları (From-To Flow Matrix) ve Muther Systematic Layout Planning (SLP) yakınlık dereceleri (A, E, I, O, U, X).',
+              'Interactive matrix table editors for From-To material transfers and Systematic Layout Planning (SLP) closeness ratings.'
+            )}
           </p>
         </div>
 
@@ -193,7 +203,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 cursor: 'pointer',
               }}
             >
-              REL Closeness Matrix ({relCount} pairs)
+              REL Closeness Matrix ({relCount} {t('çift', 'pairs')})
             </button>
           </div>
 
@@ -210,7 +220,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
               cursor: 'pointer',
             }}
           >
-            Export CSV
+            {t('CSV İndir', 'Export CSV')}
           </button>
         </div>
       </div>
@@ -219,7 +229,10 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
       {activeTab === 'flows' && (
         <div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            Rows represent source departments (From); Columns represent destination departments (To). Enter transfer volume per cell.
+            {t(
+              'Satırlar kaynak bölümleri (From), sütunlar hedef bölümleri (To) temsil eder. Hücrelere birim akış hacmini girin.',
+              'Rows represent source departments (From); Columns represent destination departments (To). Enter transfer volume per cell.'
+            )}
           </div>
           <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'center' }}>
@@ -232,7 +245,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                     </th>
                   ))}
                   <th style={{ padding: '0.5rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', minWidth: '70px', fontWeight: 700 }}>
-                    Out Total
+                    {t('Toplam Çıkış', 'Out Total')}
                   </th>
                 </tr>
               </thead>

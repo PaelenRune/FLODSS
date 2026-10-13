@@ -13,6 +13,7 @@ import {
   solveCORELAP,
   solveALDEP,
 } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface OptimizationWorkspaceCardProps {
   problem: FacilityLayoutProblem | null;
@@ -31,88 +32,152 @@ type AlgorithmType = 'adaptive' | 'ga' | 'craft' | 'feasible_generator' | 'corel
 
 interface AlgorithmInfo {
   name: string;
-  category: string;
-  description: string;
-  supportedConditions: string[];
-  assumptionsAndLimitations: string[];
+  categoryTr: string;
+  categoryEn: string;
+  descriptionTr: string;
+  descriptionEn: string;
+  supportedConditionsTr: string[];
+  supportedConditionsEn: string[];
+  assumptionsAndLimitationsTr: string[];
+  assumptionsAndLimitationsEn: string[];
 }
 
 const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   adaptive: {
     name: 'Adaptive Strategy Engine v1',
-    category: 'Autonomous Multi-Method Pipeline',
-    description: 'Analyzes structural problem fingerprint (density, aspect ratios, constraints) and executes tailored primary and fallback pipelines.',
-    supportedConditions: [
+    categoryTr: 'Autonomous Multi-Method Pipeline (Otonom Çoklu Yöntem)',
+    categoryEn: 'Autonomous Multi-Method Pipeline',
+    descriptionTr: 'Problem parmak izini (Area Utilization, Aspect Ratio, Hard/Soft Constraints) analiz ederek en uygun birincil ve yedek (Fallback) çözücü hattını çalıştırır.',
+    descriptionEn: 'Analyzes structural problem fingerprint (density, aspect ratios, constraints) and executes tailored primary and fallback pipelines.',
+    supportedConditionsTr: [
+      'Tüm tesis doluluk rejimlerini destekler (düşük, orta, yüksek >=80% Utilization).',
+      'Fixed Position, Reserved Exclusion Zone ve sıkı Aspect Ratio sınırlarını destekler.',
+      'Constructive arama tıkanıklık yaşadığında otomatik olarak Metaheuristic (GA) moduna geçer.',
+    ],
+    supportedConditionsEn: [
       'Handles all facility density regimes (low, moderate, high >=80%).',
       'Supports fixed departments, reserved spine corridors, and tight aspect bounds.',
       'Automatic fallback to metaheuristic when constructive search encounters dead-ends.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Zaman bütçesi (Time Budget) dahilinde birden fazla algoritma çalıştırır.',
+      'Aday portföyü oluşturur ve çok amaçlı Pareto Dominance (Non-Dominated) sıralaması hesaplar.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Executes multiple algorithm evaluations within time budget.',
       'Constructs candidate portfolio and computes multi-objective Pareto dominance.',
     ],
   },
   ga: {
     name: 'Genetic Algorithm v1 (Slicing Tree)',
-    category: 'Stochastic Population-Based Metaheuristic',
-    description: 'Slicing-tree chromosome representation with area-preserving bay decoding, order crossover, and multi-operator mutation.',
-    supportedConditions: [
+    categoryTr: 'Stochastic Population-Based Metaheuristic',
+    categoryEn: 'Stochastic Population-Based Metaheuristic',
+    descriptionTr: 'Slicing Tree kromozom temsili, alan koruyucu Bay Decoding, Order Crossover (OX) ve çoklu mutasyon operatörleri.',
+    descriptionEn: 'Slicing-tree chromosome representation with area-preserving bay decoding, order crossover, and multi-operator mutation.',
+    supportedConditionsTr: [
+      'Continuous 2D dikdörtgensel yerleşim temsili.',
+      'Sıfır çakışma (Zero Pairwise Overlap) ve tam alan korunumu garantisi.',
+      'Soft Constraint Penalty rehberliği ile Material Handling Cost (MHC) minimizasyonu.',
+    ],
+    supportedConditionsEn: [
       'Continuous 2D rectangular layout representation.',
       'Guarantees zero pairwise overlap and exact area conservation.',
       'Minimizes Material Handling Cost (MHC) with soft penalty guidance.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Global matematiksel optimalliği garanti etmez (Facility Layout Problem güçlü NP-Hard sınıfındadır).',
+      'Değerlendirme bütçesi Population Size × Generations ile doğrusal ölçeklenir.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Does not guarantee global mathematical optimality (Facility Layout is strongly NP-hard).',
       'Evaluation budget scales linearly with population_size × generations.',
     ],
   },
   feasible_generator: {
     name: 'Feasible Rectangular Generator (Guillotine)',
-    category: 'Deterministic Constructive Packing',
-    description: 'Guillotine Row Packing constructive search establishing non-overlapping rectangular baselines from raw problem inputs.',
-    supportedConditions: [
+    categoryTr: 'Deterministic Constructive Packing',
+    categoryEn: 'Deterministic Constructive Packing',
+    descriptionTr: 'Guillotine Row Packing ve MaxRects yaklaşımlarıyla ham problem girdilerinden çakışmasız (Feasible) dikdörtgen başlangıç yerleşimi üretir.',
+    descriptionEn: 'Guillotine Row Packing constructive search establishing non-overlapping rectangular baselines from raw problem inputs.',
+    supportedConditionsTr: [
+      'Çok hızlı (<150 ms) deterministik Feasible Baseline üretimi.',
+      'Esnek Aspect Ratio sınırlarına sahip orta-yüksek yoğunluklu tesislerde idealdir.',
+    ],
+    supportedConditionsEn: [
       'Blazingly fast (<150 ms) deterministic baseline construction.',
       'Works best on moderate-to-high density facilities with flexible aspect ratios.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Tek geçişli Constructive Packing; geri izleme (Backtracking) içermez.',
+      'Aşırı yüksek dolulukta (>=90%) veya Reserved Exclusion Zone ile bölünmüş tesislerde başarısız olabilir.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Single-pass constructive search without recursive backtracking.',
       'Fails on extreme density (>=90%) or facilities bisected by reserved exclusion zones.',
     ],
   },
   craft: {
     name: 'CRAFT (Centroid Swapping Heuristic)',
-    category: 'Steepest-Descent Improvement Heuristic',
-    description: 'Pairwise department centroid exchange evaluating material handling cost deltas.',
-    supportedConditions: [
+    categoryTr: 'Steepest-Descent Improvement Heuristic',
+    categoryEn: 'Steepest-Descent Improvement Heuristic',
+    descriptionTr: 'Departman ağırlık merkezlerinin (Centroid) ikili değişimi (Pairwise Exchange) ile Material Handling Cost (MHC) düşüşünü değerlendirir.',
+    descriptionEn: 'Pairwise department centroid exchange evaluating material handling cost deltas.',
+    supportedConditionsTr: [
+      'Geçerli (Feasible) bir başlangıç yerleşimi (Initial Baseline Layout) gerektirir.',
+      'Flow-Distance maliyetini azaltmak için ikili koordinat takaslarını değerlendirir.',
+    ],
+    supportedConditionsEn: [
       'Requires an existing feasible starting baseline layout.',
       'Evaluates pairwise coordinate exchanges to reduce flow-distance costs.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Yerel optimumlara (Local Optima) takılmaya açıktır.',
+      'Farklı alana sahip departmanların takası kesikli ızgaralarda düzensiz şekiller üretebilir.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Susceptible to local optima entrapment.',
       'Swapping unequal department areas can produce non-rectangular shapes in discrete grids.',
     ],
   },
   corelap: {
     name: 'CORELAP (Total Closeness Rating)',
-    category: 'Greedy Constructive Heuristic',
-    description: 'Constructive algorithm placing departments sequentially based on Total Closeness Rating (TCR) computed from the REL matrix.',
-    supportedConditions: [
+    categoryTr: 'Greedy Constructive Heuristic',
+    categoryEn: 'Greedy Constructive Heuristic',
+    descriptionTr: 'SLP REL Matrix üzerinden hesaplanan Total Closeness Rating (TCR) puanlarına göre departmanları sırayla yerleştiren kurucu sezgisel.',
+    descriptionEn: 'Constructive algorithm placing departments sequentially based on Total Closeness Rating (TCR) computed from the REL matrix.',
+    supportedConditionsTr: [
+      'Niteliksel Systematic Layout Planning (SLP — A, E, I, O, U, X) odaklıdır.',
+      'En yüksek TCR puanına sahip departmanı tesis merkezine ilk olarak yerleştirir.',
+    ],
+    supportedConditionsEn: [
       'Qualitative Systematic Layout Planning (SLP) driven.',
       'Places highest TCR department first at layout center.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Eşitlik bozma (Tie-Breaking) sırasına duyarlıdır.',
+      'Doğrudan niceliksel Flow-Distance (MHC) maliyetini minimize etmez.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Sensitive to placement tie-breaking order.',
       'Does not natively minimize quantitative flow-distance costs.',
     ],
   },
   aldep: {
     name: 'ALDEP (Automated Layout Design Program)',
-    category: 'Stochastic Strip-Sweep Constructive Heuristic',
-    description: 'Randomized department selection and continuous snake-like strip sweep placement based on relationship cutoff threshold.',
-    supportedConditions: [
+    categoryTr: 'Stochastic Strip-Sweep Constructive Heuristic',
+    categoryEn: 'Stochastic Strip-Sweep Constructive Heuristic',
+    descriptionTr: 'Yakınlık eşik değerine (Cut-off Threshold) göre rastgele departman seçimi ve dikey şerit tarama (Snake-like Strip Sweep) yerleşimi.',
+    descriptionEn: 'Randomized department selection and continuous snake-like strip sweep placement based on relationship cutoff threshold.',
+    supportedConditionsTr: [
+      'Stokastik çoklu deneme (Multi-Trial Sweep) ile çeşitli alternatif yerleşimler üretir.',
+    ],
+    supportedConditionsEn: [
       'Generates diverse candidate alternatives via stochastic multi-trial sweep.',
     ],
-    assumptionsAndLimitations: [
+    assumptionsAndLimitationsTr: [
+      'Sabit şerit genişliği (Sweep Width) kesikli ızgaralarda ince uzun veya düzensiz şekiller oluşturabilir.',
+    ],
+    assumptionsAndLimitationsEn: [
       'Fixed sweep width can produce elongated or irregular shapes in discrete grids.',
     ],
   },
@@ -125,6 +190,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
   onNavigateToViewer,
   onNavigateToPareto,
 }) => {
+  const { lang, t } = useLanguage();
   const [selectedAlgo, setSelectedAlgo] = useState<AlgorithmType>('adaptive');
   const [randomSeed, setRandomSeed] = useState<number>(42);
   const [timeBudget, setTimeBudget] = useState<number>(10.0);
@@ -141,7 +207,9 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
   if (!problem) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <p style={{ color: 'var(--text-muted)' }}>Load or create a problem to access the Optimization Workspace.</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          {t('Optimizasyon Çalışma Alanına erişmek için bir problem yükleyin veya oluşturun.', 'Load or create a problem to access the Optimization Workspace.')}
+        </p>
       </div>
     );
   }
@@ -154,7 +222,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
     setErrorMsg(null);
     setFailureNotice(null);
     setLastResultMetrics(null);
-    setExecutionStatus(`Running ${currentAlgoInfo.name}...`);
+    setExecutionStatus(t(`${currentAlgoInfo.name} çalıştırılıyor...`, `Running ${currentAlgoInfo.name}...`));
     const t0 = performance.now();
 
     try {
@@ -176,11 +244,11 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
 
         if (!res.feasible_status || !bestLayout) {
           setFailureNotice({
-            reason: res.termination_reason || 'Adaptive strategy could not find a feasible layout.',
+            reason: res.termination_reason || t('Adaptive Strategy geçerli (Feasible) bir yerleşim bulamadı.', 'Adaptive strategy could not find a feasible layout.'),
             partial: totalCandidates > 0,
-            fallback: 'Try increasing the time budget or relaxing aspect ratio bounds in Problem Editor.',
+            fallback: t('Zaman bütçesini artırmayı veya Problem Editöründe Aspect Ratio sınırlarını esnetmeyi deneyin.', 'Try increasing the time budget or relaxing aspect ratio bounds in Problem Editor.'),
           });
-          setExecutionStatus('Algorithm Completed (Infeasible)');
+          setExecutionStatus(t('Tamamlandı (Infeasible)', 'Algorithm Completed (Infeasible)'));
         } else {
           const rec = res.final_recommendation || {};
           setLastResultMetrics({
@@ -197,7 +265,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             duration_ms: t1 - t0,
             termination_reason: res.termination_reason,
           });
-          setExecutionStatus('Success: Feasible Solution Found');
+          setExecutionStatus(t('Başarılı: Feasible Çözüm Bulundu', 'Success: Feasible Solution Found'));
         }
       } else if (selectedAlgo === 'ga') {
         const res = await solveGeneticAlgorithm({
@@ -214,11 +282,11 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
 
         if (!res.validation?.is_valid || !res.continuous_layout) {
           setFailureNotice({
-            reason: 'Genetic search terminated without finding a fully feasible chromosome.',
+            reason: t('Genetic Algorithm tam Feasible bir kromozom bulamadan sonlandı.', 'Genetic search terminated without finding a fully feasible chromosome.'),
             partial: res.continuous_layout !== null,
-            fallback: 'Increase population size or generations to expand slicing-tree exploration.',
+            fallback: t('Slicing Tree arama uzayını genişletmek için Population Size veya Generations değerini artırın.', 'Increase population size or generations to expand slicing-tree exploration.'),
           });
-          setExecutionStatus('Algorithm Completed (Infeasible)');
+          setExecutionStatus(t('Tamamlandı (Infeasible)', 'Algorithm Completed (Infeasible)'));
         } else {
           const mhcVal = res.evaluation?.material_handling_cost ?? res.evaluation?.objective_values?.material_handling_cost;
           const relVal = res.evaluation?.relationship_satisfaction_percentage ?? res.evaluation?.objective_values?.relationship_satisfaction;
@@ -237,7 +305,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             seed: randomSeed,
             duration_ms: t1 - t0,
           });
-          setExecutionStatus('Success: Feasible Solution Found');
+          setExecutionStatus(t('Başarılı: Feasible Çözüm Bulundu', 'Success: Feasible Solution Found'));
         }
       } else if (selectedAlgo === 'feasible_generator') {
         const res = await solveFeasibleGenerator({
@@ -253,11 +321,11 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
         const layoutObj = res.result?.layout || res.continuous_layout;
         if (!res.result?.feasible || !layoutObj) {
           setFailureNotice({
-            reason: res.result?.termination_reason || 'Guillotine Row Packing could not fit all departments within aspect bounds.',
+            reason: res.result?.termination_reason || t('Guillotine Row Packing tüm departmanları Aspect Ratio sınırları içinde sığdıramadı.', 'Guillotine Row Packing could not fit all departments within aspect bounds.'),
             partial: false,
-            fallback: 'Switch to Genetic Algorithm or Adaptive Mode which use recursive slicing.',
+            fallback: t('Recursive Slicing kullanan Genetic Algorithm veya Adaptive Strategy moduna geçin.', 'Switch to Genetic Algorithm or Adaptive Mode which use recursive slicing.'),
           });
-          setExecutionStatus('Constructive Search Failed');
+          setExecutionStatus(t('Constructive Arama Başarısız', 'Constructive Search Failed'));
         } else {
           const mhcVal = res.evaluation?.material_handling_cost ?? res.evaluation?.objective_values?.material_handling_cost;
           const relVal = res.evaluation?.relationship_satisfaction_percentage ?? res.evaluation?.objective_values?.relationship_satisfaction;
@@ -276,7 +344,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             seed: randomSeed,
             duration_ms: t1 - t0,
           });
-          setExecutionStatus('Success: Feasible Layout Generated');
+          setExecutionStatus(t('Başarılı: Feasible Yerleşim Üretildi', 'Success: Feasible Layout Generated'));
         }
       } else if (selectedAlgo === 'craft') {
         const res = await solveCRAFT({
@@ -305,7 +373,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
           algorithm: 'CRAFT',
           duration_ms: t1 - t0,
         });
-        setExecutionStatus('Success: CRAFT Optimization Finished');
+        setExecutionStatus(t('Başarılı: CRAFT Optimizasyonu Tamamlandı', 'Success: CRAFT Optimization Finished'));
       } else if (selectedAlgo === 'corelap') {
         const res = await solveCORELAP({
           problem_id: problem.id,
@@ -316,13 +384,13 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
         const isFeas = res.validation?.is_valid && res.trace?.execution_success;
         if (!isFeas) {
           setFailureNotice({
-            reason: res.trace?.failure_reason || 'CORELAP heuristic produced overlapping or incomplete placements.',
+            reason: res.trace?.failure_reason || t('CORELAP sezgisel algoritması çakışmalı veya eksik yerleşim üretti.', 'CORELAP heuristic produced overlapping or incomplete placements.'),
             partial: res.trace?.placed_count > 0,
-            fallback: 'Use Feasible Generator, Genetic Algorithm, or Adaptive Mode for guaranteed feasibility.',
+            fallback: t('Garantili Feasible yerleşim için Feasible Generator, Genetic Algorithm veya Adaptive Mode kullanın.', 'Use Feasible Generator, Genetic Algorithm, or Adaptive Mode for guaranteed feasibility.'),
           });
           setExecutionStatus('CORELAP Infeasible Baseline');
         } else {
-          setExecutionStatus('Success: CORELAP Placed');
+          setExecutionStatus(t('Başarılı: CORELAP Yerleştirildi', 'Success: CORELAP Placed'));
         }
 
         const mhcVal = res.evaluation?.material_handling_cost ?? res.evaluation?.objective_values?.material_handling_cost;
@@ -363,17 +431,20 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
           algorithm: 'ALDEP',
           duration_ms: t1 - t0,
         });
-        setExecutionStatus(isFeas ? 'Success: ALDEP Completed' : 'ALDEP Completed (Infeasible)');
+        setExecutionStatus(isFeas ? t('Başarılı: ALDEP Tamamlandı', 'Success: ALDEP Completed') : 'ALDEP Completed (Infeasible)');
       }
     } catch (err: any) {
       const t1 = performance.now();
       setElapsedMs(Math.round(t1 - t0));
-      setErrorMsg(err.message || 'Optimization execution failed.');
-      setExecutionStatus('Execution Error');
+      setErrorMsg(err.message || t('Optimizasyon çalıştırılamadı.', 'Optimization execution failed.'));
+      setExecutionStatus(t('Çalıştırma Hatası', 'Execution Error'));
     } finally {
       setSolving(false);
     }
   };
+
+  const supportedConditions = lang === 'tr' ? currentAlgoInfo.supportedConditionsTr : currentAlgoInfo.supportedConditionsEn;
+  const assumptions = lang === 'tr' ? currentAlgoInfo.assumptionsAndLimitationsTr : currentAlgoInfo.assumptionsAndLimitationsEn;
 
   return (
     <div style={{
@@ -385,10 +456,13 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
     }}>
       <div style={{ marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-          Optimization Execution Workspace
+          {t('Optimizasyon Çalıştırma Alanı (Heuristics & Metaheuristics)', 'Optimization Execution Workspace')}
         </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-          Select and run industrial layout optimization heuristics, metaheuristics, or the autonomous Adaptive Strategy Engine.
+          {t(
+            'Klasik literatür sezgisellerini (CORELAP, ALDEP, CRAFT), Genetic Algorithm (Slicing Tree) meta-sezgiselini veya otonom Adaptive Strategy Engine motorunu seçip çalıştırın.',
+            'Select and run industrial layout optimization heuristics, metaheuristics, or the autonomous Adaptive Strategy Engine.'
+          )}
         </p>
       </div>
 
@@ -437,30 +511,30 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             {currentAlgoInfo.name}
           </h3>
           <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', fontWeight: 600 }}>
-            {currentAlgoInfo.category}
+            {lang === 'tr' ? currentAlgoInfo.categoryTr : currentAlgoInfo.categoryEn}
           </span>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-          {currentAlgoInfo.description}
+          {lang === 'tr' ? currentAlgoInfo.descriptionTr : currentAlgoInfo.descriptionEn}
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', fontSize: '0.8rem' }}>
           <div>
             <div style={{ fontWeight: 600, color: '#34d399', marginBottom: '0.25rem' }}>
-              ✓ Supported Operating Conditions:
+              ✓ {t('Desteklenen Çalışma Koşulları:', 'Supported Operating Conditions:')}
             </div>
             <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              {currentAlgoInfo.supportedConditions.map((cond, i) => (
+              {supportedConditions.map((cond, i) => (
                 <li key={i}>{cond}</li>
               ))}
             </ul>
           </div>
           <div>
             <div style={{ fontWeight: 600, color: '#fbbf24', marginBottom: '0.25rem' }}>
-              ℹ Method Boundaries & Assumptions:
+              ℹ {t('Yöntem Sınırları & Varsayımlar:', 'Method Boundaries & Assumptions:')}
             </div>
             <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              {currentAlgoInfo.assumptionsAndLimitations.map((lim, i) => (
+              {assumptions.map((lim, i) => (
                 <li key={i}>{lim}</li>
               ))}
             </ul>
@@ -493,7 +567,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
 
         <div>
           <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
-            Time Budget (sec):
+            {t('Zaman Bütçesi / Time Budget (sn):', 'Time Budget (sec):')}
           </label>
           <input
             type="number"
@@ -554,12 +628,12 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
           }}
         >
-          {solving ? '⏳ Solving Problem...' : `⚡ Run ${currentAlgoInfo.name.split(' (')[0]}`}
+          {solving ? t('⏳ Problem Çözülüyor...', '⏳ Solving Problem...') : `⚡ ${t('Çalıştır:', 'Run')} ${currentAlgoInfo.name.split(' (')[0]}`}
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem' }}>
           <div>
-            <span style={{ color: 'var(--text-muted)' }}>Status: </span>
+            <span style={{ color: 'var(--text-muted)' }}>{t('Durum: ', 'Status: ')}</span>
             <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{executionStatus}</span>
           </div>
           {elapsedMs !== null && (
@@ -574,15 +648,15 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       {/* Error & Failure Notice Display */}
       {errorMsg && (
         <div style={{ padding: '1rem', borderRadius: '8px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-          <strong>Error:</strong> {errorMsg}
+          <strong>{t('Hata:', 'Error:')}</strong> {errorMsg}
         </div>
       )}
 
       {failureNotice && (
         <div style={{ padding: '1rem', borderRadius: '8px', backgroundColor: 'rgba(245, 158, 11, 0.15)', border: '1px solid #f59e0b', color: '#fbbf24', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-          <div style={{ fontWeight: 700, marginBottom: '0.25rem' }}>⚠ Algorithm Termination Notice (Infeasible):</div>
-          <div><strong>Reason:</strong> {failureNotice.reason}</div>
-          <div style={{ marginTop: '0.25rem' }}><strong>Suggested Fallback:</strong> {failureNotice.fallback}</div>
+          <div style={{ fontWeight: 700, marginBottom: '0.25rem' }}>⚠ {t('Algoritma Sonlanma Bildirimi (Infeasible):', 'Algorithm Termination Notice (Infeasible):')}</div>
+          <div><strong>{t('Neden:', 'Reason:')}</strong> {failureNotice.reason}</div>
+          <div style={{ marginTop: '0.25rem' }}><strong>{t('Önerilen Çözüm (Fallback):', 'Suggested Fallback:')}</strong> {failureNotice.fallback}</div>
         </div>
       )}
 
@@ -601,7 +675,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
         }}>
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-              SOLVER OUTCOME: {lastResultMetrics.algorithm}
+              {t('ÇÖZÜCÜ SONUCU:', 'SOLVER OUTCOME:')} {lastResultMetrics.algorithm}
             </div>
             <div style={{ display: 'flex', gap: '1.25rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
               <div>
@@ -639,7 +713,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
                 cursor: 'pointer',
               }}
             >
-              📐 View 2D Floor Plan
+              📐 {t('2D Yerleşim Planını Gör', 'View 2D Floor Plan')}
             </button>
             <button
               onClick={onNavigateToPareto}
@@ -654,7 +728,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
                 cursor: 'pointer',
               }}
             >
-              📊 Compare on Pareto Frontier
+              📊 {t('Pareto Frontier Üzerinde Karşılaştır', 'Compare on Pareto Frontier')}
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LoginModalProps {
   onOpenInvite: () => void;
@@ -7,6 +8,7 @@ interface LoginModalProps {
 
 export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
   const { login, demoLogin, isLoading } = useAuth();
+  const { lang, setLang, t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -14,14 +16,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      setErrorMsg('Please enter both email and password.');
+      setErrorMsg(t('Lütfen e-posta ve parola alanlarını doldurun.', 'Please enter both email and password.'));
       return;
     }
     setErrorMsg(null);
     try {
       await login(email.trim(), password);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Login failed. Please check your credentials.');
+      setErrorMsg(err.message || t('Giriş başarısız. Bilgilerinizi kontrol edin.', 'Login failed. Please check your credentials.'));
     }
   };
 
@@ -30,7 +32,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
     try {
       await demoLogin();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Demo login failed.');
+      setErrorMsg(err.message || t('Demo girişi başarısız oldu.', 'Demo login failed.'));
     }
   };
 
@@ -56,10 +58,64 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
           border: '1px solid #374151',
           borderRadius: '16px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.65)',
-          padding: '2.25rem',
+          padding: '2rem',
           color: '#f9fafb',
+          position: 'relative',
         }}
       >
+        {/* Top-Right Language Switcher */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '0.5rem',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              backgroundColor: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              padding: '0.15rem',
+              gap: '0.15rem',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setLang('tr')}
+              style={{
+                padding: '0.2rem 0.55rem',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                backgroundColor: lang === 'tr' ? '#2563eb' : 'transparent',
+                color: lang === 'tr' ? '#ffffff' : '#9ca3af',
+              }}
+            >
+              🇹🇷 TR
+            </button>
+            <button
+              type="button"
+              onClick={() => setLang('en')}
+              style={{
+                padding: '0.2rem 0.55rem',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                backgroundColor: lang === 'en' ? '#2563eb' : 'transparent',
+                color: lang === 'en' ? '#ffffff' : '#9ca3af',
+              }}
+            >
+              🇬🇧 EN
+            </button>
+          </div>
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div
             style={{
@@ -83,7 +139,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
             FLODSS Research Portal
           </h2>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>
-            Tesis Yerleşim Optimizasyon &amp; Karar Destek Sistemi &bull; v1.0.0-rc.1
+            {t(
+              'Tesis Yerleşim Optimizasyon & Karar Destek Sistemi • v1.0.0-rc.1',
+              'Controlled Research & Thesis Pilot Environment • v1.0.0-rc.1'
+            )}
           </p>
         </div>
 
@@ -132,13 +191,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
             }}
           >
             <span>🚀</span>
-            <span>{isLoading ? 'Giriş Yapılıyor...' : 'Demo / Misafir Olarak Başla (Şifresiz)'}</span>
+            <span>
+              {isLoading
+                ? t('Giriş Yapılıyor...', 'Entering Workspace...')
+                : t('Demo / Misafir Olarak Başla (Şifresiz)', 'Start as Guest Researcher (No Password)')}
+            </span>
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', margin: '1.25rem 0 0.25rem 0' }}>
             <div style={{ flex: 1, height: '1px', backgroundColor: '#374151' }} />
             <span style={{ padding: '0 0.75rem', fontSize: '0.72rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              veya kayıtlı hesapla giriş
+              {t('veya kayıtlı hesapla giriş', 'or sign in with account')}
             </span>
             <div style={{ flex: 1, height: '1px', backgroundColor: '#374151' }} />
           </div>
@@ -147,7 +210,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-              Institutional / Researcher Email
+              {t('Kurumsal / Araştırmacı E-posta', 'Institutional / Researcher Email')}
             </label>
             <input
               type="email"
@@ -171,7 +234,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
 
           <div>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-              Password
+              {t('Parola', 'Password')}
             </label>
             <input
               type="password"
@@ -215,7 +278,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
               transition: 'background-color 0.2s',
             }}
           >
-            {isLoading ? 'Authenticating...' : 'Sign In to Workspace'}
+            {isLoading ? t('Doğrulanıyor...', 'Authenticating...') : t('Çalışma Alanına Giriş Yap', 'Sign In to Workspace')}
           </button>
         </form>
 
@@ -233,12 +296,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
               textDecoration: 'underline',
             }}
           >
-            Have an invitation token? Activate your account
+            {t('Davet anahtarınız (Invitation Token) var mı? Hesabınızı etkinleştirin', 'Have an invitation token? Activate your account')}
           </button>
         </div>
 
         <div style={{ marginTop: '1.25rem', padding: '0.75rem', backgroundColor: '#1e293b', borderRadius: '8px', fontSize: '0.75rem', color: '#94a3b8' }}>
-          <strong>🔒 Access Governance Notice:</strong> Access is restricted strictly to authorized researchers, thesis advisors, and evaluation panelists. Actions are recorded in audit logs.
+          <strong>🔒 {t('Erişim & Denetim Bilgilendirmesi:', 'Access Governance Notice:')}</strong>{' '}
+          {t(
+            'Bu platform tez danışmanları, hakemler ve araştırmacılar için tasarlanmıştır. Tüm optimizasyon deneyleri izole çalışma alanında yürütülür.',
+            'Access is restricted strictly to authorized researchers, thesis advisors, and evaluation panelists. Actions are recorded in audit logs.'
+          )}
         </div>
       </div>
     </div>

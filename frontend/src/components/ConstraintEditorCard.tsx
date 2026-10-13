@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FacilityLayoutProblem, ReservedZone } from '../types/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ConstraintEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -7,6 +8,7 @@ interface ConstraintEditorCardProps {
 }
 
 export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ problem, onUpdateProblem }) => {
+  const { t } = useLanguage();
   const [newZoneId, setNewZoneId] = useState('');
   const [newZoneType, setNewZoneType] = useState('aisle_corridor');
   const [newZoneXMin, setNewZoneXMin] = useState<number>(0);
@@ -18,7 +20,9 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
   if (!problem) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <p style={{ color: 'var(--text-muted)' }}>No problem loaded. Load a problem to configure spatial constraints.</p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          {t('Yüklü problem yok. Geometrik kısıtları (Hard/Soft Constraints) yapılandırmak için bir problem yükleyin.', 'No problem loaded. Load a problem to configure spatial constraints.')}
+        </p>
       </div>
     );
   }
@@ -30,7 +34,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
   const handleAddReservedZone = () => {
     const id = newZoneId.trim().toUpperCase() || `RZ_${(reservedZones.length + 1).toString().padStart(2, '0')}`;
     if (reservedZones.some(z => z.id === id)) {
-      alert(`Reserved zone with ID '${id}' already exists.`);
+      alert(t(`'${id}' ID'li Reserved Zone zaten mevcut.`, `Reserved zone with ID '${id}' already exists.`));
       return;
     }
     const zone: ReservedZone = {
@@ -75,10 +79,13 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
     }}>
       <div style={{ marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-          Spatial & Geometric Constraints Editor
+          {t('Geometrik Kısıtlar Editörü (Hard / Soft Constraints & Exclusion Zones)', 'Spatial & Geometric Constraints Editor')}
         </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-          Define reserved spine corridors, emergency thoroughfares, and unmovable fixed department anchors.
+          {t(
+            'Ana koridorları (Spine Corridors), acil çıkış yollarını (Reserved Exclusion Zones) ve sabit konumlandırılmış departmanları (Fixed Position Anchors) tanımlayın.',
+            'Define reserved spine corridors, emergency thoroughfares, and unmovable fixed department anchors.'
+          )}
         </p>
       </div>
 
@@ -94,11 +101,14 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
             📌 Fixed Department Placements ({fixedDepts.length})
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            Fixed departments are anchored at exact $(x, y)$ coordinates (e.g. receiving docks, rail sidings).
+            {t(
+              'Fixed Position departmanları tam (x, y) koordinatlarına sabitlenir (örn. mal kabul rampası, sevkiyat kapısı).',
+              'Fixed departments are anchored at exact (x, y) coordinates (e.g. receiving docks, rail sidings).'
+            )}
           </p>
           {fixedDepts.length === 0 ? (
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-              No departments are currently pinned. You can toggle fixed locations in the Problem Editor.
+              {t('Şu anda sabitlenmiş departman yok. Problem Editörü sekmesinden Fixed Position seçebilirsiniz.', 'No departments are currently pinned. You can toggle fixed locations in the Problem Editor.')}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -124,14 +134,17 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
           padding: '1.25rem',
         }}>
           <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f59e0b', marginTop: 0, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            🚧 Facility Reserved Exclusion Zones ({reservedZones.length})
+            🚧 Reserved Exclusion Zones ({reservedZones.length})
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            Geometric areas strictly forbidden from department occupation (e.g. spine aisles, column grid).
+            {t(
+              'Departman yerleşimine kesin olarak kapalı yasaklı geometrik bölgeler (Forbidden Zones: koridorlar, kolon aksları).',
+              'Geometric areas strictly forbidden from department occupation (e.g. spine aisles, column grid).'
+            )}
           </p>
           {reservedZones.length === 0 ? (
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-              No exclusion zones defined. Add a zone using the form below.
+              {t('Tanımlı yasaklı bölge (Exclusion Zone) yok. Aşağıdaki formdan yeni bölge ekleyebilirsiniz.', 'No exclusion zones defined. Add a zone using the form below.')}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -155,7 +168,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
                       cursor: 'pointer',
                     }}
                   >
-                    Delete
+                    {t('Sil', 'Delete')}
                   </button>
                 </div>
               ))}
@@ -172,7 +185,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
         border: '1px solid var(--border-color)',
       }}>
         <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.85rem', color: 'var(--text-primary)' }}>
-          + Add New Reserved Exclusion Zone
+          {t('+ Yeni Reserved Exclusion Zone Ekle', '+ Add New Reserved Exclusion Zone')}
         </h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', alignItems: 'end' }}>
           <div>
@@ -186,16 +199,16 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Type:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>{t('Bölge Tipi (Type):', 'Type:')}</label>
             <select
               value={newZoneType}
               onChange={(e) => setNewZoneType(e.target.value)}
               style={{ width: '100%', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
             >
-              <option value="aisle_corridor">Aisle Corridor</option>
-              <option value="building_column">Structural Column</option>
-              <option value="emergency_exit">Emergency Exit</option>
-              <option value="utility_chase">Utility Chase</option>
+              <option value="aisle_corridor">{t('Aisle Corridor (Ana Koridor)', 'Aisle Corridor')}</option>
+              <option value="building_column">{t('Structural Column (Bina Kolonu)', 'Structural Column')}</option>
+              <option value="emergency_exit">{t('Emergency Exit (Acil Çıkış)', 'Emergency Exit')}</option>
+              <option value="utility_chase">{t('Utility Chase (Tesisat Şaftı)', 'Utility Chase')}</option>
             </select>
           </div>
           <div>
@@ -241,7 +254,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
                 checked={newZoneStrict}
                 onChange={(e) => setNewZoneStrict(e.target.checked)}
               />
-              Strict Exclusion
+              {t('Hard Constraint (Kesin Yasak)', 'Strict Exclusion')}
             </label>
           </div>
           <div>
@@ -259,7 +272,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
                 cursor: 'pointer',
               }}
             >
-              Add Zone
+              {t('Bölge Ekle', 'Add Zone')}
             </button>
           </div>
         </div>

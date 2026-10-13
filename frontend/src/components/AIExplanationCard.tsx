@@ -13,6 +13,7 @@ import {
   explainLocal,
   explainGemini,
 } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const BENCHMARK_PROBLEMS = [
   { id: 'FLP_INDUSTRIAL_10', name: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
@@ -26,40 +27,53 @@ const BENCHMARK_PROBLEMS = [
   { id: 'FLP_LOGISTICS_5', name: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
 ];
 
-const PRESET_QUESTIONS: { type: PresetQuestionType; label: string; text: string }[] = [
+const PRESET_QUESTIONS: { type: PresetQuestionType; labelTr: string; labelEn: string; textTr: string; textEn: string }[] = [
   {
     type: 'why_strategy_selected',
-    label: 'Algorithm Selection',
-    text: 'Why did FLODSS select this algorithm?',
+    labelTr: 'Algoritma Seçimi',
+    labelEn: 'Algorithm Selection',
+    textTr: 'FLODSS neden bu algoritmayı seçti?',
+    textEn: 'Why did FLODSS select this algorithm?',
   },
   {
     type: 'why_feasible',
-    label: 'Feasibility Rationale',
-    text: 'Why is this factory layout feasible?',
+    labelTr: 'Feasibility Gerekçesi',
+    labelEn: 'Feasibility Rationale',
+    textTr: 'Bu fabrika yerleşimi neden Feasible?',
+    textEn: 'Why is this factory layout feasible?',
   },
   {
     type: 'pareto_comparison',
-    label: 'Pareto Trade-Offs',
-    text: 'What is the difference between these two Pareto alternatives?',
+    labelTr: 'Pareto Trade-Off Analizi',
+    labelEn: 'Pareto Trade-Offs',
+    textTr: 'İki Pareto Frontier alternatifi arasındaki fark nedir?',
+    textEn: 'What is the difference between these two Pareto alternatives?',
   },
   {
     type: 'soft_penalty_explanation',
-    label: 'Soft Penalty Impact',
-    text: 'What does the soft constraint penalty mean?',
+    labelTr: 'Soft Penalty Etkisi',
+    labelEn: 'Soft Penalty Impact',
+    textTr: 'Soft Constraint Penalty değeri ne anlama geliyor?',
+    textEn: 'What does the soft constraint penalty mean?',
   },
   {
     type: 'fallback_reason',
-    label: 'Fallback Mechanism',
-    text: 'Why did the fallback algorithm run?',
+    labelTr: 'Fallback Mekanizması',
+    labelEn: 'Fallback Mechanism',
+    textTr: 'Yedek (Fallback) algoritma neden çalıştı?',
+    textEn: 'Why did the fallback algorithm run?',
   },
   {
     type: 'global_optimality_query',
-    label: 'Optimality Boundaries',
-    text: 'Is this result guaranteed to be globally optimal?',
+    labelTr: 'Global Optimality Sınırları',
+    labelEn: 'Optimality Boundaries',
+    textTr: 'Bu sonucun Global Optimal olduğu garanti edilir mi?',
+    textEn: 'Is this result guaranteed to be globally optimal?',
   },
 ];
 
 export const AIExplanationCard: React.FC = () => {
+  const { lang, t } = useLanguage();
   const [mode, setMode] = useState<ExplanationMode>('local');
   const [selectedProblemId, setSelectedProblemId] = useState<string>('FLP_INDUSTRIAL_10');
   const [selectedQuestionType, setSelectedQuestionType] = useState<PresetQuestionType>('why_strategy_selected');
@@ -98,7 +112,7 @@ export const AIExplanationCard: React.FC = () => {
       });
       setResult(res);
     } catch (err: any) {
-      setError(err.message || 'Local explanation generation failed');
+      setError(err.message || t('Yerel açıklama üretilemedi', 'Local explanation generation failed'));
     } finally {
       setLoading(false);
     }
@@ -118,7 +132,7 @@ export const AIExplanationCard: React.FC = () => {
       setPreview(p);
       setShowPreviewModal(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to generate preview data packet');
+      setError(err.message || t('Önizleme veri paketi oluşturulamadı', 'Failed to generate preview data packet'));
     } finally {
       setLoading(false);
     }
@@ -151,7 +165,7 @@ export const AIExplanationCard: React.FC = () => {
       });
       setResult(res);
     } catch (err: any) {
-      setError(err.message || 'Gemini explanation failed');
+      setError(err.message || t('Gemini açıklaması başarısız oldu', 'Gemini explanation failed'));
     } finally {
       setLoading(false);
     }
@@ -171,7 +185,7 @@ export const AIExplanationCard: React.FC = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-              Phase 12: Gemini AI Decision Explanation & Engineering Audit
+              {t('Gemini AI Karar Açıklama & Mühendislik Denetimi (XAI)', 'Phase 12: Gemini AI Decision Explanation & Engineering Audit')}
             </h2>
             <span style={{
               fontSize: '0.75rem',
@@ -181,12 +195,14 @@ export const AIExplanationCard: React.FC = () => {
               backgroundColor: '#e0e7ff',
               color: '#3730a3',
             }}>
-              CONFIDENTIALITY GUARANTEED
+              {t('GİZLİLİK GARANTİLİ', 'CONFIDENTIALITY GUARANTEED')}
             </span>
           </div>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '850px' }}>
-            Provides grounded, explainable rationales for algorithm choices, geometric constraints, and multi-objective Pareto trade-offs.
-            Gemini acts strictly as an interpretation assistant—it never optimizes, moves coordinates, or overrides computed metrics.
+            {t(
+              'Algoritma seçimleri, geometrik kısıtlar (Hard/Soft Constraints) ve çok amaçlı Pareto Frontier ödünleşimleri için kanıta dayalı açıklamalar sunar. Gemini yalnızca yorumlayıcı asistandır; asla koordinat değiştirmez veya hesaplanan metrikleri ezmez.',
+              'Provides grounded, explainable rationales for algorithm choices, geometric constraints, and multi-objective Pareto trade-offs. Gemini acts strictly as an interpretation assistant—it never optimizes, moves coordinates, or overrides computed metrics.'
+            )}
           </p>
         </div>
 
@@ -203,8 +219,8 @@ export const AIExplanationCard: React.FC = () => {
           alignItems: 'flex-end',
           gap: '2px',
         }}>
-          <div><strong>Transmission Policy:</strong> Whitelist Only</div>
-          <div>Excluded: Coordinates, Raw Flows, Source Code, Names</div>
+          <div><strong>{t('Aktarım Politikası:', 'Transmission Policy:')}</strong> Whitelist Only</div>
+          <div>{t('Hariç Tutulan: Koordinatlar, Akış Matrisi, Kaynak Kod, İsimler', 'Excluded: Coordinates, Raw Flows, Source Code, Names')}</div>
         </div>
       </div>
 
@@ -221,7 +237,7 @@ export const AIExplanationCard: React.FC = () => {
         flexWrap: 'wrap',
       }}>
         <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          Explanation Engine:
+          {t('Açıklama Motoru:', 'Explanation Engine:')}
         </span>
         <button
           onClick={() => { setMode('local'); setError(null); }}
@@ -237,7 +253,7 @@ export const AIExplanationCard: React.FC = () => {
             transition: 'all 0.15s ease',
           }}
         >
-          Explain Locally (Offline & Deterministic)
+          {t('Yerel Açıklama (Çevrimdışı & Deterministik)', 'Explain Locally (Offline & Deterministic)')}
         </button>
         <button
           onClick={() => { setMode('gemini'); setError(null); }}
@@ -253,15 +269,15 @@ export const AIExplanationCard: React.FC = () => {
             transition: 'all 0.15s ease',
           }}
         >
-          Explain with Gemini AI (Confidential Opt-in)
+          {t('Gemini AI ile Açıkla (Onaylı & Gizli)', 'Explain with Gemini AI (Confidential Opt-in)')}
         </button>
 
         <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
           {mode === 'local'
-            ? '✓ 100% offline rule-based templates'
+            ? t('✓ %100 çevrimdışı kural tabanlı şablonlar', '✓ 100% offline rule-based templates')
             : aiStatus?.ai_enabled
               ? `✓ Model: ${aiStatus.gemini_model}`
-              : '⚠ AI disabled by default (falls back to local)'}
+              : t('⚠ AI varsayılan olarak kapalı (yerel moda döner)', '⚠ AI disabled by default (falls back to local)')}
         </span>
       </div>
 
@@ -270,7 +286,7 @@ export const AIExplanationCard: React.FC = () => {
         {/* Problem selector */}
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-secondary)' }}>
-            Target Problem
+            {t('Hedef Problem', 'Target Problem')}
           </label>
           <select
             value={selectedProblemId}
@@ -294,7 +310,7 @@ export const AIExplanationCard: React.FC = () => {
         {/* Question Type */}
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-secondary)' }}>
-            Audit Question Category
+            {t('Denetim Soru Kategorisi', 'Audit Question Category')}
           </label>
           <select
             value={selectedQuestionType}
@@ -310,9 +326,11 @@ export const AIExplanationCard: React.FC = () => {
             }}
           >
             {PRESET_QUESTIONS.map((q) => (
-              <option key={q.type} value={q.type}>{q.label}: "{q.text}"</option>
+              <option key={q.type} value={q.type}>
+                {lang === 'tr' ? `${q.labelTr}: "${q.textTr}"` : `${q.labelEn}: "${q.textEn}"`}
+              </option>
             ))}
-            <option value="custom">Custom Engineering Question...</option>
+            <option value="custom">{t('Özel Mühendislik Sorusu...', 'Custom Engineering Question...')}</option>
           </select>
         </div>
       </div>
@@ -321,12 +339,12 @@ export const AIExplanationCard: React.FC = () => {
       {selectedQuestionType === 'custom' && (
         <div style={{ marginBottom: '1.25rem' }}>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-secondary)' }}>
-            Enter Engineering Question (Strictly Sanitized, Max 300 Characters)
+            {t('Mühendislik Sorusu Girin (Temizlenmiş, Maks 300 Karakter)', 'Enter Engineering Question (Strictly Sanitized, Max 300 Characters)')}
           </label>
           <textarea
             value={customQuestion}
             onChange={(e) => setCustomQuestion(e.target.value.slice(0, 300))}
-            placeholder="e.g. How does the area density affect layout stability and aisle clearances?"
+            placeholder={t('Örn: Area Utilization yoğunluğu koridor açıklıklarını nasıl etkiler?', 'e.g. How does the area density affect layout stability and aisle clearances?')}
             rows={2}
             style={{
               width: '100%',
@@ -340,7 +358,7 @@ export const AIExplanationCard: React.FC = () => {
             }}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-            <span>HTML tags and prompt injection markers will be redacted.</span>
+            <span>{t('HTML etiketleri ve Prompt Injection işaretleri otomatik temizlenir.', 'HTML tags and prompt injection markers will be redacted.')}</span>
             <span>{customQuestion.length}/300</span>
           </div>
         </div>
@@ -349,7 +367,7 @@ export const AIExplanationCard: React.FC = () => {
       {/* Preset Question Quick Buttons */}
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-          Quick Archetype Questions:
+          {t('Hızlı Arketip Sorular:', 'Quick Archetype Questions:')}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
           {PRESET_QUESTIONS.map((q) => (
@@ -366,7 +384,7 @@ export const AIExplanationCard: React.FC = () => {
                 cursor: 'pointer',
               }}
             >
-              {q.label}
+              {lang === 'tr' ? q.labelTr : q.labelEn}
             </button>
           ))}
         </div>
@@ -390,7 +408,7 @@ export const AIExplanationCard: React.FC = () => {
               opacity: loading ? 0.7 : 1,
             }}
           >
-            {loading ? 'Generating Explanation...' : 'Generate Local Explanation'}
+            {loading ? t('Açıklama Üretiliyor...', 'Generating Explanation...') : t('Yerel Açıklama Üret', 'Generate Local Explanation')}
           </button>
         ) : (
           <button
@@ -408,13 +426,13 @@ export const AIExplanationCard: React.FC = () => {
               opacity: loading ? 0.7 : 1,
             }}
           >
-            {loading ? 'Preparing Data Preview...' : 'Preview Data Packet & Review Consent'}
+            {loading ? t('Veri Önizlemesi Hazırlanıyor...', 'Preparing Data Preview...') : t('Veri Paketini Önizle & Onayla', 'Preview Data Packet & Review Consent')}
           </button>
         )}
 
         {error && (
           <div style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 500 }}>
-            Error: {error}
+            {t('Hata:', 'Error:')} {error}
           </div>
         )}
       </div>
@@ -448,10 +466,10 @@ export const AIExplanationCard: React.FC = () => {
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#1e293b' }}>
-                  Confidential Data Transfer Preview & Consent
+                  {t('Gizli Veri Aktarım Önizlemesi & Açık Rıza', 'Confidential Data Transfer Preview & Consent')}
                 </h3>
                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  Target Provider: {preview.provider} &bull; Model: {preview.target_model}
+                  {t('Hedef Sağlayıcı:', 'Target Provider:')} {preview.provider} &bull; Model: {preview.target_model}
                 </span>
               </div>
               <button
@@ -464,24 +482,24 @@ export const AIExplanationCard: React.FC = () => {
 
             <div style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', fontSize: '0.85rem', lineHeight: 1.5 }}>
               <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.75rem', marginBottom: '1rem', color: '#1e3a8a' }}>
-                <strong>Confidentiality Policy:</strong> {preview.privacy_impact}
+                <strong>{t('Gizlilik Politikası:', 'Confidentiality Policy:')}</strong> {preview.privacy_impact}
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '0.25rem' }}>
-                  Whitelisted Fields To Be Transmitted:
+                  {t('Gönderilecek İzinli (Whitelisted) Alanlar:', 'Whitelisted Fields To Be Transmitted:')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#334155' }}>
                   {preview.whitelisted_fields.slice(0, 8).map((f, i) => (
                     <li key={i}>{f}</li>
                   ))}
-                  <li>...plus canonical metrics and anonymized department areas.</li>
+                  <li>{t('...ve kanonik metrikler ile anonimleştirilmiş departman alanları.', '...plus canonical metrics and anonymized department areas.')}</li>
                 </ul>
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ fontWeight: 600, color: '#991b1b', marginBottom: '0.25rem' }}>
-                  Explicitly Excluded Sensitive Fields (Zero Transmission):
+                  {t('Kesinlikle Hariç Tutulan Hassas Alanlar (Sıfır Aktarım):', 'Explicitly Excluded Sensitive Fields (Zero Transmission):')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#991b1b' }}>
                   {preview.excluded_sensitive_fields.map((f, i) => (
@@ -520,7 +538,7 @@ export const AIExplanationCard: React.FC = () => {
               }}>
                 <div style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
-                    Granular Field Minimization & Opt-in Flags:
+                    {t('Veri Minimizasyonu & İsteğe Bağlı Alanlar:', 'Granular Field Minimization & Opt-in Flags:')}
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.75rem', color: '#475569', cursor: 'pointer' }}>
                     <input
@@ -528,7 +546,7 @@ export const AIExplanationCard: React.FC = () => {
                       checked={optInDimensions}
                       onChange={(e) => setOptInDimensions(e.target.checked)}
                     />
-                    Include exact facility boundary dimensions (width & height in meters)
+                    {t('Tam tesis dış sınır boyutlarını dahil et (metre cinsinden genişlik & derinlik)', 'Include exact facility boundary dimensions (width & height in meters)')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.75rem', color: '#475569', cursor: 'pointer' }}>
                     <input
@@ -536,7 +554,7 @@ export const AIExplanationCard: React.FC = () => {
                       checked={optInAreas}
                       onChange={(e) => setOptInAreas(e.target.checked)}
                     />
-                    Include exact department target area values (m²)
+                    {t('Tam departman hedef alan değerlerini dahil et (m²)', 'Include exact department target area values (m²)')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#475569', cursor: 'pointer' }}>
                     <input
@@ -544,7 +562,7 @@ export const AIExplanationCard: React.FC = () => {
                       checked={optInFinancial}
                       onChange={(e) => setOptInFinancial(e.target.checked)}
                     />
-                    Include exact material handling cost dollar figures ($)
+                    {t('Tam Material Handling Cost (MHC $) tutarlarını dahil et', 'Include exact material handling cost dollar figures ($)')}
                   </label>
                 </div>
 
@@ -556,14 +574,19 @@ export const AIExplanationCard: React.FC = () => {
                     style={{ marginTop: '3px' }}
                   />
                   <span style={{ fontSize: '0.8rem', color: '#1e293b' }}>
-                    <strong>I explicitly consent</strong> to sending the whitelisted summary above to Google Gemini API.
-                    I acknowledge that coordinates, flows, and confidential names are excluded, and that no guarantees of global optimality apply.
+                    {t(
+                      'Yukarıdaki izinli özetin Google Gemini API servisine gönderilmesine açıkça onay veriyorum. Koordinatların, akışların ve gizli isimlerin hariç tutulduğunu ve Global Optimality garantisi verilmediğini kabul ediyorum.',
+                      'I explicitly consent to sending the whitelisted summary above to Google Gemini API. I acknowledge that coordinates, flows, and confidential names are excluded, and that no guarantees of global optimality apply.'
+                    )}
                   </span>
                 </label>
 
                 <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <span style={{ color: '#059669', fontWeight: 700 }}>&#x1F512; Single-Use Replay Protection:</span>
-                  Authorization is valid for 15 minutes, bound to session {clientSessionId.substring(0, 10)}..., and invalidated immediately upon first execution.
+                  {t(
+                    `Yetkilendirme 15 dakika geçerlidir, ${clientSessionId.substring(0, 10)}... oturumuna bağlıdır ve ilk kullanımda geçersiz kılınır.`,
+                    `Authorization is valid for 15 minutes, bound to session ${clientSessionId.substring(0, 10)}..., and invalidated immediately upon first execution.`
+                  )}
                 </div>
               </div>
             </div>
@@ -582,7 +605,7 @@ export const AIExplanationCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                Cancel
+                {t('İptal', 'Cancel')}
               </button>
               <button
                 onClick={handleConfirmGeminiConsent}
@@ -598,7 +621,7 @@ export const AIExplanationCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                Authorize & Send to Gemini
+                {t('Yetkilendir & Gemini\'ye Gönder', 'Authorize & Send to Gemini')}
               </button>
             </div>
           </div>
@@ -638,7 +661,7 @@ export const AIExplanationCard: React.FC = () => {
                 {result.mode === 'gemini' ? 'Google Gemini 3.8 Flash' : 'Local Deterministic Explainer'}
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Question: "{result.question}"
+                {t('Soru:', 'Question:')} "{result.question}"
               </span>
             </div>
 
@@ -668,7 +691,7 @@ export const AIExplanationCard: React.FC = () => {
             borderLeft: '4px solid #4f46e5',
             marginBottom: '1.25rem',
           }}>
-            <strong>Summary:</strong> {result.explanation.summary}
+            <strong>{t('Özet:', 'Summary:')}</strong> {result.explanation.summary}
           </div>
 
           {/* Grounded Canonical Metrics Box */}
@@ -683,11 +706,11 @@ export const AIExplanationCard: React.FC = () => {
               borderRadius: '6px',
             }}>
               <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Material Handling Cost: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Material Handling Cost (MHC): </span>
                 <strong>${Number(result.verified_canonical_metrics.material_handling_cost || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Rel Satisfaction: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>REL Satisfaction: </span>
                 <strong>{Number(result.verified_canonical_metrics.relationship_satisfaction || 0).toFixed(2)}%</strong>
               </div>
               <div style={{ fontSize: '0.8rem' }}>
@@ -703,7 +726,7 @@ export const AIExplanationCard: React.FC = () => {
             {result.explanation.main_reasons.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '0.4rem' }}>
-                  Primary Engineering Reasons
+                  {t('Temel Mühendislik Gerekçeleri', 'Primary Engineering Reasons')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                   {result.explanation.main_reasons.map((r, i) => (
@@ -717,7 +740,7 @@ export const AIExplanationCard: React.FC = () => {
             {result.explanation.strengths.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#065f46', marginBottom: '0.4rem' }}>
-                  Layout & Algorithmic Strengths
+                  {t('Yerleşim & Algoritma Güçlü Yönleri', 'Layout & Algorithmic Strengths')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                   {result.explanation.strengths.map((s, i) => (
@@ -731,7 +754,7 @@ export const AIExplanationCard: React.FC = () => {
             {result.explanation.risks.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#92400e', marginBottom: '0.4rem' }}>
-                  Potential Operational Risks
+                  {t('Olası Operasyonel Riskler', 'Potential Operational Risks')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                   {result.explanation.risks.map((rk, i) => (
@@ -745,11 +768,11 @@ export const AIExplanationCard: React.FC = () => {
             {result.explanation.trade_offs.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#4338ca', marginBottom: '0.4rem' }}>
-                  Multi-Objective Trade-Offs
+                  {t('Çok Amaçlı Ödünleşimler (Multi-Objective Trade-Offs)', 'Multi-Objective Trade-Offs')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
-                  {result.explanation.trade_offs.map((t, i) => (
-                    <li key={i}>{t}</li>
+                  {result.explanation.trade_offs.map((tItem, i) => (
+                    <li key={i}>{tItem}</li>
                   ))}
                 </ul>
               </div>
@@ -760,7 +783,7 @@ export const AIExplanationCard: React.FC = () => {
           {result.explanation.evidence_references.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Cited Canonical Metrics:
+                {t('Atıf Yapılan Kanonik Metrikler:', 'Cited Canonical Metrics:')}
               </span>
               {result.explanation.evidence_references.map((ev, i) => (
                 <span
@@ -791,7 +814,7 @@ export const AIExplanationCard: React.FC = () => {
             padding: '0.75rem',
             fontStyle: 'italic',
           }}>
-            <strong>Engineering Disclaimer:</strong> {result.explanation.global_optimality_disclaimer}
+            <strong>{t('Mühendislik Sorumluluk Notu:', 'Engineering Disclaimer:')}</strong> {result.explanation.global_optimality_disclaimer}
           </div>
         </div>
       )}
