@@ -211,6 +211,32 @@ def initialize_population(
     add_chromosome(BayChromosome(order=sorted_by_flow, bay_sizes=std_bay_sizes, orientation=config.orientation))
     add_chromosome(BayChromosome(order=sorted_by_area, bay_sizes=std_bay_sizes, orientation=config.orientation))
 
+    # Fixed-origin & multi-wing corridor-aware seeds
+    origin_fixed = [
+        d.id for d in problem.departments
+        if d.fixed_position is not None and abs(d.fixed_position.x) < 1.0 and abs(d.fixed_position.y) < 1.0
+    ]
+    if origin_fixed or getattr(problem, "reserved_zones", None):
+        non_fixed_by_area = [did for did in sorted_by_area if did not in origin_fixed]
+        anchored_order = origin_fixed + non_fixed_by_area
+        add_chromosome(BayChromosome(order=anchored_order, bay_sizes=std_bay_sizes, orientation=config.orientation))
+        if n >= 4:
+            pair_bays = [2] * (n // 2) + ([1] if n % 2 == 1 else [])
+            add_chromosome(BayChromosome(order=anchored_order, bay_sizes=pair_bays, orientation=config.orientation))
+            # Also try pairing largest with smallest after anchor for balanced bay heights
+            if len(non_fixed_by_area) >= 3:
+                rem = list(non_fixed_by_area)
+                balanced_order = list(origin_fixed)
+                if origin_fixed and rem:
+                    # Pair origin_fixed[0] with largest remaining department
+                    balanced_order.append(rem.pop(0))
+                while len(rem) >= 2:
+                    balanced_order.append(rem.pop(0))
+                    balanced_order.append(rem.pop(-1))
+                balanced_order.extend(rem)
+                if len(balanced_order) == n:
+                    add_chromosome(BayChromosome(order=balanced_order, bay_sizes=pair_bays, orientation=config.orientation))
+
     # 4. Fill remaining population with randomized individuals
     attempts = 0
     max_attempts = config.population_size * 20

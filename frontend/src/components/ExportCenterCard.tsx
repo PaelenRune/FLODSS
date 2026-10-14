@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Download, FileText, Copy, Check, ShieldCheck, Database, Layers } from 'lucide-react';
-import { FacilityLayoutProblem, ContinuousLayout, EvaluationReport } from '../types/api';
+import { FacilityLayoutProblem, ContinuousLayout, EvaluationReport, LayoutValidationResult } from '../types/api';
 import { useLanguage } from '../context/LanguageContext';
 
 interface ExportCenterCardProps {
   problem: FacilityLayoutProblem | null;
   layout: ContinuousLayout | null;
   evaluation: EvaluationReport | null;
+  validation?: LayoutValidationResult | null;
   paretoPortfolio?: any | null;
   executionInfo?: {
     algorithm: string;
@@ -14,17 +15,21 @@ interface ExportCenterCardProps {
     durationMs?: number;
     config?: Record<string, any>;
   } | null;
+  onImportLayout?: (layout: ContinuousLayout) => void;
 }
 
 export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
   problem,
   layout,
   evaluation,
+  validation,
   paretoPortfolio,
   executionInfo,
+  onImportLayout,
 }) => {
   const { t } = useLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -47,10 +52,40 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
   const currentVersion = 'v1.0.0-rc.1';
   const timestampIso = new Date().toISOString();
 
+  const layoutSignature =
+    evaluation?.layout_signature ||
+    validation?.signature ||
+    layout?.layout_signature ||
+    layout?.metadata?.layout_signature ||
+    layout?.metadata?.signature ||
+    '';
+
+  const handleImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parsed = JSON.parse(text);
+        const importedLayout: ContinuousLayout = parsed.layout || parsed;
+        if (importedLayout && importedLayout.placements) {
+          if (onImportLayout) {
+            onImportLayout(importedLayout);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to parse imported layout JSON', err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   // Export 1: Layout JSON
   const handleExportLayoutJson = () => {
     if (!layout) return;
-    const sig = layout.layout_signature || layout.metadata?.signature || 'layout-signature';
+    const sig = layoutSignature || 'layout-signature';
     const bundle = {
       flodss_version: currentVersion,
       exported_at_utc: timestampIso,
@@ -309,16 +344,16 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Layout SHA-256 Signature</span>
               <button
-                onClick={() => copyToClipboard(layout?.layout_signature || layout?.metadata?.signature || '', 'sig')}
-                disabled={!(layout?.layout_signature || layout?.metadata?.signature)}
-                style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', padding: 0 }}
+                onClick={() => copyToClipboard(layoutSignature, 'sig')}
+                disabled={!layoutSignature}
+                style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: layoutSignature ? 'pointer' : 'not-allowed', padding: 0 }}
                 title="Copy signature"
               >
                 {copiedField === 'sig' ? <Check size={14} color="#34d399" /> : <Copy size={14} />}
               </button>
             </div>
             <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', wordBreak: 'break-all' }}>
-              {layout?.layout_signature || layout?.metadata?.signature || t('Aktif yerleşim yüklü değil', 'No active layout loaded')}
+              {layoutSignature || t('Aktif yerleşim yüklü değil', 'No active layout loaded')}
             </span>
           </div>
 
@@ -389,27 +424,55 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
               )}
             </p>
           </div>
-          <button
-            onClick={handleExportLayoutJson}
-            disabled={!layout}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 0.85rem',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: layout ? '#2563eb' : 'var(--bg-primary)',
-              color: layout ? '#ffffff' : 'var(--text-muted)',
-              fontSize: '0.825rem',
-              fontWeight: 600,
-              cursor: layout ? 'pointer' : 'not-allowed',
-            }}
-          >
-            <Download size={14} />
-            {t('Layout JSON İndir', 'Download Layout JSON')}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button
+              onClick={handleExportLayoutJson}
+              disabled={!layout}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 0.85rem',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: layout ? '#2563eb' : 'var(--bg-primary)',
+                color: layout ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '0.825rem',
+                fontWeight: 600,
+                cursor: layout ? 'pointer' : 'not-allowed',
+              }}
+            >
+              <Download size={14} />
+              {t('Layout JSON İndir', 'Download Layout JSON')}
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept=".json,application/json"
+              onChange={handleImportFileChange}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              📂 {t('Layout JSON İçe Aktar', 'Import Layout JSON')}
+            </button>
+          </div>
         </div>
 
         {/* Button 2: Experiment Config JSON */}
@@ -609,8 +672,8 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'Etiketli departman sınırları ve tesis tuvalini içeren yüksek çözünürlüklü vektörel kat planı.',
-                'High-resolution vector floor plan with labeled department boundaries and facility canvas.'
+                'Standart W3C/XML uyumlu vektörel kat planı (Inkscape, Illustrator ve tarayıcılarla doğrudan uyumlu; CAD dönüştürücüler için geometrik JSON formatı desteklenir).',
+                'Standard W3C/XML vector floor plan (directly compatible with Inkscape, Illustrator, and browsers; geometric JSON coordinates supported for CAD import).'
               )}
             </p>
           </div>

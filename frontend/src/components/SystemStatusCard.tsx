@@ -1,5 +1,6 @@
 import React from 'react';
 import { SystemStatus } from '../types/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SystemStatusCardProps {
   status: SystemStatus | null;
@@ -14,6 +15,7 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
   error,
   onRefresh,
 }) => {
+  const { t } = useLanguage();
   return (
     <div style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -24,9 +26,14 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Backend Core & Runtime Diagnostics</h2>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+            {t('Backend Çekirdek & Çalışma Zamanı Tanıları (Diagnostics)', 'Backend Core & Runtime Diagnostics')}
+          </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Real-time status reported by FastAPI health endpoint (<code>GET /api/health</code>)
+            {t(
+              'FastAPI sağlık uç noktası tarafından bildirilen gerçek zamanlı sistem durumu (GET /api/health)',
+              'Real-time status reported by FastAPI health endpoint (GET /api/health)'
+            )}
           </p>
         </div>
         <button
@@ -46,7 +53,7 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
             transition: 'all 0.2s',
           }}
         >
-          {loading ? 'Probing...' : 'Refresh Status'}
+          {loading ? t('Sorgulanıyor...', 'Probing...') : t('↻ Durumu Yenile', 'Refresh Status')}
         </button>
       </div>
 

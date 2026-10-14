@@ -13,6 +13,7 @@ import {
   evaluateLayout,
   compareLayouts,
 } from '../services/api';
+import { formatCost } from '../utils/formatters';
 
 export const LayoutEvaluationCard: React.FC = () => {
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
@@ -354,7 +355,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                 Material Handling Cost
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#38bdf8', marginTop: '0.25rem' }}>
-                ${(report.objective_values.material_handling_cost ?? 0).toLocaleString()}
+                {formatCost(report.objective_values.material_handling_cost)}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
                 Cost per flow cycle
@@ -427,7 +428,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                 color: (report.objective_values.constraint_penalty ?? 0) > 0 ? '#f87171' : '#34d399',
                 marginTop: '0.25rem',
               }}>
-                ${(report.objective_values.constraint_penalty ?? 0).toLocaleString()}
+                {formatCost(report.objective_values.constraint_penalty)}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
                 {report.soft_violation_count} soft penalty item(s)
@@ -467,7 +468,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                         <td style={{ padding: '0.5rem 0.75rem', fontWeight: 500 }}>{item.target}</td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>{item.flow}</td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>{item.distance}m</td>
-                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#38bdf8' }}>${item.cost}</td>
+                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#38bdf8' }}>{formatCost(item.cost)}</td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <div style={{
@@ -540,7 +541,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                         <td style={{ padding: '0.5rem 0.75rem' }}>{v.constraint_type}</td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>{v.involved_departments.join(', ')}</td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>{v.magnitude.toFixed(2)}</td>
-                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>${v.penalty_cost}</td>
+                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>{formatCost(v.penalty_cost)}</td>
                         <td style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>{v.description}</td>
                       </tr>
                     ))}
@@ -626,7 +627,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                       {r.composite_score !== undefined ? (r.composite_score * 100).toFixed(1) + '%' : '—'}
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem' }}>
-                      ${(r.objective_values.material_handling_cost ?? 0).toLocaleString()}
+                      {formatCost(r.objective_values.material_handling_cost)}
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem' }}>
                       {(r.objective_values.flow_distance ?? 0).toLocaleString()}m
@@ -638,7 +639,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                       {r.objective_values.area_utilization ?? 0}%
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem', color: (r.objective_values.constraint_penalty ?? 0) > 0 ? '#f87171' : 'inherit' }}>
-                      ${r.objective_values.constraint_penalty ?? 0}
+                      {formatCost(r.objective_values.constraint_penalty)}
                     </td>
                   </tr>
                 ))}

@@ -579,16 +579,52 @@ class ParetoFrontierService:
                     algo_source = str(getattr(item, "algorithm_name", None) or (item.get("algorithm_name") if isinstance(item, dict) else None) or "unknown")
 
                     if isinstance(item, dict):
-                        placements_dict = item.get("placements")
+                        raw_pl = item.get("placements") or {}
+                        normalized_pl: Dict[str, Any] = {}
+                        for did, p in raw_pl.items():
+                            if isinstance(p, dict):
+                                if "origin" in p and "dimensions" in p:
+                                    normalized_pl[did] = {
+                                        "department_id": did,
+                                        "x": float(p["origin"]["x"]),
+                                        "y": float(p["origin"]["y"]),
+                                        "width": float(p["dimensions"]["width"]),
+                                        "height": float(p["dimensions"]["height"]),
+                                        "orientation_degrees": float(p.get("orientation_degrees", 0.0)),
+                                    }
+                                else:
+                                    normalized_pl[did] = {
+                                        "department_id": did,
+                                        "x": float(p.get("x", 0.0)),
+                                        "y": float(p.get("y", 0.0)),
+                                        "width": float(p.get("width", 0.0)),
+                                        "height": float(p.get("height", 0.0)),
+                                        "orientation_degrees": float(p.get("orientation_degrees", 0.0)),
+                                    }
+                        placements_dict = normalized_pl if normalized_pl else None
                         metadata = item.get("metadata", {})
                     elif isinstance(item, ContinuousLayout):
                         placements_dict = {
-                            did: {"x": p.x, "y": p.y, "width": p.width, "height": p.height}
+                            did: {
+                                "department_id": did,
+                                "x": p.x,
+                                "y": p.y,
+                                "width": p.width,
+                                "height": p.height,
+                                "orientation_degrees": p.orientation_degrees,
+                            }
                             for did, p in item.placements.items()
                         }
                     elif isinstance(item, LayoutSolution):
                         placements_dict = {
-                            did: {"x": p.origin.x, "y": p.origin.y, "width": p.dimensions.width, "height": p.dimensions.height}
+                            did: {
+                                "department_id": did,
+                                "x": p.origin.x,
+                                "y": p.origin.y,
+                                "width": p.dimensions.width,
+                                "height": p.dimensions.height,
+                                "orientation_degrees": p.orientation_degrees,
+                            }
                             for did, p in item.placements.items()
                         }
 

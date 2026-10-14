@@ -1,6 +1,6 @@
 {
-  "run_id": "bench_20261012_150715",
-  "timestamp": "2026-10-12T15:07:15.737645+00:00",
+  "run_id": "bench_20261014_060439",
+  "timestamp": "2026-10-14T06:04:39.374228+00:00",
   "config": {
     "problem_ids": [
       "FLP_ACADEMIC_4"
@@ -32,11 +32,11 @@
       "run_or_seed": "Deterministic",
       "complete": true,
       "feasible": true,
-      "mhc": 700.0,
-      "flow_distance": 700.0,
-      "relationship_satisfaction": 21.71,
+      "mhc": 1400.0,
+      "flow_distance": 1400.0,
+      "relationship_satisfaction": 21.41,
       "constraint_violations": 0,
-      "runtime_seconds": 0.03056,
+      "runtime_seconds": 0.00244,
       "notes": "Deterministic construction"
     },
     {
@@ -49,7 +49,7 @@
       "flow_distance": null,
       "relationship_satisfaction": null,
       "constraint_violations": 0,
-      "runtime_seconds": 0.0021,
+      "runtime_seconds": 0.0015,
       "notes": "Best feasible of 2 trials (Feasibility: 100.0%)"
     },
     {
@@ -58,12 +58,12 @@
       "run_or_seed": "2 swaps",
       "complete": true,
       "feasible": true,
-      "mhc": 450.0,
+      "mhc": 900.0,
       "flow_distance": null,
       "relationship_satisfaction": null,
       "constraint_violations": 0,
-      "runtime_seconds": 0.00395,
-      "notes": "Init MHC: 700.00 -> Final: 450.00 (-35.7%)"
+      "runtime_seconds": 0.00222,
+      "notes": "Init MHC: 1400.00 -> Final: 900.00 (-35.7%)"
     },
     {
       "algorithm": "CRAFT (from ALDEP Best Feasible)",
@@ -75,7 +75,7 @@
       "flow_distance": null,
       "relationship_satisfaction": null,
       "constraint_violations": 0,
-      "runtime_seconds": 0.00208,
+      "runtime_seconds": 0.00089,
       "notes": "Init MHC: 900.00 -> Final: 900.00 (-0.0%)"
     }
   ],
@@ -96,8 +96,8 @@
       "sample_size_mhc": 2,
       "sample_description": "Computed over 2 feasible & complete candidates out of 2 generated trials.",
       "best_feasible_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
-      "mean_runtime_seconds": 0.00103,
-      "total_runtime_seconds": 0.0021
+      "mean_runtime_seconds": 0.00076,
+      "total_runtime_seconds": 0.0015
     }
   },
   "aldep_candidates": [
@@ -117,7 +117,7 @@
       "mhc": 1200.0,
       "flow_distance": 1200.0,
       "relationship_satisfaction": 19.53,
-      "execution_time_seconds": 0.00103,
+      "execution_time_seconds": 0.00076,
       "failure_reason": null
     },
     {
@@ -136,7 +136,7 @@
       "mhc": 900.0,
       "flow_distance": 900.0,
       "relationship_satisfaction": 20.11,
-      "execution_time_seconds": 0.00103,
+      "execution_time_seconds": 0.00076,
       "failure_reason": null
     }
   ],
@@ -149,29 +149,29 @@
       "placed_department_count": 4,
       "total_department_count": 4,
       "unplaced_departments": [],
-      "mhc": 700.0,
-      "relationship_score": 21.71,
-      "flow_distance": 700.0,
+      "mhc": 1400.0,
+      "relationship_score": 21.41,
+      "flow_distance": 1400.0,
       "hard_constraint_violations": 0,
       "termination_reason": "SUCCESS_COMPLETE",
       "failure_diagnostics": null,
-      "layout_signature": "12886a6d7678037d40fb1116952021a84540f262122ac7e0088fe2b4b98f7b96",
-      "runtime_seconds": 0.03056
+      "layout_signature": "5e5a066381bdcdc7e94f162ccdb2b11ec76fdf2d17d4ec0379b96f7d6549e8b6",
+      "runtime_seconds": 0.00244
     }
   ],
   "craft_records": [
     {
       "problem_id": "FLP_ACADEMIC_4",
       "initial_source": "CORELAP Initial",
-      "initial_mhc": 700.0,
-      "final_mhc": 450.0,
-      "absolute_improvement": 250.0,
+      "initial_mhc": 1400.0,
+      "final_mhc": 900.0,
+      "absolute_improvement": 500.0,
       "percentage_improvement": 35.71,
       "accepted_swaps": 2,
       "termination_reason": "NO_IMPROVING_SWAP",
-      "initial_layout_signature": "12886a6d7678037d40fb1116952021a84540f262122ac7e0088fe2b4b98f7b96",
-      "final_layout_signature": "59ecd19acdb097f01fe6434ed886dd5652633e403f115ee55cc155c56eba7956",
-      "runtime_seconds": 0.00395
+      "initial_layout_signature": "5e5a066381bdcdc7e94f162ccdb2b11ec76fdf2d17d4ec0379b96f7d6549e8b6",
+      "final_layout_signature": "d41e8115145bbcde9c9bade72031de6a648af2a96661ec13a7c7a3625b13f2c8",
+      "runtime_seconds": 0.00222
     },
     {
       "problem_id": "FLP_ACADEMIC_4",
@@ -184,7 +184,7 @@
       "termination_reason": "NO_IMPROVING_SWAP",
       "initial_layout_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
       "final_layout_signature": "227706ab5fa36a7f284b7401e803d095b136a008baa6aa699881b8d3fd2f1e53",
-      "runtime_seconds": 0.00208
+      "runtime_seconds": 0.00089
     }
   ],
   "metadata": {

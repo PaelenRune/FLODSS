@@ -158,14 +158,25 @@ class AdaptiveStrategyResult(BaseModel):
     fingerprint: ProblemFingerprint
     selected_strategy: StrategyPipeline
     execution_trace: List[DecisionTraceStep] = Field(default_factory=list)
+    fallback_trace: List[DecisionTraceStep] = Field(default_factory=list)
     candidate_portfolio: CandidatePortfolio
+    execution_status: str = Field(default="COMPLETED", description="Technical execution state: COMPLETED, BUDGET_EXHAUSTED, or FAILED")
+    validation_status: str = Field(default="FEASIBLE", description="Mathematical & geometric validation state: FEASIBLE or INFEASIBLE")
     feasible_status: bool = Field(..., description="True if at least one complete feasible candidate was produced")
+    is_feasible: bool = Field(default=True, description="True if at least one complete feasible candidate was produced")
+    selected_algorithm: str = Field(default="", description="Algorithm that produced the recommended candidate")
+    failure_reason: Optional[str] = Field(default=None, description="Explicit reason when no feasible solution is found; never COMPLETED_SUCCESSFULLY")
+    constraint_violations: List[Dict[str, Any]] = Field(default_factory=list, description="Constraint violations of the selected candidate or failure diagnostics")
     canonical_evaluations: List[CanonicalEvaluationReport] = Field(default_factory=list)
     pareto_frontier: ParetoAnalysisResult
     final_recommendation: Optional[Dict[str, Any]] = None
+    best_continuous_layout: Optional[ContinuousLayout] = None
+    best_validation: Optional[Any] = None
+    best_evaluation: Optional[Any] = None
     termination_reason: str
     total_runtime_seconds: float
     total_algorithm_calls: int
+
 
 
 class RuleBasedStrategySelector:
@@ -758,6 +769,18 @@ class StrategyExecutionEngine:
         for item in feasible_items:
             rep = CanonicalEvaluationService.evaluate(problem, item.solution, config=eval_cfg)
             canonical_reports.append(rep)
+            cont_item = _to_continuous_layout(problem, item.solution)
+            placements_flat = {
+                did: {
+                    "department_id": did,
+                    "x": p.x,
+                    "y": p.y,
+                    "width": p.width,
+                    "height": p.height,
+                    "orientation_degrees": p.orientation_degrees,
+                }
+                for did, p in cont_item.placements.items()
+            }
             cand = ParetoCandidate(
                 candidate_id=item.candidate_id,
                 algorithm_source=item.source_algorithm,
@@ -780,9 +803,7 @@ class StrategyExecutionEngine:
                 is_feasible=rep.is_feasible,
                 hard_violations_count=rep.hard_violations_count,
                 soft_violations_count=rep.soft_violations_count,
-                soft_penalty_cost=rep.soft_penalty,
-                violations=rep.violations,
-                placements=item.solution.placements if hasattr(item.solution, "placements") else {},
+                placements=placements_flat,
             )
             pareto_raw_candidates.append(cand)
 
@@ -792,10 +813,18 @@ class StrategyExecutionEngine:
             config=eval_cfg,
         )
 
-        has_feasible = len(feasible_items) > 0
+        has_feasible = len(feasible_items) > 0 and pareto_result.valid_candidates_count > 0
         final_rec: Optional[Dict[str, Any]] = None
+        best_cont_layout: Optional[ContinuousLayout] = None
+        best_val_res: Optional[Any] = None
+        best_eval_res: Optional[Any] = None
+        selected_algo_name: str = strategy.primary_algorithm
+        result_violations: List[Dict[str, Any]] = []
+        explicit_failure_reason: Optional[str] = None
 
-        if has_feasible and pareto_result.valid_candidates_count > 0:
+        from app.evaluation.engine import EvaluationEngine
+
+        if has_feasible:
             # Recommendation: Find best candidate (highest balanced utility or lowest MHC)
             best_cand = None
             if "balanced" in pareto_result.recommendations:
@@ -808,11 +837,24 @@ class StrategyExecutionEngine:
                 best_cand = min(target_pool, key=lambda c: c.objective_values.get("material_handling_cost", float("inf")))
 
             if best_cand:
-                # Find matching portfolio item
+                selected_algo_name = best_cand.algorithm_source
                 matching_item = next(
                     (it for it in feasible_items if it.candidate_id == best_cand.candidate_id or it.output_layout_signature == best_cand.layout_signature),
                     None
                 )
+                matching_canon = next(
+                    (r for r in canonical_reports if r.layout_signature == best_cand.layout_signature),
+                    None
+                )
+                if matching_canon:
+                    result_violations = list(matching_canon.violations)
+
+                if matching_item and matching_item.solution:
+                    best_cont_layout = _to_continuous_layout(problem, matching_item.solution)
+                    best_cont_layout.layout_signature = best_cand.layout_signature
+                    best_val_res = LayoutValidator.validate(problem, best_cont_layout)
+                    best_eval_res = EvaluationEngine(config=eval_cfg).evaluate(problem, best_cont_layout, config=eval_cfg)
+
                 final_rec = {
                     "candidate_id": best_cand.candidate_id,
                     "layout_signature": best_cand.layout_signature,
@@ -825,10 +867,42 @@ class StrategyExecutionEngine:
                     "pareto_rank": best_cand.pareto_rank,
                     "utility_score": best_cand.normalized_utility,
                     "best_layout_solution": matching_item.solution.model_dump(mode="json") if matching_item and matching_item.solution else None,
+                    "continuous_layout": best_cont_layout.model_dump(mode="json") if best_cont_layout else None,
                 }
         else:
-            if not has_feasible:
-                termination_reason = "NO_FEASIBLE_SOLUTION_FOUND"
+            termination_reason = "NO_FEASIBLE_SOLUTION_FOUND"
+            failure_reasons_list = [
+                f"{st.selected_algorithm}: {st.failure_reason}"
+                for st in trace_steps
+                if st.failure_reason
+            ]
+            explicit_failure_reason = " | ".join(failure_reasons_list) if failure_reasons_list else "No algorithm in the strategy pipeline produced a complete, geometrically feasible layout."
+            # Collect violations from the last attempted solution if any
+            last_item = portfolio.items[-1] if portfolio.items else None
+            if last_item and last_item.solution:
+                try:
+                    infeas_cont = _to_continuous_layout(problem, last_item.solution)
+                    best_val_res = LayoutValidator.validate(problem, infeas_cont)
+                    infeas_eval = EvaluationEngine(config=eval_cfg).evaluate(problem, infeas_cont, config=eval_cfg)
+                    result_violations = [
+                        {
+                            "constraint_id": v.constraint_id,
+                            "classification": v.classification.value,
+                            "magnitude": v.magnitude,
+                            "penalty_cost": v.penalty_cost,
+                            "description": v.description or v.message,
+                        }
+                        for v in infeas_eval.constraint_violations
+                    ]
+                except Exception:
+                    pass
+
+        fallback_steps = [st for st in trace_steps if st.was_fallback]
+        if termination_reason in ("TIME_BUDGET_EXHAUSTED", "CALL_LIMIT_REACHED", "CANDIDATE_LIMIT_REACHED", "BUDGET_EXHAUSTED", "BUDGET_EXHAUSTED_BEFORE_FALLBACK"):
+            exec_status = "BUDGET_EXHAUSTED" if not has_feasible else "COMPLETED"
+        else:
+            exec_status = "COMPLETED"
+        val_status = "FEASIBLE" if has_feasible else "INFEASIBLE"
 
         total_runtime = get_elapsed()
 
@@ -837,11 +911,21 @@ class StrategyExecutionEngine:
             fingerprint=fingerprint,
             selected_strategy=strategy,
             execution_trace=trace_steps,
+            fallback_trace=fallback_steps,
             candidate_portfolio=portfolio,
+            execution_status=exec_status,
+            validation_status=val_status,
             feasible_status=has_feasible,
+            is_feasible=has_feasible,
+            selected_algorithm=selected_algo_name,
+            failure_reason=explicit_failure_reason,
+            constraint_violations=result_violations,
             canonical_evaluations=canonical_reports,
             pareto_frontier=pareto_result,
             final_recommendation=final_rec,
+            best_continuous_layout=best_cont_layout,
+            best_validation=best_val_res,
+            best_evaluation=best_eval_res,
             termination_reason=termination_reason,
             total_runtime_seconds=total_runtime,
             total_algorithm_calls=algorithm_calls_count,

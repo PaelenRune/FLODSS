@@ -19,6 +19,8 @@ class SystemStatus(BaseModel):
     python_version: str
     platform: str
     registered_algorithms: int
+    registered_algorithm_names: list[str] = Field(default_factory=list)
+    orchestration_engines: list[str] = Field(default_factory=lambda: ["adaptive_strategy_engine"])
     modules: Dict[str, str]
 
 
@@ -30,6 +32,8 @@ class HealthService:
         """Inspect system status and return diagnostics."""
         from app.algorithms.registry import AlgorithmRegistry
 
+        available_algos = AlgorithmRegistry.list_available()
+        algo_names = [a.get("name", str(a)) if isinstance(a, dict) else str(a) for a in available_algos]
         return SystemStatus(
             status="healthy",
             project_name=settings.PROJECT_NAME,
@@ -37,7 +41,9 @@ class HealthService:
             timestamp=datetime.now(timezone.utc).isoformat(),
             python_version=sys.version.split()[0],
             platform=platform.platform(),
-            registered_algorithms=len(AlgorithmRegistry.list_available()),
+            registered_algorithms=len(available_algos),
+            registered_algorithm_names=algo_names,
+            orchestration_engines=["adaptive_strategy_engine"],
             modules={
                 "core": "active",
                 "models": "active",

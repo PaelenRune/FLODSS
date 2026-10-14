@@ -126,12 +126,13 @@ class LayoutValidator:
                         f"Department '{dept_id}' height ({placement.height:.1f}m) exceeds maximum height ({dept_spec.max_height:.1f}m)."
                     )
 
-                # Aspect ratio
-                if dept_spec.min_aspect_ratio is not None and placement.aspect_ratio < dept_spec.min_aspect_ratio - tolerance:
+                # Aspect ratio (strict 1e-6 tolerance bound)
+                aspect_tol = min(tolerance, 1e-6)
+                if dept_spec.min_aspect_ratio is not None and placement.aspect_ratio < dept_spec.min_aspect_ratio - aspect_tol:
                     errors.append(
                         f"Department '{dept_id}' aspect ratio ({placement.aspect_ratio:.2f}) violates min_aspect_ratio ({dept_spec.min_aspect_ratio:.2f})."
                     )
-                if dept_spec.max_aspect_ratio is not None and placement.aspect_ratio > dept_spec.max_aspect_ratio + tolerance:
+                if dept_spec.max_aspect_ratio is not None and placement.aspect_ratio > dept_spec.max_aspect_ratio + aspect_tol:
                     errors.append(
                         f"Department '{dept_id}' aspect ratio ({placement.aspect_ratio:.2f}) exceeds max_aspect_ratio ({dept_spec.max_aspect_ratio:.2f})."
                     )
@@ -191,6 +192,9 @@ class LayoutValidator:
             facility_height=fac_h,
         )
         signature = generate_layout_signature(cont_layout)
+        cont_layout.layout_signature = signature
+        if cont_layout.metadata is not None:
+            cont_layout.metadata.setdefault("layout_signature", signature)
 
         return LayoutValidationResult(
             is_valid=len(errors) == 0,

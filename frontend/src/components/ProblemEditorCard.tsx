@@ -178,6 +178,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             {t('Benchmark Şablonu:', 'Load Template:')}
           </label>
           <select
+            data-testid="benchmark-template-select"
             value={problem.id}
             onChange={(e) => onLoadExample(e.target.value)}
             style={{
@@ -196,6 +197,29 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
               </option>
             ))}
           </select>
+
+          <div style={{ display: 'flex', gap: '0.35rem' }}>
+            {['FLP_ACADEMIC_4', 'FLP_EXPANSION_8', 'FLP_INDUSTRIAL_10'].map((pid) => (
+              <button
+                key={pid}
+                type="button"
+                data-testid={`quick-load-${pid}`}
+                onClick={() => onLoadExample(pid)}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: problem.id === pid ? '#2563eb' : 'var(--bg-card)',
+                  color: problem.id === pid ? '#ffffff' : 'var(--text-secondary)',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {pid.replace('FLP_', '')}
+              </button>
+            ))}
+          </div>
 
           <button
             onClick={handleValidate}

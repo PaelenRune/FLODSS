@@ -276,6 +276,15 @@ class CORELAPAlgorithm(BaseLayoutAlgorithm):
         )
 
         signature = generate_layout_signature(continuous_layout)
+        continuous_layout.layout_signature = signature
+
+        from app.services.layout_validator import LayoutValidator
+        from app.constraints.engine import ConstraintEngine
+
+        val_res = LayoutValidator.validate(problem, continuous_layout)
+        const_violations = ConstraintEngine().check_all(problem, continuous_layout)
+        hard_violation_count = ConstraintEngine.count_hard_violations(const_violations)
+        is_feasible = bool(is_complete and val_res.is_valid and hard_violation_count == 0)
 
         trace = CORELAPExecutionTrace(
             algorithm_name="corelap_deterministic_v1",
@@ -291,7 +300,7 @@ class CORELAPAlgorithm(BaseLayoutAlgorithm):
             placement_order=placement_order,
             tcr_values=tcr_map,
             steps=trace_steps,
-            failure_reason=failure_reason,
+            failure_reason=failure_reason or ("; ".join(val_res.errors) if not val_res.is_valid else None),
             execution_time_seconds=elapsed_seconds,
         )
 
@@ -307,18 +316,23 @@ class CORELAPAlgorithm(BaseLayoutAlgorithm):
         solution.total_department_count = total_dept_count
         solution.unplaced_departments = unplaced_dept_ids
         solution.termination_reason = termination_reason
-        solution.feasibility_status = is_complete
+        solution.feasibility_status = is_feasible
+        solution.constraint_violations = const_violations
         solution.execution_time_seconds = elapsed_seconds
         solution.metadata = {
             "algorithm_name": "corelap_deterministic_v1",
             "algorithm_version": self.version,
             "success": is_complete,
+            "execution_status": "COMPLETED" if is_complete else "INCOMPLETE",
+            "validation_status": "FEASIBLE" if is_feasible else "INFEASIBLE",
             "is_complete": is_complete,
+            "is_feasible": is_feasible,
             "placed_department_count": placed_dept_count,
             "total_department_count": total_dept_count,
             "unplaced_departments": unplaced_dept_ids,
             "termination_reason": termination_reason,
-            "failure_reason": failure_reason,
+            "failure_reason": failure_reason or ("; ".join(val_res.errors) if not val_res.is_valid else None),
+            "validation_errors": val_res.errors,
             "config": config.model_dump(),
             "tcr_values": tcr_map,
             "placement_order": placement_order,

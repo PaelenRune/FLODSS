@@ -22,6 +22,7 @@ import { MatrixEditorCard } from '../components/MatrixEditorCard';
 import { ConstraintEditorCard } from '../components/ConstraintEditorCard';
 import { OptimizationWorkspaceCard } from '../components/OptimizationWorkspaceCard';
 import { LayoutCanvas } from '../components/LayoutCanvas';
+import { DecisionGuidanceBox } from '../components/DecisionGuidanceBox';
 import { LayoutViewerCard } from '../components/LayoutViewerCard';
 import { ParetoAnalysisCard } from '../components/ParetoAnalysisCard';
 import { AlgorithmComparisonCard } from '../components/AlgorithmComparisonCard';
@@ -94,6 +95,8 @@ export const Dashboard: React.FC = () => {
     config?: Record<string, any>;
   } | null>(null);
 
+  const problemVersionRef = React.useRef<number>(0);
+
   const { user, isLoading: authLoading } = useAuth();
   const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
@@ -121,7 +124,10 @@ export const Dashboard: React.FC = () => {
           : catalog[0]?.id;
 
         if (targetId) {
+          problemVersionRef.current += 1;
+          const currentVersion = problemVersionRef.current;
           const prob = await fetchExampleProblem(targetId);
+          if (problemVersionRef.current !== currentVersion) return;
           setProblem(prob);
 
           // Try to load initial reference layout
@@ -130,17 +136,18 @@ export const Dashboard: React.FC = () => {
             const targetLayout = exampleLayouts.find((l) => l.problem_id === targetId) || exampleLayouts[0];
             if (targetLayout) {
               const loadedLayout = await fetchExampleLayout(targetLayout.id);
+              if (problemVersionRef.current !== currentVersion) return;
               setLayout(loadedLayout);
 
-              // Validate & evaluate
+              // Validate & evaluate against loaded problem
               try {
-                const valResult = await validateLayout(targetId, loadedLayout);
-                setValidation(valResult);
+                const valResult = await validateLayout(targetId, loadedLayout, prob);
+                if (problemVersionRef.current === currentVersion) setValidation(valResult);
               } catch (_) {}
 
               try {
-                const evalReport = await evaluateLayout(targetId, loadedLayout);
-                setEvaluation(evalReport);
+                const evalReport = await evaluateLayout(targetId, loadedLayout, undefined, prob);
+                if (problemVersionRef.current === currentVersion) setEvaluation(evalReport);
               } catch (_) {}
             }
           } catch (_) {}
@@ -155,8 +162,15 @@ export const Dashboard: React.FC = () => {
 
   // Handle benchmark example loading
   const handleLoadExample = async (problemId: string) => {
+    problemVersionRef.current += 1;
+    const currentVersion = problemVersionRef.current;
+    setLayout(null);
+    setValidation(null);
+    setEvaluation(null);
+    setExecutionInfo(null);
     try {
       const prob = await fetchExampleProblem(problemId);
+      if (problemVersionRef.current !== currentVersion) return;
       setProblem(prob);
 
       // Attempt to find matching layout
@@ -165,19 +179,28 @@ export const Dashboard: React.FC = () => {
         const matching = exampleLayouts.find((l) => l.problem_id === problemId);
         if (matching) {
           const loadedLayout = await fetchExampleLayout(matching.id);
+          if (problemVersionRef.current !== currentVersion) return;
           setLayout(loadedLayout);
-          const valResult = await validateLayout(problemId, loadedLayout);
-          setValidation(valResult);
-          const evalReport = await evaluateLayout(problemId, loadedLayout);
-          setEvaluation(evalReport);
-        } else {
-          setLayout(null);
-          setValidation(null);
-          setEvaluation(null);
+          const valResult = await validateLayout(problemId, loadedLayout, prob);
+          if (problemVersionRef.current === currentVersion) setValidation(valResult);
+          const evalReport = await evaluateLayout(problemId, loadedLayout, undefined, prob);
+          if (problemVersionRef.current === currentVersion) setEvaluation(evalReport);
         }
       } catch (_) {}
     } catch (err: any) {
       alert(`Failed to load benchmark problem '${problemId}': ${err?.message}`);
+    }
+  };
+
+  const handleUpdateProblem = (updatedProblem: FacilityLayoutProblem) => {
+    setProblem(updatedProblem);
+    if (layout) {
+      validateLayout(updatedProblem.id, layout, updatedProblem)
+        .then(setValidation)
+        .catch(() => {});
+      evaluateLayout(updatedProblem.id, layout, undefined, updatedProblem)
+        .then(setEvaluation)
+        .catch(() => {});
     }
   };
 
@@ -189,8 +212,16 @@ export const Dashboard: React.FC = () => {
     metadata?: Record<string, any> | null
   ) => {
     setLayout(newLayout);
-    if (newValidation) setValidation(newValidation);
-    if (newEvaluation) setEvaluation(newEvaluation);
+    if (newValidation) {
+      setValidation(newValidation);
+    } else if (problem) {
+      validateLayout(problem.id, newLayout, problem).then(setValidation).catch(() => {});
+    }
+    if (newEvaluation) {
+      setEvaluation(newEvaluation);
+    } else if (problem) {
+      evaluateLayout(problem.id, newLayout, undefined, problem).then(setEvaluation).catch(() => {});
+    }
     if (metadata) {
       setExecutionInfo({
         algorithm: metadata.algorithm || 'Custom Solver',
@@ -198,6 +229,51 @@ export const Dashboard: React.FC = () => {
         durationMs: metadata.duration_ms,
         config: metadata,
       });
+    }
+  };
+
+  const handleImportLayout = async (importedLayout: ContinuousLayout) => {
+    setLayout(importedLayout);
+    if (problem) {
+      try {
+        const valRes = await validateLayout(problem.id, importedLayout, problem);
+        setValidation(valRes);
+      } catch (_) {}
+      try {
+        const evalRes = await evaluateLayout(problem.id, importedLayout, undefined, problem);
+        setEvaluation(evalRes);
+      } catch (_) {}
+    }
+    setActiveTab('layout');
+  };
+
+  const handleSelectParetoCandidate = (cand: any) => {
+    if (cand.placements) {
+      const placementsMap: Record<string, any> = {};
+      for (const [did, p] of Object.entries(cand.placements)) {
+        const dp: any = p;
+        placementsMap[did] = {
+          department_id: did,
+          x: dp.x ?? dp.origin?.x ?? 0,
+          y: dp.y ?? dp.origin?.y ?? 0,
+          width: dp.width ?? dp.dimensions?.width ?? 10,
+          height: dp.height ?? dp.dimensions?.height ?? 10,
+          orientation_degrees: dp.orientation_degrees ?? 0,
+        };
+      }
+      const newLayout: ContinuousLayout = {
+        problem_id: cand.problem_id || problem?.id,
+        representation_type: 'continuous',
+        facility_width: problem?.facility?.width ?? (problem as any)?.facility_width ?? 150.0,
+        facility_height: problem?.facility?.height ?? (problem as any)?.facility_height ?? 80.0,
+        placements: placementsMap,
+        layout_signature: cand.layout_signature,
+      };
+      setLayout(newLayout);
+      if (problem) {
+        validateLayout(problem.id, newLayout, problem).then(setValidation).catch(() => {});
+        evaluateLayout(problem.id, newLayout, undefined, problem).then(setEvaluation).catch(() => {});
+      }
     }
   };
 
@@ -291,6 +367,7 @@ export const Dashboard: React.FC = () => {
               return (
                 <button
                   key={tab.id}
+                  data-testid={`tab-${tab.id}`}
                   onClick={() => {
                     setActiveTab(tab.id);
                     setViewMode('workspace');
@@ -367,7 +444,7 @@ export const Dashboard: React.FC = () => {
               <div>
                 <ProblemEditorCard
                   problem={problem}
-                  onUpdateProblem={setProblem}
+                  onUpdateProblem={handleUpdateProblem}
                   onLoadExample={handleLoadExample}
                   availableExamples={availableProblems}
                 />
@@ -379,7 +456,7 @@ export const Dashboard: React.FC = () => {
               <div>
                 <MatrixEditorCard
                   problem={problem}
-                  onUpdateProblem={setProblem}
+                  onUpdateProblem={handleUpdateProblem}
                 />
               </div>
             )}
@@ -389,7 +466,7 @@ export const Dashboard: React.FC = () => {
               <div>
                 <ConstraintEditorCard
                   problem={problem}
-                  onUpdateProblem={setProblem}
+                  onUpdateProblem={handleUpdateProblem}
                 />
               </div>
             )}
@@ -453,6 +530,8 @@ export const Dashboard: React.FC = () => {
                   )}
                 </div>
 
+                <DecisionGuidanceBox mode="layout" defaultOpen={false} />
+
                 <LayoutCanvas
                   layout={layout}
                   problem={problem}
@@ -466,7 +545,11 @@ export const Dashboard: React.FC = () => {
             {/* Tab 6: Multi-Objective Pareto */}
             {activeTab === 'pareto' && (
               <div>
-                <ParetoAnalysisCard />
+                <ParetoAnalysisCard
+                  problem={problem}
+                  activeLayout={layout}
+                  onSelectCandidate={handleSelectParetoCandidate}
+                />
                 <div style={{ marginTop: '2rem' }}>
                   <AlgorithmComparisonCard />
                 </div>
@@ -476,9 +559,17 @@ export const Dashboard: React.FC = () => {
             {/* Tab 7: AI Decision Explanation */}
             {activeTab === 'decision' && (
               <div>
-                <AIExplanationCard />
+                <AIExplanationCard
+                  problem={problem}
+                  currentLayout={layout}
+                  evaluation={evaluation}
+                />
                 <div style={{ marginTop: '2rem' }}>
-                  <AdaptiveStrategyCard />
+                  <AdaptiveStrategyCard
+                    problem={problem}
+                    currentLayout={layout}
+                    evaluation={evaluation}
+                  />
                 </div>
               </div>
             )}
@@ -490,7 +581,9 @@ export const Dashboard: React.FC = () => {
                   problem={problem}
                   layout={layout}
                   evaluation={evaluation}
+                  validation={validation}
                   executionInfo={executionInfo}
+                  onImportLayout={handleImportLayout}
                 />
               </div>
             )}
@@ -543,12 +636,12 @@ export const Dashboard: React.FC = () => {
             <RoadmapStepper />
             <ProblemEditorCard
               problem={problem}
-              onUpdateProblem={setProblem}
+              onUpdateProblem={handleUpdateProblem}
               onLoadExample={handleLoadExample}
               availableExamples={availableProblems}
             />
-            <MatrixEditorCard problem={problem} onUpdateProblem={setProblem} />
-            <ConstraintEditorCard problem={problem} onUpdateProblem={setProblem} />
+            <MatrixEditorCard problem={problem} onUpdateProblem={handleUpdateProblem} />
+            <ConstraintEditorCard problem={problem} onUpdateProblem={handleUpdateProblem} />
             <OptimizationWorkspaceCard
               problem={problem}
               currentLayout={layout}
@@ -561,12 +654,26 @@ export const Dashboard: React.FC = () => {
               problem={problem}
               layout={layout}
               evaluation={evaluation}
+              validation={validation}
               executionInfo={executionInfo}
+              onImportLayout={handleImportLayout}
             />
-            <ParetoAnalysisCard />
+            <ParetoAnalysisCard
+              problem={problem}
+              activeLayout={layout}
+              onSelectCandidate={handleSelectParetoCandidate}
+            />
             <AlgorithmComparisonCard />
-            <AdaptiveStrategyCard />
-            <AIExplanationCard />
+            <AdaptiveStrategyCard
+              problem={problem}
+              currentLayout={layout}
+              evaluation={evaluation}
+            />
+            <AIExplanationCard
+              problem={problem}
+              currentLayout={layout}
+              evaluation={evaluation}
+            />
             <AlgorithmRunnerCard />
             <LayoutEvaluationCard />
             <ProblemDefinitionCard />

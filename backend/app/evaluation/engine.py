@@ -209,8 +209,14 @@ class EvaluationEngine:
 
         # 4. Check constraints via ConstraintEngine
         constraint_violations = self.constraint_engine.check_all(problem, cont_layout)
-        # Merge any pre-attached violations
-        all_violations = existing_violations + constraint_violations
+        # Merge any pre-attached violations with deduplication
+        all_violations: List[ConstraintViolation] = []
+        seen_v_keys = set()
+        for v in existing_violations + constraint_violations:
+            v_key = (v.constraint_id, tuple(v.involved_departments), v.classification.value)
+            if v_key not in seen_v_keys:
+                seen_v_keys.add(v_key)
+                all_violations.append(v)
         hard_count = self.constraint_engine.count_hard_violations(all_violations)
         soft_count = self.constraint_engine.count_soft_violations(all_violations)
         total_penalty = self.constraint_engine.calculate_total_penalty(all_violations)

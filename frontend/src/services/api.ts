@@ -200,7 +200,8 @@ export async function fetchExampleLayout(layoutId: string): Promise<ContinuousLa
  */
 export async function validateLayout(
   problemId: string,
-  layout: ContinuousLayout
+  layout: ContinuousLayout,
+  problem?: Record<string, any>
 ): Promise<LayoutValidationResult> {
   const response = await fetch(`${API_BASE}/layouts/validate`, {
     method: 'POST',
@@ -211,6 +212,7 @@ export async function validateLayout(
     body: JSON.stringify({
       problem_id: problemId,
       layout,
+      problem: problem ?? undefined,
     }),
   });
 
@@ -227,7 +229,8 @@ export async function validateLayout(
 export async function evaluateLayout(
   problemId: string,
   layout: ContinuousLayout | Record<string, any>,
-  config?: Record<string, any>
+  config?: Record<string, any>,
+  problem?: Record<string, any>
 ): Promise<EvaluationReport> {
   const response = await fetch(`${API_BASE}/evaluation/evaluate`, {
     method: 'POST',
@@ -239,6 +242,7 @@ export async function evaluateLayout(
       problem_id: problemId,
       layout,
       config,
+      problem: problem ?? undefined,
     }),
   });
 

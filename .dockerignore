@@ -1,0 +1,16 @@
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+backend/.venv
+node_modules
+frontend/node_modules
+experiments/reports/screenshots*
+experiments/reports/*.png
+data/backups
+*.log
+login_page.html

@@ -50,6 +50,10 @@ class LayoutSolution(BaseModel):
     problem_id: str = Field(..., description="ID of the problem this solution addresses")
     algorithm_name: str = Field(..., description="Name of the algorithm that produced this solution")
     algorithm_version: Optional[str] = Field(default=None, description="Version of the algorithm")
+    layout_signature: Optional[str] = Field(
+        default=None,
+        description="Deterministic SHA-256 geometric invariant fingerprint",
+    )
     
     # Placements
     placements: Dict[str, DepartmentPlacement] = Field(

@@ -244,7 +244,10 @@ export const AlgorithmComparisonCard: React.FC = () => {
 
           {/* ALDEP Stochastic Portfolio Summary Breakdown */}
           <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            {t('ALDEP Stokastik Çoklu Aday İstatistikleri (Problem Başına 100 Deneme)', 'ALDEP Stochastic Multi-Candidate Statistics (100 Trials per Problem)')}
+            {t(
+              `ALDEP Stokastik Çoklu Aday İstatistikleri (Problem Başına ${Object.values(benchmarkResult.aldep_summaries || {})[0]?.total_trials || ((benchmarkResult.config?.aldep_seeds?.length || 1) * (benchmarkResult.config?.aldep_candidates_per_seed || 1))} Deneme)`,
+              `ALDEP Stochastic Multi-Candidate Statistics (${Object.values(benchmarkResult.aldep_summaries || {})[0]?.total_trials || ((benchmarkResult.config?.aldep_seeds?.length || 1) * (benchmarkResult.config?.aldep_candidates_per_seed || 1))} Trials per Problem)`
+            )}
           </h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{

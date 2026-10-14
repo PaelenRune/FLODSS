@@ -90,6 +90,13 @@ if (FRONTEND_DIST / "assets").exists():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="frontend-assets")
 
 
+@app.get("/health", include_in_schema=False)
+def health_alias():
+    """Root /health alias returning API health status."""
+    from app.api.endpoints.health import get_health_status
+    return get_health_status()
+
+
 @app.get("/", summary="Root Welcome & Single-Origin SPA")
 def root(request: Request):
     """Serve single-origin frontend index.html for browsers, or JSON discovery for API clients."""

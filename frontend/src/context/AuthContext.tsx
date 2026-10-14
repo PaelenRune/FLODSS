@@ -68,23 +68,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = useCallback(async () => {
     const currentToken = getAuthToken();
-    if (!currentToken) {
-      setUser(null);
-      setToken(null);
-      setIsLoading(false);
-      return;
+    if (currentToken) {
+      try {
+        const profile = await getMeApi();
+        setUser(profile);
+        setToken(currentToken);
+        await refreshProjects();
+        setIsLoading(false);
+        return;
+      } catch (e: any) {
+        console.warn('Session expired or invalid:', e.message);
+        setAuthToken(null);
+        setUser(null);
+        setToken(null);
+      }
     }
 
+    // Auto-authenticate as Guest Researcher for seamless, passwordless direct access
     try {
-      const profile = await getMeApi();
-      setUser(profile);
-      setToken(currentToken);
+      const res = await demoLoginApi();
+      setAuthToken(res.session_token);
+      setUser(res.user);
+      setToken(res.session_token);
       await refreshProjects();
-    } catch (e: any) {
-      console.warn('Session expired or invalid:', e.message);
-      setAuthToken(null);
-      setUser(null);
-      setToken(null);
+    } catch (err: any) {
+      console.warn('Auto guest login failed:', err);
     } finally {
       setIsLoading(false);
     }

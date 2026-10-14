@@ -21,16 +21,37 @@ class DatabaseManager:
     """Manages database connection and migration executions."""
 
     def __init__(self, db_path: Optional[str] = None):
-        self.db_path = db_path or settings.DATABASE_PATH
-        # Ensure parent directory exists
-        if self.db_path != ":memory:":
-            Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        self._custom_db_path = db_path
         self._migrated = False
+
+    @property
+    def db_path(self) -> str:
+        if self._custom_db_path:
+            return self._custom_db_path
+        test_env = os.getenv("TEST_DATABASE_PATH") or os.getenv("TEST_DATABASE_URL")
+        if os.getenv("FLODSS_TESTING") == "true" or test_env:
+            path = test_env or "data/test_flodss.db"
+            if path.startswith("sqlite:///"):
+                path = path[len("sqlite:///"):]
+            return path
+        return settings.DATABASE_PATH
+
+    def set_db_path(self, new_path: str):
+        """Explicitly switch database target for testing or isolated environments."""
+        if new_path.startswith("sqlite:///"):
+            new_path = new_path[len("sqlite:///"):]
+        self._custom_db_path = new_path
+        self._migrated = False
+        if new_path != ":memory:":
+            Path(new_path).parent.mkdir(parents=True, exist_ok=True)
 
     def get_connection(self) -> sqlite3.Connection:
         """Create and configure a database connection."""
+        target_path = self.db_path
+        if target_path != ":memory:":
+            Path(target_path).parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(
-            self.db_path,
+            target_path,
             check_same_thread=False,
             timeout=30.0,
         )
@@ -38,7 +59,7 @@ class DatabaseManager:
         # Enable foreign key constraints in SQLite
         conn.execute("PRAGMA foreign_keys = ON;")
         # Enable WAL journal mode for high concurrency
-        if self.db_path != ":memory:":
+        if target_path != ":memory:":
             conn.execute("PRAGMA journal_mode = WAL;")
         return conn
 

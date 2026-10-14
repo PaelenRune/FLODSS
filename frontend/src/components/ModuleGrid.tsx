@@ -1,5 +1,6 @@
 import React from 'react';
 import { SystemStatus } from '../types/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ModuleGridProps {
   status: SystemStatus | null;
@@ -57,6 +58,7 @@ const ARCHITECTURAL_MODULES = [
 ];
 
 export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
+  const { t } = useLanguage();
   return (
     <div style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -65,9 +67,14 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
       padding: '1.5rem',
     }}>
       <div style={{ marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Modular Subsystems & Decoupled Architecture</h2>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+          {t('Modüler Alt Sistemler & Bağımsız Mimari (Decoupled Subsystems)', 'Modular Subsystems & Decoupled Architecture')}
+        </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Each subsystem operates independently with strict interface contracts, preventing monolithic coupling.
+          {t(
+            'Her alt sistem sıkı arayüz sözleşmeleriyle bağımsız çalışır, monolitik bağımlılıkları engeller.',
+            'Each subsystem operates independently with strict interface contracts, preventing monolithic coupling.'
+          )}
         </p>
       </div>
 

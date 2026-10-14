@@ -10,12 +10,25 @@ Tests:
 7. Session revocation / Logout
 """
 
+import os
 import sys
 from pathlib import Path
 from fastapi.testclient import TestClient
 
+# Enforce isolated test database
+os.environ["FLODSS_TESTING"] = "true"
+test_db = Path(__file__).resolve().parent.parent / "data" / "test_flodss.db"
+os.environ["TEST_DATABASE_PATH"] = str(test_db)
+
 # Ensure backend is on sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
+
+from app.db.database import db_manager
+db_manager.set_db_path(str(test_db))
+db_manager.run_migrations()
+from app.services.auth_service import AuthService
+with db_manager.get_connection() as conn:
+    AuthService.ensure_admin_user(conn)
 
 from app.main import app, FRONTEND_DIST
 from app.core.config import settings
@@ -62,11 +75,23 @@ def run_smoke_test():
 
         # 5. Admin Authentication & Tunnel HTTPS Cookie Test
         print("\n[Step 5] Authenticating as Admin with Cloudflare Tunnel HTTPS headers...")
+        admin_email = settings.DEFAULT_ADMIN_EMAIL
+        admin_pass = settings.DEFAULT_ADMIN_PASSWORD
+        secret_file = Path(__file__).resolve().parent.parent / "backend" / "data" / ".admin_credentials.secret"
+        if secret_file.exists():
+            with open(secret_file, "r", encoding="utf-8") as sf:
+                for line in sf:
+                    line = line.strip()
+                    if line.startswith("FLODSS_ADMIN_EMAIL="):
+                        admin_email = line.split("=", 1)[1].strip()
+                    elif line.startswith("FLODSS_ADMIN_PASSWORD="):
+                        admin_pass = line.split("=", 1)[1].strip()
+
         login_resp = client.post(
             "/api/auth/login",
             json={
-                "email": settings.DEFAULT_ADMIN_EMAIL,
-                "password": settings.DEFAULT_ADMIN_PASSWORD,
+                "email": admin_email,
+                "password": admin_pass,
             },
             headers={
                 "X-Forwarded-Proto": "https",

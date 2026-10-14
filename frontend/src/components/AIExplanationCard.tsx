@@ -72,12 +72,26 @@ const PRESET_QUESTIONS: { type: PresetQuestionType; labelTr: string; labelEn: st
   },
 ];
 
-export const AIExplanationCard: React.FC = () => {
+export interface AIExplanationCardProps {
+  problem?: any | null;
+  currentLayout?: any | null;
+  evaluation?: any | null;
+}
+
+export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
+  problem,
+}) => {
   const { lang, t } = useLanguage();
   const [mode, setMode] = useState<ExplanationMode>('local');
-  const [selectedProblemId, setSelectedProblemId] = useState<string>('FLP_INDUSTRIAL_10');
+  const [selectedProblemId, setSelectedProblemId] = useState<string>(problem?.id || 'FLP_INDUSTRIAL_10');
   const [selectedQuestionType, setSelectedQuestionType] = useState<PresetQuestionType>('why_strategy_selected');
   const [customQuestion, setCustomQuestion] = useState<string>('');
+
+  useEffect(() => {
+    if (problem?.id) {
+      setSelectedProblemId(problem.id);
+    }
+  }, [problem?.id]);
 
   const [aiStatus, setAiStatus] = useState<AIStatusResponse | null>(null);
   const [preview, setPreview] = useState<DataTransferPreview | null>(null);

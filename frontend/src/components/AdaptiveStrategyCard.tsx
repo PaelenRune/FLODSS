@@ -9,6 +9,7 @@ import {
 import { analyzeStrategy, solveAdaptiveStrategy } from '../services/api';
 import { LayoutCanvas } from './LayoutCanvas';
 import { useLanguage } from '../context/LanguageContext';
+import { formatCost } from '../utils/formatters';
 
 const BENCHMARK_PROBLEMS = [
   { id: 'FLP_INDUSTRIAL_10', name: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
@@ -22,9 +23,17 @@ const BENCHMARK_PROBLEMS = [
   { id: 'FLP_LOGISTICS_5', name: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
 ];
 
-export const AdaptiveStrategyCard: React.FC = () => {
+export interface AdaptiveStrategyCardProps {
+  problem?: any | null;
+  currentLayout?: ContinuousLayout | null;
+  evaluation?: any | null;
+}
+
+export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
+  problem,
+}) => {
   const { t } = useLanguage();
-  const [selectedProblemId, setSelectedProblemId] = useState<string>('FLP_INDUSTRIAL_10');
+  const [selectedProblemId, setSelectedProblemId] = useState<string>(problem?.id || 'FLP_INDUSTRIAL_10');
   const [budgetSeconds, setBudgetSeconds] = useState<number>(15.0);
   const [maxCalls, setMaxCalls] = useState<number>(5);
   const [fallbackEnabled, setFallbackEnabled] = useState<boolean>(true);
@@ -38,6 +47,12 @@ export const AdaptiveStrategyCard: React.FC = () => {
 
   const [selectedCandidateSig, setSelectedCandidateSig] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (problem?.id) {
+      setSelectedProblemId(problem.id);
+    }
+  }, [problem?.id]);
+
   // Auto-analyze on problem switch
   useEffect(() => {
     handleAnalyze();
@@ -47,7 +62,10 @@ export const AdaptiveStrategyCard: React.FC = () => {
     setAnalyzing(true);
     setError(null);
     try {
-      const data = await analyzeStrategy({ problem_id: selectedProblemId });
+      const data = await analyzeStrategy({
+        problem_id: selectedProblemId,
+        problem: problem?.id === selectedProblemId ? (problem as any) : undefined,
+      });
       setAnalysis(data);
     } catch (err: any) {
       setError(err.message || t('Problem analiz edilemedi', 'Failed to analyze problem'));
@@ -70,12 +88,13 @@ export const AdaptiveStrategyCard: React.FC = () => {
       };
       const res = await solveAdaptiveStrategy({
         problem_id: selectedProblemId,
+        problem: problem?.id === selectedProblemId ? (problem as any) : undefined,
         config,
       });
       setResult(res);
       if (res.final_recommendation && res.final_recommendation.layout_signature) {
         setSelectedCandidateSig(res.final_recommendation.layout_signature);
-      } else if (res.candidate_portfolio.items.length > 0) {
+      } else if (res.candidate_portfolio?.items?.length > 0) {
         setSelectedCandidateSig(res.candidate_portfolio.items[0].output_layout_signature);
       }
     } catch (err: any) {
@@ -338,7 +357,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>BEST FEASIBLE MHC</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#3b82f6' }}>
-                {result.final_recommendation?.material_handling_cost ? `$${result.final_recommendation.material_handling_cost.toLocaleString()}` : 'N/A'}
+                {result.final_recommendation?.material_handling_cost ? formatCost(result.final_recommendation.material_handling_cost) : 'N/A'}
               </div>
             </div>
 
@@ -400,7 +419,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
                         )}
                       </td>
                       <td style={{ padding: '0.5rem' }}>
-                        {step.objective_values.material_handling_cost ? `$${step.objective_values.material_handling_cost.toLocaleString()}` : '-'}
+                        {step.objective_values.material_handling_cost ? formatCost(step.objective_values.material_handling_cost) : '-'}
                       </td>
                       <td style={{ padding: '0.5rem' }}>{step.execution_time_seconds.toFixed(3)}s</td>
                       <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
@@ -470,7 +489,7 @@ export const AdaptiveStrategyCard: React.FC = () => {
                         </span>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        MHC: <strong>{cand.material_handling_cost ? `$${cand.material_handling_cost.toLocaleString()}` : 'N/A'}</strong> | REL Sat: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : 'N/A'}
+                        MHC: <strong>{cand.material_handling_cost ? formatCost(cand.material_handling_cost) : 'N/A'}</strong> | REL Sat: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : 'N/A'}
                       </div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                         Provenance: {cand.provenance_sources.map((p) => p.algorithm_name).join(', ')}

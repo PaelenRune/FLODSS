@@ -52,6 +52,8 @@ backend/data/*.secret
 test-results/
 playwright-report/
 e2e/screenshots/
+experiments/reports/screenshots*/
+experiments/reports/*.png
 
 # OS & IDE
 .DS_Store

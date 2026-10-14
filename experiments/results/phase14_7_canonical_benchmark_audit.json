@@ -1,0 +1,49 @@
+{
+  "audit_timestamp_utc": "2026-10-13T14:57:18.245989Z",
+  "audit_version": "v1.0.0-rc.1-phase14.7",
+  "policy": "NON_DESTRUCTIVE_CANONICAL_VERSIONING",
+  "historic_status": "LEGACY_PRE_VALIDATION_FIX",
+  "historic_files_preserved": [
+    "experiments\\results\\benchmark_summary.json",
+    "experiments\\results\\aldep_candidates.csv",
+    "experiments\\results\\craft_runs.csv"
+  ],
+  "recalculation_requirements": [
+    {
+      "experiment_id": "EXP_ALDEP_HISTORIC_GRID_SWEEP",
+      "source_file": "aldep_candidates.csv",
+      "reason": "Pre-14.6 ALDEP candidate generator used permissive boundary tolerance and did not enforce strict max_aspect_ratio bound (3.0). Candidates with aspect ratio > 3.0 or discrete-to-continuous conversion distortion must be re-evaluated under CanonicalEvaluationService.",
+      "action_required": "RE_EVALUATION_WITH_CANONICAL_ENGINE",
+      "priority": "HIGH"
+    },
+    {
+      "experiment_id": "EXP_CORELAP_HISTORIC_INITIAL",
+      "source_file": "benchmark_summary.json",
+      "reason": "Pre-14.6 CORELAP constructed 5x20m rectangles (AR=4.0) on Academic4, which were falsely reported as Feasible. Must be superseded by the verified 10x10m square layout (AR=1.0, MHC=1400.0, Feasible=True).",
+      "action_required": "SUPERSEDED_BY_PHASE14_7_CANONICAL",
+      "priority": "CRITICAL"
+    },
+    {
+      "experiment_id": "EXP_CRAFT_PAIRWISE_IMPROVEMENT",
+      "source_file": "craft_runs.csv",
+      "reason": "CRAFT improvements seeded from infeasible 5x20m initial layouts inherit invalid starting baselines. Swaps must be re-run starting from canonical feasible CORELAP initial layout.",
+      "action_required": "RE_RUN_FROM_CANONICAL_INITIAL",
+      "priority": "HIGH"
+    }
+  ],
+  "phase14_7_verified_baselines": {
+    "problem_id": "FLP_ACADEMIC_4",
+    "verified_algorithm": "CORELAP_CANONICAL",
+    "layout_signature": "5e5a066381bdcdc7e94f162ccdb2b11ec76fdf2d17d4ec0379b96f7d6549e8b6",
+    "mhc": 1400.0,
+    "rel_satisfaction_percentage": 71.37,
+    "is_feasible": true,
+    "hard_violation_count": 0,
+    "aspect_ratios": {
+      "DEP_A": 1.0,
+      "DEP_B": 1.0,
+      "DEP_C": 1.0,
+      "DEP_D": 1.0
+    }
+  }
+}

@@ -126,7 +126,7 @@ class CanonicalEvaluationService:
                 solution, problem.facility.width, problem.facility.height
             )
         elif isinstance(solution, dict):
-            if "placements" in solution and isinstance(next(iter(solution["placements"].values())), dict):
+            if "placements" in solution and solution["placements"] and isinstance(next(iter(solution["placements"].values())), dict):
                 first_p = next(iter(solution["placements"].values()))
                 if "origin" in first_p:
                     layout = ContinuousLayout.from_layout_solution(

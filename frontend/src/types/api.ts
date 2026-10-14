@@ -818,6 +818,7 @@ export interface ParetoAnalysisResult {
 
 export interface ParetoAnalyzeRequest {
   problem_id?: string;
+  problem?: Record<string, any>;
   candidates?: Record<string, any>[];
   include_saved_baselines?: boolean;
   objectives?: ObjectiveDefinition[];
@@ -925,6 +926,14 @@ export interface AdaptiveStrategyResult {
   total_runtime_seconds: number;
   total_algorithm_calls: number;
   best_continuous_layout?: ContinuousLayout;
+  execution_status?: string;
+  validation_status?: string;
+  is_feasible?: boolean;
+  selected_algorithm?: string;
+  failure_reason?: string | null;
+  best_validation?: LayoutValidationResult | null;
+  best_evaluation?: EvaluationReport | null;
+  fallback_trace?: any[];
 }
 
 export interface StrategyAnalyzeRequest {

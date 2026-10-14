@@ -28,6 +28,10 @@ class ParetoAnalyzeRequest(BaseModel):
     """Payload for Pareto Frontier multi-objective analysis."""
 
     problem_id: str = Field(default="FLP_INDUSTRIAL_10", description="ID of problem to analyze")
+    problem: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Optional full inline problem payload (used when problem is dynamically edited or active problem is not on disk)",
+    )
     candidates: Optional[List[Dict[str, Any]]] = Field(
         default=None,
         description="Optional explicit candidate layout payloads to include in portfolio",
@@ -64,13 +68,22 @@ def get_objectives():
 def analyze_pareto(payload: ParetoAnalyzeRequest):
     """Analyze a candidate layout portfolio, filter invalid designs, assign Pareto ranks, and generate recommendations."""
     # 1. Resolve problem
-    try:
-        problem = problem_service.get_example_problem(payload.problem_id)
-    except Exception:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Problem '{payload.problem_id}' not found in registered problems",
-        )
+    if payload.problem:
+        try:
+            problem = FacilityLayoutProblem.model_validate(payload.problem)
+        except Exception as p_err:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid inline problem definition: {str(p_err)}",
+            )
+    else:
+        try:
+            problem = problem_service.get_example_problem(payload.problem_id)
+        except Exception:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Problem '{payload.problem_id}' not found in registered problems",
+            )
 
     portfolio: List[Any] = []
 
@@ -111,10 +124,92 @@ def analyze_pareto(payload: ParetoAnalyzeRequest):
     if payload.candidates:
         portfolio.extend(payload.candidates)
 
+    # 4. If portfolio is empty, auto-solve real baseline candidates using CORELAP, Generator, and GA
+    if not portfolio:
+        from app.algorithms.corelap.solver import CORELAPAlgorithm
+        from app.algorithms.generator.models import GeneratorConfig
+        from app.algorithms.generator.search_guillotine_packing import GuillotineRowPackingEngine
+        from app.algorithms.ga.models import GAConfig
+        from app.algorithms.ga.solver import GeneticLayoutAlgorithm
+
+        # A. CORELAP candidate
+        try:
+            corelap_sol = CORELAPAlgorithm().solve(problem)
+            portfolio.append({
+                "id": "CORELAP Baseline",
+                "algorithm_name": "CORELAP Baseline",
+                "problem_id": problem.id,
+                "placements": {
+                    did: {
+                        "department_id": did,
+                        "x": p.origin.x,
+                        "y": p.origin.y,
+                        "width": p.dimensions.width,
+                        "height": p.dimensions.height,
+                        "orientation_degrees": p.orientation_degrees,
+                    }
+                    for did, p in corelap_sol.placements.items()
+                },
+            })
+        except Exception:
+            pass
+
+        # B. Guillotine candidate
+        try:
+            g_res = GuillotineRowPackingEngine.search(
+                problem,
+                GeneratorConfig(max_nodes=1000, max_backtracks=500, max_runtime_seconds=2.0),
+            )
+            if g_res.is_feasible and g_res.layout:
+                portfolio.append({
+                    "id": "Guillotine Packing",
+                    "algorithm_name": "Guillotine Packing",
+                    "problem_id": problem.id,
+                    "placements": {
+                        did: {
+                            "department_id": did,
+                            "x": p.x,
+                            "y": p.y,
+                            "width": p.width,
+                            "height": p.height,
+                            "orientation_degrees": p.orientation_degrees,
+                        }
+                        for did, p in g_res.layout.placements.items()
+                    },
+                })
+        except Exception:
+            pass
+
+        # C. GA candidate
+        try:
+            ga_res = GeneticLayoutAlgorithm().solve_with_result(
+                problem,
+                config=GAConfig(population_size=12, generations=6, time_budget_seconds=2.0, random_seed=42),
+            )
+            if ga_res.best_is_feasible and ga_res.best_layout:
+                portfolio.append({
+                    "id": "Genetic Algorithm",
+                    "algorithm_name": "Genetic Algorithm",
+                    "problem_id": problem.id,
+                    "placements": {
+                        did: {
+                            "department_id": did,
+                            "x": p.x,
+                            "y": p.y,
+                            "width": p.width,
+                            "height": p.height,
+                            "orientation_degrees": p.orientation_degrees,
+                        }
+                        for did, p in ga_res.best_layout.placements.items()
+                    },
+                })
+        except Exception:
+            pass
+
     if not portfolio:
         raise HTTPException(
             status_code=400,
-            detail=f"No candidate layouts found or provided for problem '{payload.problem_id}'",
+            detail=f"No candidate layouts found or solvable for problem '{problem.id}'",
         )
 
     # 4. Execute Pareto Analysis

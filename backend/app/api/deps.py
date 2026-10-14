@@ -34,6 +34,9 @@ async def get_current_user(
     """Validate active session token and return authenticated User."""
     token = get_token_from_request(authorization, flodss_session)
     if not token:
+        if not settings.AUTH_ENFORCED:
+            guest_data = AuthService.login_guest_user(conn)
+            return guest_data["user"]
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required. Please log in with a valid research session.",

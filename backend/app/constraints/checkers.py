@@ -378,3 +378,76 @@ class SeparationChecker(MinDistanceChecker):
     @property
     def supported_type(self) -> ConstraintType:
         return ConstraintType.SEPARATION
+
+
+class AspectRatioChecker(BaseConstraintChecker):
+    """Enforces department aspect ratio limits."""
+
+    @property
+    def supported_type(self) -> ConstraintType:
+        return ConstraintType.ASPECT_RATIO
+
+    def check(
+        self,
+        constraint: Constraint,
+        problem: FacilityLayoutProblem,
+        solution: Union[LayoutSolution, ContinuousLayout],
+    ) -> List[ConstraintViolation]:
+        layout = _extract_continuous_layout(problem, solution)
+        tolerance = constraint.parameters.get("tolerance", 1e-6)
+        target_depts = set(constraint.involved_departments)
+        problem_depts = {d.id: d for d in problem.departments}
+        violations: List[ConstraintViolation] = []
+
+        param_max_ar = constraint.parameters.get("max_aspect_ratio", constraint.parameters.get("max_ratio"))
+        param_min_ar = constraint.parameters.get("min_aspect_ratio", constraint.parameters.get("min_ratio"))
+
+        for dept_id, p in layout.placements.items():
+            if target_depts and dept_id not in target_depts:
+                continue
+            dept_spec = problem_depts.get(dept_id)
+            max_ar = float(param_max_ar) if param_max_ar is not None else (dept_spec.max_aspect_ratio if dept_spec else None)
+            min_ar = float(param_min_ar) if param_min_ar is not None else (dept_spec.min_aspect_ratio if dept_spec else None)
+
+            if min_ar is not None and p.aspect_ratio < min_ar - tolerance:
+                deficit = round(min_ar - p.aspect_ratio, 4)
+                penalty = (
+                    0.0
+                    if constraint.classification == ConstraintClassification.HARD
+                    else round(deficit * constraint.penalty, 2)
+                )
+                violations.append(
+                    ConstraintViolation(
+                        constraint_id=constraint.id,
+                        constraint_type=self.supported_type,
+                        classification=constraint.classification,
+                        involved_departments=[dept_id],
+                        magnitude=deficit,
+                        penalty_cost=penalty,
+                        measured_value=round(p.aspect_ratio, 4),
+                        required_value=min_ar,
+                        description=f"Department '{dept_id}' aspect ratio ({p.aspect_ratio:.2f}) violates min_aspect_ratio ({min_ar:.2f}).",
+                    )
+                )
+            if max_ar is not None and p.aspect_ratio > max_ar + tolerance:
+                excess = round(p.aspect_ratio - max_ar, 4)
+                penalty = (
+                    0.0
+                    if constraint.classification == ConstraintClassification.HARD
+                    else round(excess * constraint.penalty, 2)
+                )
+                violations.append(
+                    ConstraintViolation(
+                        constraint_id=constraint.id,
+                        constraint_type=self.supported_type,
+                        classification=constraint.classification,
+                        involved_departments=[dept_id],
+                        magnitude=excess,
+                        penalty_cost=penalty,
+                        measured_value=round(p.aspect_ratio, 4),
+                        required_value=max_ar,
+                        description=f"Department '{dept_id}' aspect ratio ({p.aspect_ratio:.2f}) exceeds max_aspect_ratio ({max_ar:.2f}).",
+                    )
+                )
+        return violations
+

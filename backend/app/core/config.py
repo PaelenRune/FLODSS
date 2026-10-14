@@ -52,7 +52,14 @@ class Settings(BaseModel):
 
     # Controlled Research Access & Security Configuration
     SECRET_KEY: str = Field(default_factory=lambda: os.getenv("SECRET_KEY", "flodss-controlled-research-access-secret-v1-2026"))
-    DATABASE_PATH: str = Field(default_factory=lambda: os.getenv("DATABASE_PATH", "data/flodss_research.db"))
+    DATABASE_PATH: str = Field(
+        default_factory=lambda: (
+            (os.getenv("TEST_DATABASE_PATH") or os.getenv("TEST_DATABASE_URL")).replace("sqlite:///", "")
+            if (os.getenv("FLODSS_TESTING") == "true" or os.getenv("TEST_DATABASE_PATH") or os.getenv("TEST_DATABASE_URL"))
+            else os.getenv("DATABASE_PATH", "data/flodss_research.db")
+        )
+    )
+    TEST_DATABASE_URL: str | None = Field(default_factory=lambda: os.getenv("TEST_DATABASE_URL") or os.getenv("TEST_DATABASE_PATH"))
     SESSION_EXPIRE_HOURS: int = Field(default_factory=lambda: int(os.getenv("SESSION_EXPIRE_HOURS", "24")))
     INVITATION_EXPIRE_HOURS: int = Field(default_factory=lambda: int(os.getenv("INVITATION_EXPIRE_HOURS", "48")))
     MAX_CONCURRENT_JOBS_PER_USER: int = Field(default_factory=lambda: int(os.getenv("MAX_CONCURRENT_JOBS_PER_USER", "2")))
@@ -96,11 +103,11 @@ class Settings(BaseModel):
     @property
     def effective_perimeter_mode(self) -> str:
         """Resolve effective perimeter mode, maintaining backward compatibility with CLOUDFLARE_ACCESS_ENFORCED."""
+        if self.CLOUDFLARE_ACCESS_ENFORCED:
+            return "MANAGED_ACCESS"
         mode = self.CLOUDFLARE_PERIMETER_MODE.upper()
         if mode in ("MANAGED_ACCESS", "PROTECTED_QUICK_TUNNEL"):
             return mode
-        if self.CLOUDFLARE_ACCESS_ENFORCED:
-            return "MANAGED_ACCESS"
         return "DISABLED"
 
     @property

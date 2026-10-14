@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: flodss
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_PATH
+        value: data/flodss_research.db
+      - key: AUTH_ENFORCED
+        value: "false"
+      - key: AI_ENABLED
+        value: "false"

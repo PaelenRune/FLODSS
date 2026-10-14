@@ -136,6 +136,10 @@ class ContinuousLayout(BaseLayoutRepresentation):
     """Continuous 2D rectangular layout representation."""
 
     representation_type: LayoutRepresentationType = LayoutRepresentationType.CONTINUOUS
+    layout_signature: Optional[str] = Field(
+        default=None,
+        description="Deterministic SHA-256 geometric invariant fingerprint",
+    )
     placements: Dict[str, ContinuousPlacement] = Field(
         default_factory=dict,
         description="Placements indexed by department_id",
@@ -174,6 +178,7 @@ class ContinuousLayout(BaseLayoutRepresentation):
             problem_id=problem_id,
             algorithm_name=algorithm_name,
             algorithm_version=algorithm_version,
+            layout_signature=self.layout_signature,
             placements=dept_placements,
             department_positions=positions,
             department_dimensions=dimensions,
@@ -219,11 +224,19 @@ class ContinuousLayout(BaseLayoutRepresentation):
                         height=dim.height,
                     )
 
+        sol_meta = dict(solution.metadata) if getattr(solution, "metadata", None) else {}
+        sig = sol_meta.get("layout_signature") or sol_meta.get("signature")
+
         return cls(
+            id=getattr(solution, "id", None) or f"{solution.algorithm_name}_{solution.problem_id}",
+            name=f"{solution.algorithm_name} ({solution.problem_id})",
+            problem_id=solution.problem_id,
             facility_width=facility_width,
             facility_height=facility_height,
+            layout_signature=sig,
             placements=placements,
             reserved_zones=reserved_zones or [],
+            metadata=sol_meta,
         )
 
 

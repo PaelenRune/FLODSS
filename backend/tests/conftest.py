@@ -1,6 +1,13 @@
-"""Pytest fixtures for Facility Layout System tests."""
-
+import os
+from pathlib import Path
 import pytest
+
+# STRICT TEST ISOLATION: Tests must NEVER touch production data/flodss_research.db
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+TEST_DB_PATH = ROOT_DIR / "data" / "test_flodss.db"
+os.environ["FLODSS_TESTING"] = "true"
+os.environ["TEST_DATABASE_PATH"] = str(TEST_DB_PATH)
+
 from app.models.facility import Facility
 from app.models.department import Department
 from app.models.flow import Flow
@@ -14,15 +21,19 @@ from app.api.deps import get_current_user
 from app.db.database import db_manager
 from app.models.auth import User, UserRole
 from app.services.auth_service import AuthService
-
-
-from pathlib import Path
 from app.core.config import settings
 
 
 @pytest.fixture(scope="session", autouse=True)
 def init_test_db():
-    """Ensure database schema and migrations are initialized for test execution."""
+    """Ensure database schema and migrations are initialized strictly on the isolated test database."""
+    # Enforce isolation
+    prod_db_path = ROOT_DIR / "data" / "flodss_research.db"
+    if Path(TEST_DB_PATH).resolve() == prod_db_path.resolve():
+        raise RuntimeError("CRITICAL ISOLATION FAILURE: Test database path resolves to production database!")
+    db_manager.set_db_path(str(TEST_DB_PATH))
+    settings.DATABASE_PATH = str(TEST_DB_PATH)
+
     secret_paths = [
         Path(settings.DATABASE_PATH).parent / ".admin_credentials.secret",
         Path(__file__).resolve().parent.parent / "data" / ".admin_credentials.secret",

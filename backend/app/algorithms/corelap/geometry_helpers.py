@@ -56,6 +56,13 @@ def determine_department_dimensions(
         else:
             h = math.sqrt(area * dept.max_aspect_ratio)
             w = area / h
+    elif dept.min_aspect_ratio is not None and aspect < dept.min_aspect_ratio:
+        if w >= h:
+            w = math.sqrt(area * dept.min_aspect_ratio)
+            h = area / w
+        else:
+            h = math.sqrt(area * dept.min_aspect_ratio)
+            w = area / h
 
     if dept.fixed_orientation in (90.0, 270.0):
         w, h = h, w
@@ -88,7 +95,8 @@ def generate_legal_department_shapes(
     max_w = dept.max_width or facility_width
     min_h = dept.min_height or 1.0
     max_h = dept.max_height or facility_height
-    max_ar = dept.max_aspect_ratio or 4.0
+    min_ar = dept.min_aspect_ratio or 1.0
+    max_ar = dept.max_aspect_ratio or 3.0
 
     shapes_set: Set[Tuple[float, float, float]] = set()
 
@@ -102,7 +110,7 @@ def generate_legal_department_shapes(
         if cw * ch <= 0:
             return
         ar = max(cw, ch) / min(cw, ch)
-        if ar > max_ar + 1e-4:
+        if ar < min_ar - 1e-6 or ar > max_ar + 1e-6:
             return
         shapes_set.add((cw, ch, orient))
 

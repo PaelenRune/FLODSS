@@ -14,6 +14,7 @@ import {
   solveALDEP,
 } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { formatCost } from '../utils/formatters';
 
 interface OptimizationWorkspaceCardProps {
   problem: FacilityLayoutProblem | null;
@@ -229,6 +230,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       if (selectedAlgo === 'adaptive') {
         const res = await solveAdaptiveStrategy({
           problem_id: problem.id,
+          problem: problem,
           config: {
             random_seed: randomSeed,
             max_total_runtime_seconds: timeBudget,
@@ -241,14 +243,17 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
 
         const bestLayout = res.best_continuous_layout || (res.candidate_portfolio?.items?.find((it: any) => it.feasibility)?.solution as any)?.continuous_layout || null;
         const totalCandidates = res.candidate_portfolio?.total_candidates_generated ?? res.candidate_portfolio?.items?.length ?? 0;
+        const isFeas = res.is_feasible ?? res.feasible_status;
+        const execStatus = res.execution_status || 'COMPLETED';
+        const valStatus = res.validation_status || (isFeas ? 'FEASIBLE' : 'INFEASIBLE');
 
-        if (!res.feasible_status || !bestLayout) {
+        if (!isFeas || !bestLayout) {
           setFailureNotice({
-            reason: res.termination_reason || t('Adaptive Strategy geçerli (Feasible) bir yerleşim bulamadı.', 'Adaptive strategy could not find a feasible layout.'),
+            reason: res.failure_reason || res.termination_reason || t('Adaptive Strategy geçerli (Feasible) bir yerleşim bulamadı.', 'Adaptive strategy could not find a feasible layout.'),
             partial: totalCandidates > 0,
             fallback: t('Zaman bütçesini artırmayı veya Problem Editöründe Aspect Ratio sınırlarını esnetmeyi deneyin.', 'Try increasing the time budget or relaxing aspect ratio bounds in Problem Editor.'),
           });
-          setExecutionStatus(t('Tamamlandı (Infeasible)', 'Algorithm Completed (Infeasible)'));
+          setExecutionStatus(`${execStatus} (${valStatus})`);
         } else {
           const rec = res.final_recommendation || {};
           setLastResultMetrics({
@@ -259,17 +264,20 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             algorithm: res.selected_strategy?.name || 'Adaptive Pipeline',
             evaluations: res.total_algorithm_calls,
           });
-          onSolutionGenerated(bestLayout, null, null, {
+          onSolutionGenerated(bestLayout, res.best_validation || null, res.best_evaluation || null, {
             algorithm: res.selected_strategy?.name,
             seed: randomSeed,
             duration_ms: t1 - t0,
             termination_reason: res.termination_reason,
+            execution_status: execStatus,
+            validation_status: valStatus,
           });
           setExecutionStatus(t('Başarılı: Feasible Çözüm Bulundu', 'Success: Feasible Solution Found'));
         }
       } else if (selectedAlgo === 'ga') {
         const res = await solveGeneticAlgorithm({
           problem_id: problem.id,
+          problem: problem,
           config: {
             population_size: populationSize,
             generations: maxGenerations,
@@ -310,6 +318,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       } else if (selectedAlgo === 'feasible_generator') {
         const res = await solveFeasibleGenerator({
           problem_id: problem.id,
+          problem: problem,
           config: {
             random_seed: randomSeed,
             max_runtime_seconds: timeBudget,
@@ -349,6 +358,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       } else if (selectedAlgo === 'craft') {
         const res = await solveCRAFT({
           problem_id: problem.id,
+          problem: problem,
           initial_layout: currentLayout ? { placements: currentLayout.placements, facility_width: currentLayout.facility_width, facility_height: currentLayout.facility_height } : undefined,
           config: {
             max_iterations: maxGenerations,
@@ -377,6 +387,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       } else if (selectedAlgo === 'corelap') {
         const res = await solveCORELAP({
           problem_id: problem.id,
+          problem: problem,
         });
         const t1 = performance.now();
         setElapsedMs(Math.round(t1 - t0));
@@ -411,6 +422,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       } else if (selectedAlgo === 'aldep') {
         const res = await solveALDEP({
           problem_id: problem.id,
+          problem: problem,
         });
         const t1 = performance.now();
         setElapsedMs(Math.round(t1 - t0));
@@ -460,8 +472,8 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
         </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
           {t(
-            'Klasik literatür sezgisellerini (CORELAP, ALDEP, CRAFT), Genetic Algorithm (Slicing Tree) meta-sezgiselini veya otonom Adaptive Strategy Engine motorunu seçip çalıştırın.',
-            'Select and run industrial layout optimization heuristics, metaheuristics, or the autonomous Adaptive Strategy Engine.'
+            '5 Kayıtlı Temel Çözücü (CORELAP, ALDEP, CRAFT, Feasible Generator, Genetic Algorithm) + 1 Otonom Orkestrasyon Hattı (Adaptive Strategy Engine).',
+            '5 Registered Base Solvers (CORELAP, ALDEP, CRAFT, Feasible Generator, Genetic Algorithm) + 1 Autonomous Orchestration Pipeline (Adaptive Strategy Engine).'
           )}
         </p>
       </div>
@@ -681,7 +693,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>MHC: </span>
                 <strong style={{ fontSize: '0.95rem' }}>
-                  {lastResultMetrics.mhc ? `$${Number(lastResultMetrics.mhc).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A'}
+                  {lastResultMetrics.mhc ? formatCost(Number(lastResultMetrics.mhc), problem?.metadata?.currency) : 'N/A'}
                 </strong>
               </div>
               <div>
@@ -693,7 +705,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
               <div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Soft Penalty: </span>
                 <strong style={{ fontSize: '0.95rem' }}>
-                  {lastResultMetrics.soft_penalty !== undefined ? `$${Number(lastResultMetrics.soft_penalty).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$0.00'}
+                  {lastResultMetrics.soft_penalty !== undefined ? formatCost(Number(lastResultMetrics.soft_penalty), problem?.metadata?.currency) : formatCost(0, problem?.metadata?.currency)}
                 </strong>
               </div>
             </div>

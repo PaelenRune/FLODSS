@@ -105,12 +105,55 @@ class BayChromosomeDecoder:
             offset_y = round((fac_h - active_h) / 2.0, 2)
 
         # 4. Geometric placement
-        if orientation == "vertical":
+        reserved_zones = getattr(problem, "reserved_zones", None) or getattr(problem.facility, "reserved_zones", None) or []
+        vertical_corridors = [
+            rz for rz in reserved_zones
+            if rz.bounding_box.y_min <= tolerance
+            and rz.bounding_box.y_max >= fac_h - tolerance
+            and tolerance < rz.bounding_box.x_min < rz.bounding_box.x_max < fac_w - tolerance
+        ]
+
+        if vertical_corridors and orientation != "vertical":
+            # Partition horizontal bays across wings separated by vertical spine corridor(s)
+            corridor = sorted(vertical_corridors, key=lambda r: r.bounding_box.x_min)[0]
+            wings = [
+                (0.0, corridor.bounding_box.x_min),
+                (corridor.bounding_box.x_max, fac_w - corridor.bounding_box.x_max),
+            ]
+            wing_idx = 0
+            curr_y = 0.0
+            for bay in bays:
+                bay_area = sum(dept_map[did].required_area for did in bay)
+                wing_x, wing_w = wings[wing_idx]
+                bay_h = bay_area / wing_w if wing_w > 0 else 0.0
+                if wing_idx == 0 and curr_y > 0.0 and curr_y + bay_h > fac_h + tolerance:
+                    wing_idx = 1
+                    curr_y = 0.0
+                    wing_x, wing_w = wings[wing_idx]
+                    bay_h = bay_area / wing_w if wing_w > 0 else 0.0
+
+                curr_x = wing_x
+                for did in bay:
+                    dept = dept_map[did]
+                    dept_w = dept.required_area / bay_h if bay_h > 0 else 0.0
+                    placements[did] = ContinuousPlacement(
+                        department_id=did,
+                        x=round(curr_x, 4),
+                        y=round(curr_y, 4),
+                        width=round(dept_w, 4),
+                        height=round(bay_h, 4),
+                    )
+                    curr_x += dept_w
+                curr_y += bay_h
+        elif orientation == "vertical":
             # Bays stacked horizontally along X, spanning active height
             curr_x = offset_x
             for bay in bays:
                 bay_area = sum(dept_map[did].required_area for did in bay)
                 bay_w = bay_area / active_h
+                for rz in vertical_corridors:
+                    if curr_x < rz.bounding_box.x_max - tolerance and curr_x + bay_w > rz.bounding_box.x_min + tolerance:
+                        curr_x = rz.bounding_box.x_max
 
                 curr_y = offset_y
                 for did in bay:
