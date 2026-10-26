@@ -16,7 +16,17 @@ function equipmentFor(id: string, name: string): Equipment {
 }
 
 export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | null; onSelect: (id: string) => void }) {
-  const { departments, flows, problem, layout } = useCockpitData();
+  const { departments, flows, problem, layout, swap } = useCockpitData();
+  const [swapMode, setSwapMode] = useState(false);
+  const selectDepartment = (id: string) => {
+    if (swapMode && selected && selected !== id) {
+      swap?.(selected, id);
+      setSwapMode(false);
+    } else {
+      onSelect(id);
+      setSwapMode(false);
+    }
+  };
   const [flat, setFlat] = useState(false);
   const [showFlows, setShowFlows] = useState(true);
   const [zoom, setZoom] = useState(1);
@@ -152,7 +162,7 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
         })}
         {sorted.map(d => {
           const base = selected === d.id ? 12 : 7;
-          return <g key={d.id} data-department={d.id} className={`factory-zone ${selected === d.id ? 'active-zone' : ''}`} role="button" tabIndex={0} aria-label={`${d.name}, ${d.area.toFixed(1)} square meters. Inspect department`} aria-pressed={selected === d.id} onClick={() => onSelect(d.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(d.id); } }}>
+          return <g key={d.id} data-department={d.id} className={`factory-zone ${selected === d.id ? 'active-zone' : ''}`} role="button" tabIndex={0} aria-label={`${d.name}, ${d.area.toFixed(1)} square meters. ${swapMode ? 'Swap with selected department' : 'Inspect department'}`} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectDepartment(d.id); } }}>
             <title>{`${d.name}: ${d.area.toFixed(1)} m² allocated / ${d.required} m² required. Equipment illustrative.`}</title>
             {box(d.x, d.y, d.w, d.h, base, d.dark, d.dark, selected === d.id ? '#edffff' : d.color)}
             <polygon points={polygon(d.x + d.w * .025, d.y + d.h * .025, d.w * .95, d.h * .95, base + .1)} fill={d.color} opacity=".09" pointerEvents="none"/>
@@ -211,7 +221,8 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
       </g>
       {!layout && <text x="410" y="455" textAnchor="middle" fill="#a6bacb" fontSize="12">Run a solver or import a matching layout</text>}
     </svg><div className="canvas-toolbar"><button className="icon-button" aria-label="Zoom in" onClick={() => setZoom(z => Math.min(3, z + .15))}><ZoomIn size={17}/></button><button className="icon-button" aria-label="Zoom out" onClick={() => setZoom(z => Math.max(.5, z - .15))}><ZoomOut size={17}/></button><button className="icon-button" aria-label="Reset view" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}><Maximize size={17}/></button><span>{Math.round(zoom * 100)}%</span></div></div>
-    <div className="live-factory-legend" aria-label="Department selection and allocated areas">{placed.map(d => <button key={d.id} aria-pressed={selected === d.id} onClick={() => onSelect(d.id)} title={`${d.name}: ${d.area.toFixed(1)} / ${d.required} m²`}><i style={{ background: d.color }}>{departments.indexOf(d) + 1}</i><span>{d.name}</span><small>{d.area.toLocaleString(undefined, { maximumFractionDigits: 0 })} m²</small></button>)}</div>
+    <div className="live-factory-legend" aria-label="Department selection and allocated areas">{placed.map(d => <button key={d.id} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} title={`${d.name}: ${d.area.toFixed(1)} / ${d.required} m²`}><i style={{ background: d.color }}>{departments.indexOf(d) + 1}</i><span>{d.name}</span><small>{d.area.toLocaleString(undefined, { maximumFractionDigits: 0 })} m²</small></button>)}</div>
+    {active && swap && <div className="factory-bottom"><button className={`flow-toggle ${swapMode ? 'enabled' : ''}`} aria-pressed={swapMode} disabled={placed.length < 2} onClick={() => setSwapMode(value => !value)}>{swapMode ? 'Cancel swap' : 'Swap with…'}</button><span className="factory-inspection" role="status">{swapMode ? `Choose another department to swap centroids with ${active.name}.` : 'What-If: dimensions preserved; feasibility not yet validated.'}</span></div>}
     <div className="factory-bottom"><button className={`flow-toggle ${showFlows ? 'enabled' : ''}`} aria-pressed={showFlows} onClick={() => setShowFlows(value => !value)}><Layers size={14}/>Flow vectors<i/></button><span className="factory-inspection">{active ? `${active.name}: ${active.area.toFixed(1)} / ${active.required} m²` : `${placed.length}/${departments.length} placed · ${edges.length}/${allEdges.length} flows · illustrative equipment`}</span></div>
   </section>;
 }

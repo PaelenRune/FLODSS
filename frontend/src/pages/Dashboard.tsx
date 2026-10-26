@@ -39,6 +39,7 @@ import { InvitationAcceptModal } from '../components/InvitationAcceptModal';
 import { UserManagementModal } from '../components/UserManagementModal';
 import { ProjectManagerCard } from '../components/ProjectManagerCard';
 import { CockpitOverview } from '../components/cockpit/CockpitOverview';
+import { useCockpitScenarios } from '../components/cockpit/liveScenarios';
 import { CockpitSidebar } from '../components/cockpit/CockpitSidebar';
 
 import {
@@ -90,6 +91,7 @@ export const Dashboard: React.FC = () => {
   const [layout, setLayout] = useState<ContinuousLayout | null>(null);
   const [validation, setValidation] = useState<LayoutValidationResult | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationReport | null>(null);
+  const cockpitScenarios = useCockpitScenarios(problem, layout, evaluation);
   const [selectedDeptId, setSelectedDeptId] = useState<string | null>(null);
   const [executionInfo, setExecutionInfo] = useState<{
     algorithm: string;
@@ -336,7 +338,7 @@ export const Dashboard: React.FC = () => {
         padding: '1.5rem 1.5rem 3rem 1.5rem',
         flex: 1,
       }}>
-        {activeTab === 'cockpit' && <CockpitOverview problem={problem} layout={layout} evaluation={evaluation} onOpenWorkspace={() => setActiveTab('layout')} />}
+        {activeTab === 'cockpit' && <CockpitOverview problem={problem} layout={layout} evaluation={evaluation} liveScenarios={cockpitScenarios} onOpenWorkspace={() => setActiveTab('layout')} />}
         <div style={{ display: activeTab === 'cockpit' ? 'none' : undefined }}>
         {/* Research Project & Experiment Isolation Card */}
         {user && (

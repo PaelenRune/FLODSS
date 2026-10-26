@@ -2,7 +2,8 @@ import React from 'react';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { buildCockpitData } from '../src/components/cockpit/CockpitDataContext';
+import { buildCockpitData, calculateFlowMetrics, percentageDelta } from '../src/components/cockpit/CockpitDataContext';
+import { swapDepartments } from '../src/components/cockpit/liveScenarios';
 import { CockpitOverview } from '../src/components/cockpit/CockpitOverview';
 import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../src/types/api';
 
@@ -50,10 +51,40 @@ const markup = render(layout), updated = render(nextLayout);
 assert.match(markup, /Actual cutting/);
 assert.match(markup, /130/);
 assert.match(markup, /Actual solver geometry/);
-assert.doesNotMatch(markup, /Illustrative portfolio dataset|3,210\/month saved|Baseline Layout/);
+assert.doesNotMatch(markup, /Illustrative portfolio dataset|3,210\/month saved/);
+assert.match(markup, /Baseline Layout/);
+assert.ok(markup.includes((3250).toLocaleString(undefined, { maximumFractionDigits: 2 })));
+assert.match(markup, /0% vs Baseline/);
 assert.notEqual(markup, updated);
 assert.match(render(null), /Awaiting layout/);
 console.log('Cockpit bridge: geometry updates, directional flows, live rendering and empty/mismatched layout checks passed.');
+
+const diagonal = { ...layout, layout_signature: 'original', placements: { ...layout.placements, B: { ...layout.placements.B, x: 20, y: 40 } } };
+const weighted = { ...problem, flows: [
+  { ...problem.flows[0], quantity: 2, cost_per_unit_distance: 3 },
+  { ...problem.flows[0], source_department: 'B', target_department: 'A', quantity: 4 },
+] };
+const distances = calculateFlowMetrics(weighted, diagonal);
+assert.equal(distances.manhattanDistance, 390);
+assert.equal(distances.euclideanDistance, 6 * Math.hypot(25, 40));
+assert.equal(distances.manhattanCost, 650);
+assert.equal(calculateFlowMetrics(weighted, diagonal, { distance_metric: 'euclidean', default_cost_per_unit_distance: 2 }).handlingCost, 14 * Math.hypot(25, 40));
+const swapped = swapDepartments(diagonal, 'A', 'B');
+assert.equal(swapped.placements.A.x + swapped.placements.A.width / 2, 30);
+assert.equal(swapped.placements.B.x + swapped.placements.B.width / 2, 5);
+assert.equal(swapped.placements.A.width, diagonal.placements.A.width);
+assert.equal(diagonal.placements.A.x, 0, 'Baseline must remain immutable');
+assert.equal(swapped.layout_signature, undefined);
+assert.equal(buildCockpitData(problem, swapped, evaluation).evaluation, null);
+assert.equal(swapDepartments(diagonal, 'A', 'unknown'), diagonal);
+assert.equal(calculateFlowMetrics(problem, null).missingFlows, 2);
+assert.equal(percentageDelta(72, 100), '-28%');
+assert.equal(percentageDelta(0, 0), '0%');
+assert.equal(percentageDelta(1, 0), 'new (zero baseline)');
+const thirdProblem = { ...problem, departments: [...problem.departments, { id: 'C', name: 'Assembly', required_area: 100 }], flows: [{ ...problem.flows[0], target_department: 'C' }] };
+const thirdLayout = { ...diagonal, placements: { ...diagonal.placements, C: { department_id: 'C', x: 60, y: 0, width: 10, height: 10 } } };
+assert.notEqual(calculateFlowMetrics(thirdProblem, thirdLayout).handlingCost, calculateFlowMetrics(thirdProblem, swapDepartments(thirdLayout, 'A', 'B')).handlingCost);
+console.log('Instant metrics: both distances, directional/unit costs, partial layouts, immutable centroid swaps, stale evaluation rejection and zero-baseline deltas passed.');
 
 // The reference mock-up must not be richer than an actual 12,000 m² solver result.
 const factoryIds = ['DEP_RAW_MATERIAL', 'DEP_CUTTING', 'DEP_MACHINING', 'DEP_WELDING', 'DEP_ASSEMBLY', 'DEP_SURFACE_TREAT', 'DEP_PACKAGING', 'DEP_FINISHED_GOODS', 'DEP_SHIPPING', 'DEP_RECEIVING'];
