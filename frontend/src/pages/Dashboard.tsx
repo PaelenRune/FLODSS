@@ -38,6 +38,8 @@ import { LoginModal } from '../components/LoginModal';
 import { InvitationAcceptModal } from '../components/InvitationAcceptModal';
 import { UserManagementModal } from '../components/UserManagementModal';
 import { ProjectManagerCard } from '../components/ProjectManagerCard';
+import { CockpitOverview } from '../components/cockpit/CockpitOverview';
+import { CockpitSidebar } from '../components/cockpit/CockpitSidebar';
 
 import {
   fetchExampleProblems,
@@ -57,6 +59,7 @@ import {
 } from '../types/api';
 
 type TabId =
+  | 'cockpit'
   | 'overview'
   | 'problem'
   | 'matrices'
@@ -78,7 +81,7 @@ export const Dashboard: React.FC = () => {
   const { data: status, loading: healthLoading, error: healthError, refresh: refreshHealth } = useHealthCheck(15000);
 
   // Active Navigation
-  const [activeTab, setActiveTab] = useState<TabId>('problem');
+  const [activeTab, setActiveTab] = useState<TabId>('cockpit');
   const [viewMode, setViewMode] = useState<'workspace' | 'all'>('workspace');
 
   // Shared Core State
@@ -290,7 +293,9 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
+    <div className={`industrial-app ${activeTab === 'cockpit' ? 'is-cockpit' : ''}`} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
+      <CockpitSidebar active={activeTab} onNavigate={id => { setActiveTab(id as TabId); setViewMode('workspace'); }} onLogin={() => setShowLoginModal(true)} online={!!status && !healthError} />
+      <div className="engineering-header">
       {/* Top Header with Release Candidate and Local-First Badges */}
       <Header
         status={status ? status.status : null}
@@ -299,9 +304,10 @@ export const Dashboard: React.FC = () => {
         onOpenUserManagement={() => setShowUserMgmtModal(true)}
         onOpenLogin={() => setShowLoginModal(true)}
       />
+      </div>
 
       {/* Controlled Research Access Modals */}
-      {(!user && !authLoading && !showInviteModal) || (showLoginModal && !showInviteModal) ? (
+      {(!user && !authLoading && !showInviteModal && activeTab !== 'cockpit') || (showLoginModal && !showInviteModal) ? (
         <LoginModal onOpenInvite={() => { setShowLoginModal(false); setShowInviteModal(true); }} />
       ) : null}
 
@@ -317,13 +323,15 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* Main Workspace */}
-      <main style={{
+      <main className="industrial-main" style={{
         maxWidth: '1440px',
         width: '100%',
         margin: '0 auto',
         padding: '1.5rem 1.5rem 3rem 1.5rem',
         flex: 1,
       }}>
+        {activeTab === 'cockpit' && <CockpitOverview onOpenWorkspace={() => setActiveTab('layout')} />}
+        <div style={{ display: activeTab === 'cockpit' ? 'none' : undefined }}>
         {/* Research Project & Experiment Isolation Card */}
         {user && (
           <ProjectManagerCard
@@ -686,6 +694,7 @@ export const Dashboard: React.FC = () => {
             <ModuleGrid status={status} />
           </div>
         )}
+        </div>
       </main>
 
       {/* Footer with Release Candidate Version & Security Boundary */}

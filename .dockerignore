@@ -14,3 +14,5 @@ experiments/reports/*.png
 data/backups
 *.log
 login_page.html
+.orchestrator
+.openchamber

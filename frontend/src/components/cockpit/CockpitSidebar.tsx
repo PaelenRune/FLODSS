@@ -1,0 +1,13 @@
+import { useState } from 'react';
+import { Factory, LayoutDashboard, PanelsTopLeft, Grid2X2, Workflow, Play, BarChart3, FileText, Settings, PanelLeftClose, PanelLeftOpen, Sliders, ShieldCheck, Sparkles, LogIn } from 'lucide-react';
+
+export function CockpitSidebar({ active, onNavigate, onLogin, online }: { active: string; onNavigate: (id: string) => void; onLogin: () => void; online: boolean }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const items = [
+    { id: 'cockpit', label: 'Dashboard', icon: LayoutDashboard }, { id: 'layout', label: 'Layout editor', icon: PanelsTopLeft },
+    { id: 'matrices', label: 'Flow matrix', icon: Grid2X2 }, { id: 'solvers', label: 'Optimization', icon: Workflow },
+    { id: 'decision', label: 'Simulation & guidance', icon: Play }, { id: 'pareto', label: 'Analytics / Pareto', icon: BarChart3 },
+    { id: 'export', label: 'Reports & export', icon: FileText },
+  ];
+  return <aside className={`cockpit-sidebar ${collapsed ? 'collapsed' : ''}`}><a className="cockpit-logo" href="#" onClick={e => { e.preventDefault(); onNavigate('cockpit'); }} aria-label="FLODSS dashboard"><span><Factory size={23}/></span>{!collapsed && <div>FLODSS<small>Industrial intelligence</small></div>}</a><button className="sidebar-collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>{collapsed ? <PanelLeftOpen size={16}/> : <PanelLeftClose size={16}/>}</button><nav aria-label="Main navigation">{items.map(({ id, label, icon: Icon }) => <button key={id} title={label} aria-current={active === id ? 'page' : undefined} onClick={() => onNavigate(id)}><Icon size={18}/>{!collapsed && <span>{label}</span>}{active === id && <i/>}</button>)}<div className="sidebar-divider"/>{[{ id: 'problem', label: 'Problem definition', icon: Sliders }, { id: 'constraints', label: 'Constraints', icon: ShieldCheck }, { id: 'overview', label: 'System settings', icon: Settings }].map(({ id, label, icon: Icon }) => <button key={id} title={label} aria-current={active === id ? 'page' : undefined} onClick={() => onNavigate(id)}><Icon size={18}/>{!collapsed && <span>{label}</span>}</button>)}</nav><div className="sidebar-bottom">{!collapsed && <div className="sidebar-note"><Sparkles size={16}/><strong>Better flow. Better decisions.</strong><p>Explore the possibilities of your production floor.</p></div>}<button className="sidebar-account" onClick={onLogin} title="Account and sign in"><LogIn size={17}/>{!collapsed && <span>Research workspace<small><i className={online ? 'online' : ''}/>{online ? 'API connected' : 'Reference mode'}</small></span>}</button>{!collapsed && <small className="sidebar-version">FLODSS v1.0 · Local-first</small>}</div></aside>;
+}

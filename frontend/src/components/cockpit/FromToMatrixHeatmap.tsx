@@ -1,0 +1,4 @@
+import { departments, flows } from './data';
+export function FromToMatrixHeatmap() {
+  return <section className="cockpit-panel"><div className="panel-heading"><h2>From–to flow matrix</h2><span>fᵢⱼ</span></div><div className="flow-table"><table><caption className="sr-only">Daily material transfers between departments</caption><thead><tr><th>From / To</th>{departments.map(d => <th key={d.id}>{d.id}</th>)}</tr></thead><tbody>{flows.map((row, i) => <tr key={i}><th>{departments[i].id}</th>{row.map((v, j) => <td key={j}><span tabIndex={0} title={`${departments[i].name} → ${departments[j].name}: ${v} transfers/day`} style={{ background: v ? `rgba(0, 190, 224, ${0.08 + v / 145})` : '#151c2a', color: v > 60 ? '#bdfaff' : '#72849b' }}>{i === j ? '—' : v}</span></td>)}</tr>)}</tbody></table></div><div className="heatmap-key"><span>Low intensity</span><i /><span>High intensity</span></div></section>;
+}

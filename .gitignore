@@ -60,3 +60,7 @@ experiments/reports/*.png
 Thumbs.db
 .vscode/
 .idea/
+
+# Local agent coordination and visual verification artifacts
+.orchestrator/
+.openchamber/
