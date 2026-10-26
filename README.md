@@ -2,6 +2,14 @@
 
 An industrial-grade Operations Research (OR) and Industrial Engineering (IE) platform for modular facility layout generation, multi-criteria evaluation, dynamic simulation, and decision support.
 
+## Live Demo / Canlı Demo
+
+[![Live Demo on Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?logo=render&logoColor=white)](https://flodss.onrender.com)
+
+**[Try FLODSS online](https://flodss.onrender.com)** — no downloads or local setup required.
+
+**[FLODSS'u çevrimiçi deneyin](https://flodss.onrender.com)** — indirme veya yerel kurulum gerektirmez.
+
 > **Current Phase Status:** **Phase 2: Problem Modeling & Data Ingestion Completed.**  
 > *Note:* Optimization algorithms (CORELAP, ALDEP, CRAFT, GA, SA, etc.), simulation models, and AI assistants are slated for subsequent modular phases according to the roadmap below.
 
