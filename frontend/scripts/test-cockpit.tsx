@@ -1,5 +1,6 @@
 import React from 'react';
 import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { buildCockpitData } from '../src/components/cockpit/CockpitDataContext';
 import { CockpitOverview } from '../src/components/cockpit/CockpitOverview';
@@ -53,3 +54,44 @@ assert.doesNotMatch(markup, /Illustrative portfolio dataset|3,210\/month saved|B
 assert.notEqual(markup, updated);
 assert.match(render(null), /Awaiting layout/);
 console.log('Cockpit bridge: geometry updates, directional flows, live rendering and empty/mismatched layout checks passed.');
+
+// The reference mock-up must not be richer than an actual 12,000 m² solver result.
+const factoryIds = ['DEP_RAW_MATERIAL', 'DEP_CUTTING', 'DEP_MACHINING', 'DEP_WELDING', 'DEP_ASSEMBLY', 'DEP_SURFACE_TREAT', 'DEP_PACKAGING', 'DEP_FINISHED_GOODS', 'DEP_SHIPPING', 'DEP_RECEIVING'];
+const factoryNames = ['Raw material warehouse', 'Cutting', 'CNC machining', 'Welding', 'Assembly', 'Surface treatment', 'Packaging', 'Finished goods', 'Shipping', 'Receiving'];
+const factory: FacilityLayoutProblem = {
+  ...problem, id: 'factory-12000', name: '12,000 m² production plant',
+  facility: { id: 'production', name: '10-department production plant', width: 120, height: 100, area: 12000 },
+  departments: factoryIds.map((id, i) => ({ id, name: factoryNames[i], required_area: 1000 })),
+  flows: factoryIds.slice(0, -1).map((source_department, i) => ({ source_department, target_department: factoryIds[i + 1], quantity: 1000 - i * 75, unit: 'units/day' })),
+};
+const factoryLayout: ContinuousLayout = {
+  problem_id: factory.id, representation_type: 'continuous', facility_width: 120, facility_height: 100,
+  placements: Object.fromEntries(factoryIds.map((id, i) => [id, { department_id: id, x: i % 5 * 24, y: Math.floor(i / 5) * 50, width: 24, height: 50 }])),
+};
+const factoryMarkup = renderToStaticMarkup(<CockpitOverview problem={factory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+assert.equal((factoryMarkup.match(/data-department=/g) ?? []).length, 10);
+assert.equal((factoryMarkup.match(/class="factory-flow"/g) ?? []).length, 9);
+assert.equal((factoryMarkup.match(/class="factory-truck"/g) ?? []).length, 4);
+for (const kind of ['storage', 'machine', 'assembly', 'packing', 'shipping']) assert.match(factoryMarkup, new RegExp(`equipment-${kind}`));
+assert.match(factoryMarkup, /factory-shell/);
+assert.match(factoryMarkup, /factory-docks/);
+assert.match(factoryMarkup, /stroke-dasharray="4 24"/);
+assert.match(factoryMarkup, /cockpit-analytics/);
+assert.match(factoryMarkup, /cockpit-secondary/);
+assert.doesNotMatch(factoryMarkup, /NaN|Infinity/);
+
+const denseFactory = { ...factory, flows: factoryIds.flatMap(source_department => factoryIds.filter(id => id !== source_department).map(target_department => ({ source_department, target_department, quantity: 100, unit: 'units/day' }))) };
+const denseMarkup = renderToStaticMarkup(<CockpitOverview problem={denseFactory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+assert.equal((denseMarkup.match(/class="factory-flow"/g) ?? []).length, 16, 'Dense matrices must not overwhelm the scene');
+for (const [width, height] of [[1000, 10], [10, 1000]]) {
+  const narrow = { ...factory, facility: { ...factory.facility, width, height } };
+  const narrowLayout = { ...factoryLayout, placements: Object.fromEntries(factoryIds.map((id, i) => [id, { department_id: id, x: width / 10 * i, y: 0, width: width / 10, height }])) };
+  const narrowMarkup = renderToStaticMarkup(<CockpitOverview problem={narrow} layout={narrowLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+  assert.equal((narrowMarkup.match(/data-department=/g) ?? []).length, 10);
+  assert.doesNotMatch(narrowMarkup, /NaN|Infinity/);
+}
+if (process.env.COCKPIT_VISUAL_HTML) {
+  const css = readFileSync('src/components/cockpit/cockpit.css', 'utf8');
+  writeFileSync(process.env.COCKPIT_VISUAL_HTML, `<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#0a0d14;color:#e7edf6;font-family:'Segoe UI',sans-serif}*{box-sizing:border-box}button{font-family:inherit}main{padding:24px;max-width:1550px;margin:auto}${css}</style></head><body><main>${factoryMarkup}</main></body></html>`);
+}
+console.log('Live factory engine: 10-department 12,000 m² shell, extrusions, all equipment types, trucks, curved pulses, flow cap, narrow layouts and analytics panels passed.');
