@@ -109,6 +109,7 @@ export const Dashboard: React.FC = () => {
   // Initial Load: Problem catalog & default Industrial 10 benchmark when authenticated
   useEffect(() => {
     if (!user) {
+      problemVersionRef.current += 1;
       setAvailableProblems([]);
       setProblem(null);
       setLayout(null);
@@ -116,6 +117,7 @@ export const Dashboard: React.FC = () => {
       setEvaluation(null);
       return;
     }
+    setShowLoginModal(false);
 
     async function initPlatform() {
       try {
@@ -136,7 +138,7 @@ export const Dashboard: React.FC = () => {
           // Try to load initial reference layout
           try {
             const exampleLayouts = await fetchExampleLayouts();
-            const targetLayout = exampleLayouts.find((l) => l.problem_id === targetId) || exampleLayouts[0];
+            const targetLayout = exampleLayouts.find((l) => l.problem_id === targetId);
             if (targetLayout) {
               const loadedLayout = await fetchExampleLayout(targetLayout.id);
               if (problemVersionRef.current !== currentVersion) return;
@@ -215,6 +217,8 @@ export const Dashboard: React.FC = () => {
     metadata?: Record<string, any> | null
   ) => {
     setLayout(newLayout);
+    setEvaluation(null);
+    setValidation(null);
     if (newValidation) {
       setValidation(newValidation);
     } else if (problem) {
@@ -237,6 +241,8 @@ export const Dashboard: React.FC = () => {
 
   const handleImportLayout = async (importedLayout: ContinuousLayout) => {
     setLayout(importedLayout);
+    setEvaluation(null);
+    setValidation(null);
     if (problem) {
       try {
         const valRes = await validateLayout(problem.id, importedLayout, problem);
@@ -330,7 +336,7 @@ export const Dashboard: React.FC = () => {
         padding: '1.5rem 1.5rem 3rem 1.5rem',
         flex: 1,
       }}>
-        {activeTab === 'cockpit' && <CockpitOverview onOpenWorkspace={() => setActiveTab('layout')} />}
+        {activeTab === 'cockpit' && <CockpitOverview problem={problem} layout={layout} evaluation={evaluation} onOpenWorkspace={() => setActiveTab('layout')} />}
         <div style={{ display: activeTab === 'cockpit' ? 'none' : undefined }}>
         {/* Research Project & Experiment Isolation Card */}
         {user && (
@@ -346,7 +352,7 @@ export const Dashboard: React.FC = () => {
             } : null}
             currentAlgorithmName={executionInfo?.algorithm}
             onRestoreRun={({ layout: restoredLayout }) => {
-              setLayout(restoredLayout);
+              handleSolutionGenerated(restoredLayout);
               setActiveTab('layout');
             }}
           />

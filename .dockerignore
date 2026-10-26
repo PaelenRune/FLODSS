@@ -16,3 +16,9 @@ data/backups
 login_page.html
 .orchestrator
 .openchamber
+**/.env
+**/.env.*
+**/*.secret
+data/*.db
+data/*.db-*
+data/*.sqlite*

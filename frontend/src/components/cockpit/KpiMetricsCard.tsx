@@ -1,7 +1,15 @@
 import { TrendingUp, Scan, Route, Wallet } from 'lucide-react';
+import { useCockpitData } from './CockpitDataContext';
 
 export function KpiMetricsCard({ scenario }: { scenario: number }) {
-  const metrics = [
+  const { live, departments, evaluation, layout } = useCockpitData();
+  const format = (value: number | undefined) => value === undefined ? '—' : value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const metrics = live ? [
+    { title: 'Layout feasibility', value: evaluation ? (evaluation.is_feasible ? 'Feasible' : 'Infeasible') : 'Pending', sub: 'Backend evaluation', color: '#00f0ff', icon: TrendingUp },
+    { title: 'Area utilization', value: layout ? `${format(departments.reduce((sum, d) => sum + d.share, 0))}%` : '—', sub: 'Allocated / facility area (gross)', color: '#8b5cf6', icon: Scan },
+    { title: 'Flow-weighted distance', value: format(evaluation?.flow_distance), sub: 'Backend flow-distance objective', color: '#10b981', icon: Route },
+    { title: 'Handling cost', value: format(evaluation?.material_handling_cost), sub: 'Problem-defined cost units', color: '#f59e0b', icon: Wallet },
+  ] : [
     { title: 'Flow efficiency', value: ['0%', '+42%', '+27%'][scenario], sub: 'vs Baseline', color: '#00f0ff', icon: TrendingUp },
     { title: 'Area utilization', value: ['0%', '+28%', '+18%'][scenario], sub: scenario === 1 ? '94% occupied' : 'Reference comparison', color: '#8b5cf6', icon: Scan },
     { title: 'Material flow distance', value: ['0%', '-35%', '-24%'][scenario], sub: ['2,180 m/day', '1,420 m/day', '1,650 m/day'][scenario], color: '#10b981', icon: Route },

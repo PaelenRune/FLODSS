@@ -356,23 +356,26 @@ class AuthService:
             conn.execute(
                 """
                 INSERT INTO users (id, email, hashed_password, full_name, role, is_active, allow_gemini, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 'RESEARCHER', 1, 1, ?, ?);
+                VALUES (?, ?, ?, ?, 'RESEARCHER', 1, 1, ?, ?)
+                ON CONFLICT(email) DO NOTHING;
                 """,
                 (user_id, guest_email, dummy_hash, full_name, now_str, now_str),
             )
             conn.commit()
-            user_role = UserRole.RESEARCHER
-            allow_gemini = True
-            created_at = now_str
-        else:
-            user_id = row["id"]
-            user_role = UserRole(row["role"])
-            full_name = row["full_name"]
-            allow_gemini = bool(row["allow_gemini"])
-            created_at = row["created_at"]
-            if not row["is_active"]:
-                conn.execute("UPDATE users SET is_active = 1, updated_at = ? WHERE id = ?;", (now_str, user_id))
-                conn.commit()
+            # Another first-time request may have provisioned the shared guest meanwhile.
+            # Always issue the session for the persisted account, not our speculative UUID.
+            row = conn.execute(
+                "SELECT id, email, full_name, role, is_active, allow_gemini, created_at FROM users WHERE email = ?;",
+                (guest_email,),
+            ).fetchone()
+        user_id = row["id"]
+        user_role = UserRole(row["role"])
+        full_name = row["full_name"]
+        allow_gemini = bool(row["allow_gemini"])
+        created_at = row["created_at"]
+        if not row["is_active"]:
+            conn.execute("UPDATE users SET is_active = 1, updated_at = ? WHERE id = ?;", (now_str, user_id))
+            conn.commit()
 
         # Ensure guest has at least one research project ready
         proj_cur = conn.execute("SELECT id FROM research_projects WHERE owner_user_id = ? LIMIT 1;", (user_id,))
@@ -381,7 +384,8 @@ class AuthService:
             conn.execute(
                 """
                 INSERT INTO research_projects (id, name, description, owner_user_id, is_archived, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 0, ?, ?);
+                SELECT ?, ?, ?, ?, 0, ?, ?
+                WHERE NOT EXISTS (SELECT 1 FROM research_projects WHERE owner_user_id = ?);
                 """,
                 (
                     proj_id,
@@ -390,6 +394,7 @@ class AuthService:
                     user_id,
                     now_str,
                     now_str,
+                    user_id,
                 ),
             )
             conn.commit()

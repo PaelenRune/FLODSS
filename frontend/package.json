@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:cockpit": "esbuild scripts/test-cockpit.tsx --bundle --platform=node --jsx=automatic --outfile=node_modules/.cache/cockpit-test.cjs --loader:.css=empty && node node_modules/.cache/cockpit-test.cjs"
   },
   "dependencies": {
     "react": "^18.3.1",

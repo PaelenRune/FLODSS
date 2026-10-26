@@ -93,8 +93,8 @@ if (FRONTEND_DIST / "assets").exists():
 @app.get("/health", include_in_schema=False)
 def health_alias():
     """Root /health alias returning API health status."""
-    from app.api.endpoints.health import get_health_status
-    return get_health_status()
+    from app.api.routes.health import get_health
+    return get_health()
 
 
 @app.get("/", summary="Root Welcome & Single-Origin SPA")

@@ -1,9 +1,11 @@
 import { useId, useRef, useState } from 'react';
 import { ZoomIn, ZoomOut, Maximize, Move, Layers } from 'lucide-react';
-import { departments } from './data';
+import { useCockpitData } from './CockpitDataContext';
+import { LiveFactoryCanvas } from './LiveFactoryCanvas';
 
 interface Props { selected: string | null; onSelect: (id: string) => void; scenario: number }
 export function IsometricFactoryCanvas({ selected, onSelect, scenario }: Props) {
+  const { departments, live } = useCockpitData();
   const [flat, setFlat] = useState(false);
   const [flow, setFlow] = useState(true);
   const [zoom, setZoom] = useState(1);
@@ -11,9 +13,11 @@ export function IsometricFactoryCanvas({ selected, onSelect, scenario }: Props) 
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const id = useId().replace(/:/g, '');
+  if (live) return <LiveFactoryCanvas selected={selected} onSelect={onSelect}/>;
   const p = (x: number, y: number, z = 0): [number, number] => flat ? [120 + x * 1.75, 35 + y * 1.38 - z * .15] : [390 + (x - y) * 1.22, 78 + (x + y) * .64 - z];
   const points = (v: [number, number][]) => v.map(a => a.join(',')).join(' ');
   const scenarioZone = (dept: typeof departments[number]) => {
+    if (live) return dept;
     const swap = scenario === 0 ? { ST: 'PK', PK: 'ST' } : scenario === 2 ? { MC: 'AS', AS: 'MC' } : {};
     return departments.find(d => d.id === swap[dept.id as keyof typeof swap]) ?? dept;
   };
