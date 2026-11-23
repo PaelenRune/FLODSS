@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ProblemSummary, FacilityLayoutProblem } from '../types/api';
 import { fetchExampleProblems, fetchExampleProblem } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { localizeBenchmarkText, localizeDepartmentName } from '../utils/localizeDomain';
 
 export const ProblemDefinitionCard: React.FC = () => {
   const { t } = useLanguage();
@@ -122,7 +123,7 @@ export const ProblemDefinitionCard: React.FC = () => {
           >
             {examples.map((ex) => (
               <option key={ex.id} value={ex.id}>
-                {ex.name} ({ex.department_count} {t('bölüm', 'depts')})
+                {localizeBenchmarkText(ex.name, t)} ({ex.department_count} {t('bölüm', 'depts')})
               </option>
             ))}
           </select>
@@ -378,7 +379,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                   {problem.departments.map((d) => (
                     <tr key={d.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
                       <td style={{ padding: '0.6rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-blue)' }}>{d.id}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: 500 }}>{d.name}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: 500 }}>{localizeDepartmentName(d.name, t)}</td>
                       <td style={{ padding: '0.6rem' }}>{d.required_area} m²</td>
                       <td style={{ padding: '0.6rem', color: 'var(--text-muted)' }}>
                         {d.min_width ? `${d.min_width}m – ${d.max_width}m` : t('Sınırsız', 'Unconstrained')}

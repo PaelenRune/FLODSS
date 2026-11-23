@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FacilityLayoutProblem, Department, ProblemValidationReport } from '../types/api';
 import { validateProblemPayload } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { localizeBenchmarkText, localizeDepartmentName } from '../utils/localizeDomain';
 
 interface ProblemEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -193,7 +194,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
           >
             {availableExamples.map((ex) => (
               <option key={ex.id} value={ex.id}>
-                {ex.name}
+                {localizeBenchmarkText(ex.name, t)}
               </option>
             ))}
           </select>
@@ -394,7 +395,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                           style={{ padding: '0.2rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', width: '100%' }}
                         />
                       ) : (
-                        dept.name
+                        localizeDepartmentName(dept.name, t)
                       )}
                     </td>
                     <td style={{ padding: '0.65rem 0.85rem' }}>

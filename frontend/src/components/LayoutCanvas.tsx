@@ -7,6 +7,7 @@ import {
 } from '../types/api';
 import { useLanguage } from '../context/LanguageContext';
 import { formatCost } from '../utils/formatters';
+import { localizeBenchmarkText, localizeDepartmentName } from '../utils/localizeDomain';
 import {
   Maximize2,
   ZoomIn,
@@ -369,7 +370,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
 
     return {
       id: selectedDeptId,
-      name: probDept?.name || selectedDeptId,
+      name: localizeDepartmentName(probDept?.name, t) || selectedDeptId,
       placement,
       probDept,
       aspect,
@@ -381,7 +382,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
       outflow,
       rels,
     };
-  }, [selectedDeptId, layout, problem, allFlowsWithMetrics]);
+  }, [selectedDeptId, layout, problem, allFlowsWithMetrics, t]);
 
   // High-Resolution SVG Export
   const handleExportSvg = () => {
@@ -533,7 +534,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
         {/* Left: Info & Badges */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
           <span style={{ fontWeight: 700, fontSize: compact ? '0.8rem' : '0.9rem', color: '#f1f5f9' }}>
-            {layout.problem_id || problem?.name || t('2D Tesis Planı', '2D Layout')}
+            {layout.problem_id || localizeBenchmarkText(problem?.name, t) || t('2D Tesis Planı', '2D Layout')}
           </span>
           <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
             {facW}m × {facH}m ({(facW * facH).toLocaleString()} m²)
@@ -985,7 +986,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
 
               // Text formatting based on screen space
               const cleanId = p.department_id.replace(/^DEP_/, '');
-              const fullName = probDept?.name || cleanId;
+              const fullName = localizeDepartmentName(probDept?.name, t) || cleanId;
 
               // Screen size classification:
               const isLarge = screenW >= 100 && screenH >= 48;

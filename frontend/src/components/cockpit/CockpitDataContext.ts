@@ -1,7 +1,10 @@
 import { createContext, useContext } from 'react';
 import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../../types/api';
+import { localizeBenchmarkText, localizeDepartmentName } from '../../utils/localizeDomain';
 import { departments, flows } from './data';
 import type { LiveScenario } from './liveScenarios';
+
+export { localizeBenchmarkText, localizeDepartmentName };
 
 export interface FlowMetrics {
   euclideanDistance: number;
@@ -55,7 +58,9 @@ export function localizeCockpitDeptName(
   live: boolean,
   t: (tr: string, en: string) => string
 ): string {
-  if (live) return dept.name;
+  if (live) {
+    return localizeDepartmentName(dept.name, t);
+  }
   const trName = REFERENCE_DEPT_TR[dept.id];
   return trName ? t(trName, dept.name) : dept.name;
 }

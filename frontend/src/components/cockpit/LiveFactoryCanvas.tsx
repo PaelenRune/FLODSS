@@ -1,6 +1,6 @@
 import { useId, useRef, useState } from 'react';
 import { Layers, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
-import { useCockpitData } from './CockpitDataContext';
+import { localizeBenchmarkText, localizeCockpitDeptName, useCockpitData } from './CockpitDataContext';
 import { useLanguage } from '../../context/LanguageContext';
 
 type Point = [number, number];
@@ -112,13 +112,15 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
   };
 
   // Reserve projected label rectangles. Small/crowded zones use a numbered badge + full legend.
+  const displayDeptName = (d: { id: string; name: string }) => localizeCockpitDeptName(d, true, t);
   const occupied: { x: number; y: number; w: number; h: number }[] = [];
   const labels = placed.map(dept => {
     const index = departments.indexOf(dept) + 1;
     const available = Math.min(145, dept.w * (flat ? 1.9 : 1.38) - 8);
     const compact = available < 48 || dept.h < 18;
     const maxChars = Math.max(4, Math.floor(available / 4.6));
-    const name = dept.name.length > maxChars ? `${dept.name.slice(0, maxChars - 1)}…` : dept.name;
+    const fullName = displayDeptName(dept);
+    const name = fullName.length > maxChars ? `${fullName.slice(0, maxChars - 1)}…` : fullName;
     const textWidth = Math.max(name.length * 4.6, 45);
     const candidates = [.9, .55, .25].map(fraction => p(dept.x + 3, dept.y + dept.h * fraction, flat ? 0 : 22));
     const position = !compact ? candidates.find(([x, y]) => {
@@ -131,8 +133,8 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
   });
 
   return <section className="cockpit-panel factory-panel live-factory-panel">
-    <div className="factory-heading"><div><h2>{t('Fabrika yerleşimi', 'Factory layout')} <span>{t('Gerçek çözücü geometrisi', 'Actual solver geometry')}</span></h2><p>{problem?.facility.name} <span className="status-pill">{layout ? t('Güncel yerleşim', 'Current layout') : t('Yerleşim bekleniyor', 'Awaiting layout')}</span></p></div><div className="canvas-modes"><button aria-pressed={!flat} onClick={() => setFlat(false)}>{t('3D İzometrik', '3D Isometric')}</button><button aria-pressed={flat} onClick={() => setFlat(true)}>{t('2D Ortografik', '2D Orthographic')}</button></div></div>
-    <div className="factory-stage"><svg viewBox="0 0 820 485" role="img" aria-label={t(`Etkileşimli 3D fabrika: ${problem?.name}, ${placed.length} yerleştirilmiş bölüm, yükleme rampaları ve malzeme akışları. Ekipman ve kamyonlar temsilidir.`, `Interactive 3D factory: ${problem?.name}, ${placed.length} placed departments, loading docks and material flows. Equipment and trucks are illustrative.`)} onPointerDown={event => {
+    <div className="factory-heading"><div><h2>{t('Fabrika yerleşimi', 'Factory layout')} <span>{t('Gerçek çözücü geometrisi', 'Actual solver geometry')}</span></h2><p>{localizeBenchmarkText(problem?.facility.name, t)} <span className="status-pill">{layout ? t('Güncel yerleşim', 'Current layout') : t('Yerleşim bekleniyor', 'Awaiting layout')}</span></p></div><div className="canvas-modes"><button aria-pressed={!flat} onClick={() => setFlat(false)}>{t('3D İzometrik', '3D Isometric')}</button><button aria-pressed={flat} onClick={() => setFlat(true)}>{t('2D Ortografik', '2D Orthographic')}</button></div></div>
+    <div className="factory-stage"><svg viewBox="0 0 820 485" role="img" aria-label={t(`Etkileşimli 3B fabrika: ${localizeBenchmarkText(problem?.name, t)}, ${placed.length} yerleştirilmiş bölüm, yükleme rampaları ve malzeme akışları. Ekipman ve kamyonlar temsilidir.`, `Interactive 3D factory: ${problem?.name}, ${placed.length} placed departments, loading docks and material flows. Equipment and trucks are illustrative.`)} onPointerDown={event => {
       if ((event.target as Element).closest('[data-department]')) return;
       drag.current = { x: event.clientX, y: event.clientY, px: pan.x, py: pan.y }; event.currentTarget.setPointerCapture(event.pointerId);
     }} onPointerMove={event => {
@@ -164,8 +166,9 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
         })}
         {sorted.map(d => {
           const base = selected === d.id ? 12 : 7;
-          return <g key={d.id} data-department={d.id} className={`factory-zone ${selected === d.id ? 'active-zone' : ''}`} role="button" tabIndex={0} aria-label={t(`${d.name}, ${d.area.toFixed(1)} metrekare. ${swapMode ? 'Seçili bölümle yer değiştir' : 'Bölümü incele'}`, `${d.name}, ${d.area.toFixed(1)} square meters. ${swapMode ? 'Swap with selected department' : 'Inspect department'}`)} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectDepartment(d.id); } }}>
-            <title>{t(`${d.name}: ${d.area.toFixed(1)} m² tahsis edilen / ${d.required} m² gerekli. Ekipmanlar temsilidir.`, `${d.name}: ${d.area.toFixed(1)} m² allocated / ${d.required} m² required. Equipment illustrative.`)}</title>
+          const deptLabel = displayDeptName(d);
+          return <g key={d.id} data-department={d.id} className={`factory-zone ${selected === d.id ? 'active-zone' : ''}`} role="button" tabIndex={0} aria-label={t(`${deptLabel}, ${d.area.toFixed(1)} metrekare. ${swapMode ? 'Seçili bölümle yer değiştir' : 'Bölümü incele'}`, `${deptLabel}, ${d.area.toFixed(1)} square meters. ${swapMode ? 'Swap with selected department' : 'Inspect department'}`)} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectDepartment(d.id); } }}>
+            <title>{t(`${deptLabel}: ${d.area.toFixed(1)} m² tahsis edilen / ${d.required} m² gerekli. Ekipmanlar temsilidir.`, `${deptLabel}: ${d.area.toFixed(1)} m² allocated / ${d.required} m² required. Equipment illustrative.`)}</title>
             {box(d.x, d.y, d.w, d.h, base, d.dark, d.dark, selected === d.id ? '#edffff' : d.color)}
             <polygon points={polygon(d.x + d.w * .025, d.y + d.h * .025, d.w * .95, d.h * .95, base + .1)} fill={d.color} opacity=".09" pointerEvents="none"/>
             {equipment(d, base)}
@@ -203,7 +206,7 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
           const path = `M${source} Q${(source[0] + target[0]) / 2} ${(source[1] + target[1]) / 2 - arcHeight - (flat ? 0 : 35)} ${target}`;
           const intensity = Math.sqrt(quantity / maxFlow);
           return <g key={`${from}-${to}`} className="factory-flow" pointerEvents="none" opacity={.45 + intensity * .55}>
-            <title>{`${a.name} → ${b.name}: ${quantity}`}</title>
+            <title>{`${displayDeptName(a)} → ${displayDeptName(b)}: ${quantity}`}</title>
             <path d={path} fill="none" stroke="#00eaff" strokeWidth={5 + intensity * 3} opacity=".35" filter={`url(#${id}glow)`}/>
             <path d={path} fill="none" stroke="#59eafa" strokeWidth={.9 + intensity * 1.1} markerEnd={`url(#${id}arrow)`}/>
             <path className="flow-pulse" d={path} fill="none" stroke="#e2ffff" strokeWidth="2.2" strokeDasharray="4 24" style={{ animationDelay: `${-from * .23}s` }}/>
@@ -223,8 +226,8 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
       </g>
       {!layout && <text x="410" y="455" textAnchor="middle" fill="#a6bacb" fontSize="12">{t('Başlamak için bir çözücü çalıştırın veya uyumlu bir yerleşim içe aktarın', 'Run a solver or import a matching layout')}</text>}
     </svg><div className="canvas-toolbar"><button className="icon-button" aria-label={t('Yakınlaştır', 'Zoom in')} onClick={() => setZoom(z => Math.min(3, z + .15))}><ZoomIn size={17}/></button><button className="icon-button" aria-label={t('Uzaklaştır', 'Zoom out')} onClick={() => setZoom(z => Math.max(.5, z - .15))}><ZoomOut size={17}/></button><button className="icon-button" aria-label={t('Görünümü sıfırla', 'Reset view')} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}><Maximize size={17}/></button><span>{Math.round(zoom * 100)}%</span></div></div>
-    <div className="live-factory-legend" aria-label={t('Bölüm seçimi ve tahsis edilen alanlar', 'Department selection and allocated areas')}>{placed.map(d => <button key={d.id} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} title={`${d.name}: ${d.area.toFixed(1)} / ${d.required} m²`}><i style={{ background: d.color }}>{departments.indexOf(d) + 1}</i><span>{d.name}</span><small>{d.area.toLocaleString(undefined, { maximumFractionDigits: 0 })} m²</small></button>)}</div>
-    {active && swap && <div className="factory-bottom"><button className={`flow-toggle ${swapMode ? 'enabled' : ''}`} aria-pressed={swapMode} disabled={placed.length < 2} onClick={() => setSwapMode(value => !value)}>{swapMode ? t('Değişimi iptal et', 'Cancel swap') : t('Yer değiştir…', 'Swap with…')}</button><span className="factory-inspection" role="status">{swapMode ? t(`Ağırlık merkezlerini ${active.name} ile değiştirmek için başka bir bölüm seçin.`, `Choose another department to swap centroids with ${active.name}.`) : t('Senaryo denemesi: boyutlar korunur; uygunluk henüz doğrulanmadı.', 'What-If: dimensions preserved; feasibility not yet validated.')}</span></div>}
-    <div className="factory-bottom"><button className={`flow-toggle ${showFlows ? 'enabled' : ''}`} aria-pressed={showFlows} onClick={() => setShowFlows(value => !value)}><Layers size={14}/>{t('Akış vektörleri', 'Flow vectors')}<i/></button><span className="factory-inspection">{active ? `${active.name}: ${active.area.toFixed(1)} / ${active.required} m²` : t(`${placed.length}/${departments.length} yerleştirildi · ${edges.length}/${allEdges.length} akış · temsili ekipman`, `${placed.length}/${departments.length} placed · ${edges.length}/${allEdges.length} flows · illustrative equipment`)}</span></div>
+    <div className="live-factory-legend" aria-label={t('Bölüm seçimi ve tahsis edilen alanlar', 'Department selection and allocated areas')}>{placed.map(d => <button key={d.id} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} title={`${displayDeptName(d)}: ${d.area.toFixed(1)} / ${d.required} m²`}><i style={{ background: d.color }}>{departments.indexOf(d) + 1}</i><span>{displayDeptName(d)}</span><small>{d.area.toLocaleString(undefined, { maximumFractionDigits: 0 })} m²</small></button>)}</div>
+    {active && swap && <div className="factory-bottom"><button className={`flow-toggle ${swapMode ? 'enabled' : ''}`} aria-pressed={swapMode} disabled={placed.length < 2} onClick={() => setSwapMode(value => !value)}>{swapMode ? t('Değişimi iptal et', 'Cancel swap') : t('Yer değiştir…', 'Swap with…')}</button><span className="factory-inspection" role="status">{swapMode ? t(`Ağırlık merkezlerini ${displayDeptName(active)} ile değiştirmek için başka bir bölüm seçin.`, `Choose another department to swap centroids with ${displayDeptName(active)}.`) : t('Senaryo denemesi: boyutlar korunur; uygunluk henüz doğrulanmadı.', 'What-If: dimensions preserved; feasibility not yet validated.')}</span></div>}
+    <div className="factory-bottom"><button className={`flow-toggle ${showFlows ? 'enabled' : ''}`} aria-pressed={showFlows} onClick={() => setShowFlows(value => !value)}><Layers size={14}/>{t('Akış vektörleri', 'Flow vectors')}<i/></button><span className="factory-inspection">{active ? `${displayDeptName(active)}: ${active.area.toFixed(1)} / ${active.required} m²` : t(`${placed.length}/${departments.length} yerleştirildi · ${edges.length}/${allEdges.length} akış · temsili ekipman`, `${placed.length}/${departments.length} placed · ${edges.length}/${allEdges.length} flows · illustrative equipment`)}</span></div>
   </section>;
 }

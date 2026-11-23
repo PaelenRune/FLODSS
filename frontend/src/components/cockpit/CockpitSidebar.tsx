@@ -22,7 +22,7 @@ export function CockpitSidebar({ active, onNavigate, onLogin, online }: { active
   return <aside className={`cockpit-sidebar ${collapsed ? 'collapsed' : ''}`}>
     <a className="cockpit-logo" href="#" onClick={e => { e.preventDefault(); onNavigate('cockpit'); }} aria-label={t('FLODSS kontrol paneli', 'FLODSS dashboard')}>
       <span><Factory size={23}/></span>
-      {!collapsed && <div>FLODSS<small>{t('Endüstriyel zekâ', 'Industrial intelligence')}</small></div>}
+      {!collapsed && <div>FLODSS<small>{t('Tesis Yerleşimi', 'Industrial intelligence')}</small></div>}
     </a>
     <button className="sidebar-collapse" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? t('Kenar çubuğunu genişlet', 'Expand sidebar') : t('Kenar çubuğunu daralt', 'Collapse sidebar')}>
       {collapsed ? <PanelLeftOpen size={16}/> : <PanelLeftClose size={16}/>}
@@ -44,8 +44,8 @@ export function CockpitSidebar({ active, onNavigate, onLogin, online }: { active
       {!collapsed && (
         <div className="sidebar-note">
           <Sparkles size={16}/>
-          <strong>{t('Daha iyi akış. Daha iyi kararlar.', 'Better flow. Better decisions.')}</strong>
-          <p>{t('Üretim sahanızın yerleşim olasılıklarını keşfedin.', 'Explore the possibilities of your production floor.')}</p>
+          <strong>{t('Tek ekrandan yönetin.', 'Better flow. Better decisions.')}</strong>
+          <p>{t('Problem, akış, kısıt ve optimizasyonu 3B planı kaybetmeden yönetin.', 'Explore the possibilities of your production floor.')}</p>
         </div>
       )}
       <button

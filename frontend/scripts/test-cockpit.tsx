@@ -68,10 +68,45 @@ assert.match(markup, /0% vs Baseline/);
 assert.notEqual(markup, updated);
 assert.match(render(null), /Awaiting layout/);
 const trMarkup = render(layout, 'tr');
+assert.match(trMarkup, /Tesis Yerleşim/);
 assert.match(trMarkup, /Gerçek çözücü geometrisi/);
 assert.match(trMarkup, /Temel Yerleşim/);
 assert.doesNotMatch(trMarkup, /NaN|Infinity/);
 assert.match(render(null, 'tr'), /Yerleşim bekleniyor/);
+const benchmarkSample: FacilityLayoutProblem = {
+  ...problem,
+  id: 'FLP_INDUSTRIAL_10',
+  name: 'Precision Machinery Manufacturing Plant (10 Departments)',
+  facility: { ...problem.facility, name: 'Heavy Equipment Advanced Production Hall' },
+  departments: [
+    { ...problem.departments[0], id: 'DEP_RAW_MATERIAL', name: 'Raw Material Warehouse & Sheet Storage' },
+    { ...problem.departments[1], id: 'DEP_CUTTING', name: 'Laser Cutting & Sawing Cell' },
+  ],
+};
+const benchmarkLayout: ContinuousLayout = {
+  ...layout,
+  problem_id: 'FLP_INDUSTRIAL_10',
+  placements: {
+    DEP_RAW_MATERIAL: { ...layout.placements.A, department_id: 'DEP_RAW_MATERIAL' },
+    DEP_CUTTING: { ...layout.placements.B, department_id: 'DEP_CUTTING' },
+  },
+};
+const trBenchmarkMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="tr">
+    <CockpitOverview problem={benchmarkSample} layout={benchmarkLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
+assert.match(trBenchmarkMarkup, /Hassas Makine Üretim Tesisi \(10 Bölüm\)/);
+assert.match(trBenchmarkMarkup, /Ağır Makine İleri Üretim Holü/);
+assert.match(trBenchmarkMarkup, /Hammadde Deposu ve Sac Stoklama/);
+assert.doesNotMatch(trBenchmarkMarkup, /Raw Material Warehouse/);
+const enBenchmarkMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="en">
+    <CockpitOverview problem={benchmarkSample} layout={benchmarkLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
+assert.match(enBenchmarkMarkup, /Precision Machinery Manufacturing Plant \(10 Departments\)/);
+assert.match(enBenchmarkMarkup, /Raw Material Warehouse &amp; Sheet Storage/);
 console.log('Cockpit bridge: geometry updates, directional flows, live rendering and empty/mismatched layout checks passed.');
 
 const diagonal = { ...layout, layout_signature: 'original', placements: { ...layout.placements, B: { ...layout.placements.B, x: 20, y: 40 } } };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FacilityLayoutProblem, ReservedZone } from '../types/api';
 import { useLanguage } from '../context/LanguageContext';
+import { localizeDepartmentName } from '../utils/localizeDomain';
 
 interface ConstraintEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -115,7 +116,7 @@ export const ConstraintEditorCard: React.FC<ConstraintEditorCardProps> = ({ prob
               {fixedDepts.map(d => (
                 <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.45rem 0.65rem', backgroundColor: 'var(--bg-secondary)', borderRadius: '6px', fontSize: '0.8rem', border: '1px solid var(--border-color)' }}>
                   <div>
-                    <strong style={{ color: 'var(--accent-blue)' }}>{d.name}</strong> ({d.id})
+                    <strong style={{ color: 'var(--accent-blue)' }}>{localizeDepartmentName(d.name, t)}</strong> ({d.id})
                   </div>
                   <div style={{ color: '#fbbf24', fontWeight: 600 }}>
                     ({d.fixed_position?.x}m, {d.fixed_position?.y}m)

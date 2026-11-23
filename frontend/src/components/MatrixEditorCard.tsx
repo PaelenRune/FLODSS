@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { FacilityLayoutProblem } from '../types/api';
 import { useLanguage } from '../context/LanguageContext';
+import { localizeDepartmentName } from '../utils/localizeDomain';
 
 interface MatrixEditorCardProps {
   problem: FacilityLayoutProblem | null;
@@ -34,6 +35,10 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
   }
 
   const deptIds = useMemo(() => problem.departments.map(d => d.id), [problem]);
+  const deptNames = useMemo(
+    () => new Map(problem.departments.map(d => [d.id, localizeDepartmentName(d.name, t)])),
+    [problem, t]
+  );
 
   // Build 2D flow lookup: flowMap[source][target] = quantity
   const flowMap = useMemo(() => {
@@ -240,7 +245,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
                   <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>{t('Kaynak \\ Hedef', 'From \\ To')}</th>
                   {deptIds.map(d => (
-                    <th key={d} style={{ padding: '0.5rem', minWidth: '65px', color: 'var(--accent-blue)' }}>
+                    <th key={d} title={deptNames.get(d) || d} style={{ padding: '0.5rem', minWidth: '65px', color: 'var(--accent-blue)' }}>
                       {d.replace(/^DEP_/, '')}
                     </th>
                   ))}
@@ -254,8 +259,11 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                   let rowSum = 0;
                   return (
                     <tr key={source} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '0.5rem', fontWeight: 700, textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
-                        {source.replace(/^DEP_/, '')}
+                      <td title={deptNames.get(source) || source} style={{ padding: '0.5rem', fontWeight: 700, textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
+                        <div>{source.replace(/^DEP_/, '')}</div>
+                        <div style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-muted)', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {deptNames.get(source)}
+                        </div>
                       </td>
                       {deptIds.map(target => {
                         const isSelf = source === target;
@@ -321,7 +329,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
                   <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>{t('Bölüm A \\ B', 'Dept A \\ B')}</th>
                   {deptIds.map(d => (
-                    <th key={d} style={{ padding: '0.5rem', minWidth: '60px', color: 'var(--accent-blue)' }}>
+                    <th key={d} title={deptNames.get(d) || d} style={{ padding: '0.5rem', minWidth: '60px', color: 'var(--accent-blue)' }}>
                       {d.replace(/^DEP_/, '')}
                     </th>
                   ))}
@@ -330,8 +338,11 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
               <tbody>
                 {deptIds.map((deptA, idxA) => (
                   <tr key={deptA} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.5rem', fontWeight: 700, textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
-                      {deptA.replace(/^DEP_/, '')}
+                    <td title={deptNames.get(deptA) || deptA} style={{ padding: '0.5rem', fontWeight: 700, textAlign: 'left', backgroundColor: 'var(--bg-card)' }}>
+                      <div>{deptA.replace(/^DEP_/, '')}</div>
+                      <div style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-muted)', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {deptNames.get(deptA)}
+                      </div>
                     </td>
                     {deptIds.map((deptB, idxB) => {
                       if (idxA === idxB) {

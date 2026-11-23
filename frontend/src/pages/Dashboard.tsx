@@ -38,7 +38,7 @@ import { LoginModal } from '../components/LoginModal';
 import { InvitationAcceptModal } from '../components/InvitationAcceptModal';
 import { UserManagementModal } from '../components/UserManagementModal';
 import { ProjectManagerCard } from '../components/ProjectManagerCard';
-import { CockpitOverview } from '../components/cockpit/CockpitOverview';
+import { CockpitOverview, type QuickSolverId } from '../components/cockpit/CockpitOverview';
 import { useCockpitScenarios } from '../components/cockpit/liveScenarios';
 import { CockpitSidebar } from '../components/cockpit/CockpitSidebar';
 
@@ -49,6 +49,11 @@ import {
   fetchExampleLayout,
   evaluateLayout,
   validateLayout,
+  solveGeneticAlgorithm,
+  solveFeasibleGenerator,
+  solveCRAFT,
+  solveCORELAP,
+  solveALDEP,
 } from '../services/api';
 
 import {
@@ -83,7 +88,10 @@ export const Dashboard: React.FC = () => {
 
   // Active Navigation
   const [activeTab, setActiveTab] = useState<TabId>('cockpit');
+  const [classicMode, setClassicMode] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'workspace' | 'all'>('workspace');
+  const [quickSolving, setQuickSolving] = useState<boolean>(false);
+  const [quickStatus, setQuickStatus] = useState<string | null>(null);
 
   // Shared Core State
   const [availableProblems, setAvailableProblems] = useState<ProblemSummary[]>([]);
@@ -288,6 +296,102 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const handleQuickSolve = async (algo: QuickSolverId) => {
+    if (!problem || quickSolving) return;
+    setQuickSolving(true);
+    setQuickStatus(t('Çözücü çalışıyor...', 'Running solver...'));
+    const t0 = performance.now();
+    try {
+      if (algo === 'ga') {
+        const res = await solveGeneticAlgorithm({
+          problem_id: problem.id,
+          problem,
+          config: { population_size: 30, generations: 25, random_seed: 42, max_runtime_seconds: 15.0 },
+        });
+        const t1 = performance.now();
+        if (res.continuous_layout) {
+          handleSolutionGenerated(res.continuous_layout, res.validation, res.evaluation, {
+            algorithm: 'Genetic Algorithm v1',
+            seed: 42,
+            duration_ms: t1 - t0,
+          });
+          setQuickStatus(
+            res.validation?.is_valid
+              ? t(`GA tamamlandı (${Math.round(t1 - t0)} ms)`, `GA finished (${Math.round(t1 - t0)} ms)`)
+              : t('GA tamamlandı (uygunluk sınırı aşıldı)', 'GA finished (infeasible)')
+          );
+        } else {
+          setQuickStatus(t('GA uygun yerleşim üretemedi', 'GA could not find a layout'));
+        }
+      } else if (algo === 'feasible_generator') {
+        const res = await solveFeasibleGenerator({
+          problem_id: problem.id,
+          problem,
+          config: { random_seed: 42, max_runtime_seconds: 10.0 },
+        });
+        const t1 = performance.now();
+        const layoutObj = res.result?.layout || res.continuous_layout;
+        if (layoutObj) {
+          handleSolutionGenerated(layoutObj, res.validation, res.evaluation, {
+            algorithm: 'Feasible Rectangular Generator (Guillotine)',
+            seed: 42,
+            duration_ms: t1 - t0,
+          });
+          setQuickStatus(
+            res.result?.feasible
+              ? t(`Uygun yerleşim üretildi (${Math.round(t1 - t0)} ms)`, `Feasible layout generated (${Math.round(t1 - t0)} ms)`)
+              : t('Kısmi sonuç (uygunluk doğrulanmadı)', 'Partial result (infeasible)')
+          );
+        } else {
+          setQuickStatus(t('Uygun yerleşim üretilemedi', 'Could not generate feasible layout'));
+        }
+      } else if (algo === 'craft') {
+        const res = await solveCRAFT({
+          problem_id: problem.id,
+          problem,
+          initial_layout: layout
+            ? { placements: layout.placements, facility_width: layout.facility_width, facility_height: layout.facility_height }
+            : undefined,
+          config: { max_iterations: 25 },
+        });
+        const t1 = performance.now();
+        handleSolutionGenerated(res.continuous_layout, null, res.final_evaluation, {
+          algorithm: 'CRAFT',
+          duration_ms: t1 - t0,
+        });
+        setQuickStatus(t(`CRAFT tamamlandı (${Math.round(t1 - t0)} ms)`, `CRAFT finished (${Math.round(t1 - t0)} ms)`));
+      } else if (algo === 'corelap') {
+        const res = await solveCORELAP({ problem_id: problem.id, problem });
+        const t1 = performance.now();
+        handleSolutionGenerated(res.continuous_layout, res.validation, res.evaluation, {
+          algorithm: 'CORELAP',
+          duration_ms: t1 - t0,
+        });
+        setQuickStatus(
+          res.validation?.is_valid
+            ? t(`CORELAP tamamlandı (${Math.round(t1 - t0)} ms)`, `CORELAP finished (${Math.round(t1 - t0)} ms)`)
+            : t('CORELAP tamamlandı (çakışma uyarısı)', 'CORELAP finished (infeasible)')
+        );
+      } else if (algo === 'aldep') {
+        const res = await solveALDEP({ problem_id: problem.id, problem });
+        const t1 = performance.now();
+        handleSolutionGenerated(res.continuous_layout, res.validation, res.evaluation, {
+          algorithm: 'ALDEP',
+          duration_ms: t1 - t0,
+        });
+        setQuickStatus(
+          res.validation?.is_valid
+            ? t(`ALDEP tamamlandı (${Math.round(t1 - t0)} ms)`, `ALDEP finished (${Math.round(t1 - t0)} ms)`)
+            : t('ALDEP tamamlandı (uygunluk uyarısı)', 'ALDEP finished (infeasible)')
+        );
+      }
+    } catch (err: any) {
+      setQuickStatus(err?.message || t('Çözücü çalıştırılamadı', 'Solver execution failed'));
+    } finally {
+      setQuickSolving(false);
+    }
+  };
+
   const tabs: TabItem[] = [
     { id: 'problem', label: t('1. Problem Tanımı', '1. Problem Editor'), icon: <Sliders size={16} /> },
     { id: 'matrices', label: t('2. Akış ve REL Matrisleri', '2. Flow & REL'), icon: <Grid size={16} /> },
@@ -300,9 +404,230 @@ export const Dashboard: React.FC = () => {
     { id: 'overview', label: t('Sistem Özeti', 'System Overview'), icon: <LayoutDashboard size={16} /> },
   ];
 
+  const activeTabInfo = tabs.find((tab) => tab.id === activeTab);
+
+  const renderWorkbenchContent = (tab: TabId) => {
+    if (tab === 'problem') {
+      return (
+        <ProblemEditorCard
+          problem={problem}
+          onUpdateProblem={handleUpdateProblem}
+          onLoadExample={handleLoadExample}
+          availableExamples={availableProblems}
+        />
+      );
+    }
+    if (tab === 'matrices') {
+      return (
+        <MatrixEditorCard
+          problem={problem}
+          onUpdateProblem={handleUpdateProblem}
+        />
+      );
+    }
+    if (tab === 'constraints') {
+      return (
+        <ConstraintEditorCard
+          problem={problem}
+          onUpdateProblem={handleUpdateProblem}
+        />
+      );
+    }
+    if (tab === 'solvers') {
+      return (
+        <OptimizationWorkspaceCard
+          problem={problem}
+          currentLayout={layout}
+          onSolutionGenerated={handleSolutionGenerated}
+          onNavigateToViewer={() => setActiveTab('layout')}
+          onNavigateToPareto={() => setActiveTab('pareto')}
+        />
+      );
+    }
+    if (tab === 'layout') {
+      return (
+        <div style={{
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '12px',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
+                {t('Etkileşimli 2D Tesis Yerleşimi Görünümü', 'Interactive 2D Facility Layout Viewer')}
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+                {t(
+                  'Sürekli 1:1 koordinat düzlemi • Gerçek zamanlı yakınlaştırma ve kaydırma • Çakışma ve sabit konum denetimi',
+                  'Continuous 1:1 solver coordinates • Real-time zoom & pan • Overlap & fixed position detection'
+                )}
+              </p>
+            </div>
+            {layout && (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  onClick={() => setActiveTab('export')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Package size={14} />
+                  {t('Çözümü Dışa Aktar', 'Export Solution')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <DecisionGuidanceBox mode="layout" defaultOpen={false} />
+
+          <LayoutCanvas
+            layout={layout}
+            problem={problem}
+            validation={validation}
+            selectedDeptId={selectedDeptId}
+            onSelectDept={setSelectedDeptId}
+          />
+        </div>
+      );
+    }
+    if (tab === 'pareto') {
+      return (
+        <div>
+          <ParetoAnalysisCard
+            problem={problem}
+            activeLayout={layout}
+            onSelectCandidate={handleSelectParetoCandidate}
+          />
+          <div style={{ marginTop: '2rem' }}>
+            <AlgorithmComparisonCard />
+          </div>
+        </div>
+      );
+    }
+    if (tab === 'decision') {
+      return (
+        <div>
+          <AIExplanationCard
+            problem={problem}
+            currentLayout={layout}
+            evaluation={evaluation}
+          />
+          <div style={{ marginTop: '2rem' }}>
+            <AdaptiveStrategyCard
+              problem={problem}
+              currentLayout={layout}
+              evaluation={evaluation}
+            />
+          </div>
+        </div>
+      );
+    }
+    if (tab === 'export') {
+      return (
+        <div>
+          {!classicMode && user && (
+            <ProjectManagerCard
+              currentProblemId={problem?.id}
+              currentSolution={layout}
+              currentMetrics={evaluation ? {
+                material_handling_cost: evaluation.material_handling_cost,
+                flow_distance: evaluation.flow_distance,
+                relationship_satisfaction: evaluation.relationship_satisfaction_percentage,
+                soft_penalty: evaluation.soft_penalty,
+                is_feasible: evaluation.is_feasible,
+              } : null}
+              currentAlgorithmName={executionInfo?.algorithm}
+              onRestoreRun={({ layout: restoredLayout }) => {
+                handleSolutionGenerated(restoredLayout);
+                setActiveTab('cockpit');
+              }}
+            />
+          )}
+          <ExportCenterCard
+            problem={problem}
+            layout={layout}
+            evaluation={evaluation}
+            validation={validation}
+            executionInfo={executionInfo}
+            onImportLayout={handleImportLayout}
+          />
+        </div>
+      );
+    }
+    if (tab === 'overview') {
+      return (
+        <div>
+          {!classicMode && user && (
+            <ProjectManagerCard
+              currentProblemId={problem?.id}
+              currentSolution={layout}
+              currentMetrics={evaluation ? {
+                material_handling_cost: evaluation.material_handling_cost,
+                flow_distance: evaluation.flow_distance,
+                relationship_satisfaction: evaluation.relationship_satisfaction_percentage,
+                soft_penalty: evaluation.soft_penalty,
+                is_feasible: evaluation.is_feasible,
+              } : null}
+              currentAlgorithmName={executionInfo?.algorithm}
+              onRestoreRun={({ layout: restoredLayout }) => {
+                handleSolutionGenerated(restoredLayout);
+                setActiveTab('cockpit');
+              }}
+            />
+          )}
+          <div style={{ marginBottom: '2rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
+              {t(
+                'Tesis Yerleşimi Optimizasyonu ve Karar Destek Sistemi (FLODSS)',
+                'Facility Layout Optimization & Decision Support System (FLODSS)'
+              )}
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '850px', lineHeight: 1.6 }}>
+              {t(
+                'Modüler tesis yerleşimi üretimi (FLP), çok ölçütlü algoritmik değerlendirme (MHC, TCR, Komşuluk, Ölü Alan) ve açıklanabilir karar destek için geliştirilmiş ileri seviye Yöneylem Araştırması ve Endüstri Mühendisliği platformu.',
+                'An advanced Operations Research and Industrial Engineering platform for modular facility layout generation, multi-criteria algorithmic evaluation, and explainable decision support.'
+              )}
+            </p>
+          </div>
+          <RoadmapStepper />
+          <SystemStatusCard
+            status={status}
+            loading={healthLoading}
+            error={healthError}
+            onRefresh={refreshHealth}
+          />
+          <ModuleGrid status={status} />
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className={`industrial-app ${activeTab === 'cockpit' ? 'is-cockpit' : ''}`} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
-      <CockpitSidebar active={activeTab} onNavigate={id => { setActiveTab(id as TabId); setViewMode('workspace'); }} onLogin={() => setShowLoginModal(true)} online={!!status && !healthError} />
+    <div className={`industrial-app ${!classicMode ? 'is-cockpit' : ''}`} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
+      <CockpitSidebar
+        active={activeTab}
+        onNavigate={(id) => {
+          const next = id as TabId;
+          setActiveTab(next);
+          if (next === 'cockpit') setClassicMode(false);
+          setViewMode('workspace');
+        }}
+        onLogin={() => setShowLoginModal(true)}
+        online={!!status && !healthError}
+      />
       <div className="engineering-header">
       {/* Top Header with Release Candidate and Local-First Badges */}
       <Header
@@ -315,7 +640,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Controlled Research Access Modals */}
-      {(!user && !authLoading && !showInviteModal && activeTab !== 'cockpit') || (showLoginModal && !showInviteModal) ? (
+      {(!user && !authLoading && !showInviteModal && classicMode) || (showLoginModal && !showInviteModal) ? (
         <LoginModal onOpenInvite={() => { setShowLoginModal(false); setShowInviteModal(true); }} />
       ) : null}
 
@@ -338,8 +663,28 @@ export const Dashboard: React.FC = () => {
         padding: '1.5rem 1.5rem 3rem 1.5rem',
         flex: 1,
       }}>
-        {activeTab === 'cockpit' && <CockpitOverview problem={problem} layout={layout} evaluation={evaluation} liveScenarios={cockpitScenarios} onOpenWorkspace={() => setActiveTab('layout')} />}
-        <div style={{ display: activeTab === 'cockpit' ? 'none' : undefined }}>
+        {!classicMode && (
+          <CockpitOverview
+            problem={problem}
+            layout={layout}
+            evaluation={evaluation}
+            liveScenarios={cockpitScenarios}
+            availableProblems={availableProblems}
+            onLoadExample={handleLoadExample}
+            onQuickSolve={handleQuickSolve}
+            quickSolving={quickSolving}
+            quickStatus={quickStatus}
+            activePanel={activeTab}
+            onSelectPanel={(panelId) => setActiveTab(panelId as TabId)}
+            workbench={activeTab !== 'cockpit' ? renderWorkbenchContent(activeTab) : undefined}
+            workbenchTitle={activeTabInfo?.label}
+            onOpenWorkspace={() => {
+              setClassicMode(true);
+              if (activeTab === 'cockpit') setActiveTab('layout');
+            }}
+          />
+        )}
+        <div style={{ display: !classicMode ? 'none' : undefined }}>
         {/* Research Project & Experiment Isolation Card */}
         {user && (
           <ProjectManagerCard
@@ -453,184 +798,9 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* WORKSPACE VIEW: Single Focused Tab */}
-        {viewMode === 'workspace' && (
+        {viewMode === 'workspace' && classicMode && (
           <div>
-            {/* Tab 1: Problem Modeling */}
-            {activeTab === 'problem' && (
-              <div>
-                <ProblemEditorCard
-                  problem={problem}
-                  onUpdateProblem={handleUpdateProblem}
-                  onLoadExample={handleLoadExample}
-                  availableExamples={availableProblems}
-                />
-              </div>
-            )}
-
-            {/* Tab 2: Flow & REL Matrices */}
-            {activeTab === 'matrices' && (
-              <div>
-                <MatrixEditorCard
-                  problem={problem}
-                  onUpdateProblem={handleUpdateProblem}
-                />
-              </div>
-            )}
-
-            {/* Tab 3: Spatial Constraints */}
-            {activeTab === 'constraints' && (
-              <div>
-                <ConstraintEditorCard
-                  problem={problem}
-                  onUpdateProblem={handleUpdateProblem}
-                />
-              </div>
-            )}
-
-            {/* Tab 4: Optimization Workspace */}
-            {activeTab === 'solvers' && (
-              <div>
-                <OptimizationWorkspaceCard
-                  problem={problem}
-                  currentLayout={layout}
-                  onSolutionGenerated={handleSolutionGenerated}
-                  onNavigateToViewer={() => setActiveTab('layout')}
-                  onNavigateToPareto={() => setActiveTab('pareto')}
-                />
-              </div>
-            )}
-
-            {/* Tab 5: 2D Layout Viewer */}
-            {activeTab === 'layout' && (
-              <div style={{
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                marginBottom: '2rem',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-                      {t('Etkileşimli 2D Tesis Yerleşimi Görünümü', 'Interactive 2D Facility Layout Viewer')}
-                    </h2>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-                      {t(
-                        'Sürekli 1:1 koordinat düzlemi • Gerçek zamanlı yakınlaştırma ve kaydırma • Çakışma ve sabit konum denetimi',
-                        'Continuous 1:1 solver coordinates • Real-time zoom & pan • Overlap & fixed position detection'
-                      )}
-                    </p>
-                  </div>
-                  {layout && (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button
-                        onClick={() => setActiveTab('export')}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem',
-                          padding: '0.45rem 0.85rem',
-                          borderRadius: '6px',
-                          border: 'none',
-                          backgroundColor: '#2563eb',
-                          color: '#ffffff',
-                          fontSize: '0.8rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <Package size={14} />
-                        {t('Çözümü Dışa Aktar', 'Export Solution')}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <DecisionGuidanceBox mode="layout" defaultOpen={false} />
-
-                <LayoutCanvas
-                  layout={layout}
-                  problem={problem}
-                  validation={validation}
-                  selectedDeptId={selectedDeptId}
-                  onSelectDept={setSelectedDeptId}
-                />
-              </div>
-            )}
-
-            {/* Tab 6: Multi-Objective Pareto */}
-            {activeTab === 'pareto' && (
-              <div>
-                <ParetoAnalysisCard
-                  problem={problem}
-                  activeLayout={layout}
-                  onSelectCandidate={handleSelectParetoCandidate}
-                />
-                <div style={{ marginTop: '2rem' }}>
-                  <AlgorithmComparisonCard />
-                </div>
-              </div>
-            )}
-
-            {/* Tab 7: AI Decision Explanation */}
-            {activeTab === 'decision' && (
-              <div>
-                <AIExplanationCard
-                  problem={problem}
-                  currentLayout={layout}
-                  evaluation={evaluation}
-                />
-                <div style={{ marginTop: '2rem' }}>
-                  <AdaptiveStrategyCard
-                    problem={problem}
-                    currentLayout={layout}
-                    evaluation={evaluation}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Tab 8: Thesis Export & Provenance */}
-            {activeTab === 'export' && (
-              <div>
-                <ExportCenterCard
-                  problem={problem}
-                  layout={layout}
-                  evaluation={evaluation}
-                  validation={validation}
-                  executionInfo={executionInfo}
-                  onImportLayout={handleImportLayout}
-                />
-              </div>
-            )}
-
-            {/* Tab 9: System Overview */}
-            {activeTab === 'overview' && (
-              <div>
-                <div style={{ marginBottom: '2rem' }}>
-                  <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
-                    {t(
-                      'Tesis Yerleşimi Optimizasyonu ve Karar Destek Sistemi (FLODSS)',
-                      'Facility Layout Optimization & Decision Support System (FLODSS)'
-                    )}
-                  </h1>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '850px', lineHeight: 1.6 }}>
-                    {t(
-                      'Modüler tesis yerleşimi üretimi (FLP), çok ölçütlü algoritmik değerlendirme (MHC, TCR, Komşuluk, Ölü Alan) ve açıklanabilir karar destek için geliştirilmiş ileri seviye Yöneylem Araştırması ve Endüstri Mühendisliği platformu.',
-                      'An advanced Operations Research and Industrial Engineering platform for modular facility layout generation, multi-criteria algorithmic evaluation, and explainable decision support.'
-                    )}
-                  </p>
-                </div>
-                <RoadmapStepper />
-                <SystemStatusCard
-                  status={status}
-                  loading={healthLoading}
-                  error={healthError}
-                  onRefresh={refreshHealth}
-                />
-                <ModuleGrid status={status} />
-              </div>
-            )}
+            {renderWorkbenchContent(activeTab)}
           </div>
         )}
 
