@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getInvitationByTokenApi } from '../services/api';
 import { InvitationResponse } from '../types/api';
 
@@ -13,6 +14,7 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
   onOpenLogin,
 }) => {
   const { acceptInvitation, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [tokenInput, setTokenInput] = useState('');
   const [invitation, setInvitation] = useState<InvitationResponse | null>(null);
   const [fullName, setFullName] = useState('');
@@ -31,7 +33,7 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
       const inv = await getInvitationByTokenApi(tokenInput.trim());
       setInvitation(inv);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Invitation token is invalid, expired, or already used.');
+      setErrorMsg(err.message || t('Davet jetonu geçersiz, süresi dolmuş veya daha önce kullanılmış.', 'Invitation token is invalid, expired, or already used.'));
       setInvitation(null);
     } finally {
       setVerifyingToken(false);
@@ -42,27 +44,27 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
     e.preventDefault();
     if (!invitation) return;
     if (!fullName.trim()) {
-      setErrorMsg('Please enter your full name.');
+      setErrorMsg(t('Lütfen adınızı ve soyadınızı girin.', 'Please enter your full name.'));
       return;
     }
     if (password.length < 8) {
-      setErrorMsg('Password must be at least 8 characters long.');
+      setErrorMsg(t('Şifre en az 8 karakter uzunluğunda olmalıdır.', 'Password must be at least 8 characters long.'));
       return;
     }
     if (password !== confirmPassword) {
-      setErrorMsg('Passwords do not match.');
+      setErrorMsg(t('Şifreler eşleşmiyor.', 'Passwords do not match.'));
       return;
     }
 
     setErrorMsg(null);
     try {
       await acceptInvitation(invitation.token, fullName.trim(), password);
-      setSuccessMsg('Account created successfully! Entering research workspace...');
+      setSuccessMsg(t('Hesap başarıyla oluşturuldu! Araştırma çalışma alanına giriliyor...', 'Account created successfully! Entering research workspace...'));
       setTimeout(() => {
         onClose();
       }, 1000);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to complete registration.');
+      setErrorMsg(err.message || t('Kayıt tamamlanamadı.', 'Failed to complete registration.'));
     }
   };
 
@@ -96,10 +98,10 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
       >
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '0 0 0.35rem 0' }}>
-            Activate Research Invitation
+            {t('Araştırma Davetini Etkinleştir', 'Activate Research Invitation')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>
-            Enter your token issued by the lead research administrator.
+            {t('Baş araştırma yöneticisi tarafından verilen davet jetonunu girin.', 'Enter your token issued by the lead research administrator.')}
           </p>
         </div>
 
@@ -139,13 +141,13 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
           <form onSubmit={handleVerifyToken} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                Invitation Token
+                {t('Davet Jetonu', 'Invitation Token')}
               </label>
               <input
                 type="text"
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="Paste your 40+ character token here"
+                placeholder={t('40+ karakterlik jetonunuzu buraya yapıştırın', 'Paste your 40+ character token here')}
                 required
                 style={{
                   width: '100%',
@@ -176,25 +178,25 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
                 cursor: verifyingToken ? 'not-allowed' : 'pointer',
               }}
             >
-              {verifyingToken ? 'Verifying Token...' : 'Verify Token & Proceed'}
+              {verifyingToken ? t('Jeton Doğrulanıyor...', 'Verifying Token...') : t('Jetonu Doğrula ve Devam Et', 'Verify Token & Proceed')}
             </button>
           </form>
         ) : (
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ backgroundColor: '#1e293b', padding: '0.85rem', borderRadius: '8px', fontSize: '0.825rem' }}>
-              <div><strong>Email:</strong> {invitation.email}</div>
-              <div style={{ marginTop: '0.25rem' }}><strong>Assigned Role:</strong> <span style={{ color: '#38bdf8', fontWeight: 600 }}>{invitation.role}</span></div>
+              <div><strong>{t('E-posta:', 'Email:')}</strong> {invitation.email}</div>
+              <div style={{ marginTop: '0.25rem' }}><strong>{t('Atanan Rol:', 'Assigned Role:')}</strong> <span style={{ color: '#38bdf8', fontWeight: 600 }}>{invitation.role}</span></div>
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                Your Full Name & Academic Title
+                {t('Adınız Soyadınız ve Akademik Unvanınız', 'Your Full Name & Academic Title')}
               </label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g., Dr. Jane Doe"
+                placeholder={t('örn. Dr. Ayşe Yılmaz', 'e.g., Dr. Jane Doe')}
                 required
                 style={{
                   width: '100%',
@@ -212,13 +214,13 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
 
             <div>
               <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                Set Password (min 8 chars)
+                {t('Şifre Belirle (en az 8 karakter)', 'Set Password (min 8 chars)')}
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Choose a password (min 8 chars)"
+                placeholder={t('Bir şifre seçin (en az 8 karakter)', 'Choose a password (min 8 chars)')}
                 required
                 style={{
                   width: '100%',
@@ -236,13 +238,13 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
 
             <div>
               <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                Confirm Password
+                {t('Şifreyi Onayla', 'Confirm Password')}
               </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm password (min 8 chars)"
+                placeholder={t('Şifreyi tekrar girin (en az 8 karakter)', 'Confirm password (min 8 chars)')}
                 required
                 style={{
                   width: '100%',
@@ -273,7 +275,7 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
                 cursor: isLoading ? 'not-allowed' : 'pointer',
               }}
             >
-              {isLoading ? 'Creating Account...' : 'Complete Activation & Enter Workspace'}
+              {isLoading ? t('Hesap Oluşturuluyor...', 'Creating Account...') : t('Etkinleştirmeyi Tamamla ve Çalışma Alanına Gir', 'Complete Activation & Enter Workspace')}
             </button>
           </form>
         )}
@@ -291,7 +293,7 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
               textDecoration: 'underline',
             }}
           >
-            Back to Sign In
+            {t('Giriş Ekranına Dön', 'Back to Sign In')}
           </button>
           <button
             type="button"
@@ -304,7 +306,7 @@ export const InvitationAcceptModal: React.FC<InvitationAcceptModalProps> = ({
               cursor: 'pointer',
             }}
           >
-            Cancel
+            {t('İptal', 'Cancel')}
           </button>
         </div>
       </div>

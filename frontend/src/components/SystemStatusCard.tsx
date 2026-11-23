@@ -27,7 +27,7 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
         <div>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
-            {t('Backend Çekirdek & Çalışma Zamanı Tanıları (Diagnostics)', 'Backend Core & Runtime Diagnostics')}
+            {t('Sunucu Çekirdeği ve Çalışma Zamanı Tanılaması', 'Backend Core & Runtime Diagnostics')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             {t(
@@ -66,7 +66,7 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
           color: '#f87171',
           fontSize: '0.875rem',
         }}>
-          <strong>Connection Alert:</strong> {error}. Ensure FastAPI backend is running on <code>http://127.0.0.1:8000</code>.
+          <strong>{t('Bağlantı Uyarısı:', 'Connection Alert:')}</strong> {error}. {t('FastAPI sunucusunun', 'Ensure FastAPI backend is running on')} <code>http://127.0.0.1:8000</code> {t('adresinde çalıştığından emin olun.', '')}
         </div>
       ) : status ? (
         <div style={{
@@ -80,12 +80,12 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
             borderRadius: '8px',
             border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>API Status</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('API Durumu', 'API Status')}</div>
             <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34d399', marginTop: '0.25rem' }}>
               {status.status.toUpperCase()}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              System Version {status.version}
+              {t('Sistem Sürümü', 'System Version')} {status.version}
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
             borderRadius: '8px',
             border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Python Runtime</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Python Çalışma Zamanı', 'Python Runtime')}</div>
             <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--accent-blue)', marginTop: '0.25rem' }}>
               v{status.python_version}
             </div>
@@ -110,12 +110,12 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
             borderRadius: '8px',
             border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Algorithm Registry</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Algoritma Kayıt Defteri', 'Algorithm Registry')}</div>
             <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#a78bfa', marginTop: '0.25rem' }}>
-              {status.registered_algorithms} Registered
+              {status.registered_algorithms} {t('Kayıtlı', 'Registered')}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              Plug-and-play architecture active
+              {t('Tak-çalıştır mimarisi aktif', 'Plug-and-play architecture active')}
             </div>
           </div>
 
@@ -125,17 +125,17 @@ export const SystemStatusCard: React.FC<SystemStatusCardProps> = ({
             borderRadius: '8px',
             border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Last Sync Timestamp</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Son Eşitleme Zamanı', 'Last Sync Timestamp')}</div>
             <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '0.5rem', fontFamily: 'var(--font-mono)' }}>
               {new Date(status.timestamp).toLocaleTimeString()}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              UTC Timestamp verified
+              {t('UTC zaman damgası doğrulandı', 'UTC Timestamp verified')}
             </div>
           </div>
         </div>
       ) : (
-        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Initial probe in progress...</div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('İlk tarama sürüyor...', 'Initial probe in progress...')}</div>
       )}
     </div>
   );

@@ -16,15 +16,15 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 
 const BENCHMARK_PROBLEMS = [
-  { id: 'FLP_INDUSTRIAL_10', name: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
-  { id: 'HIGH_DENSITY_15', name: 'HIGH_DENSITY_15 (15 Depts, 90.0% Util, Realistic Dense Flows)' },
-  { id: 'HIGH_DENSITY_20', name: 'HIGH_DENSITY_20 (20 Depts, 95.8% Util, Heterogeneous Dense Plant)' },
-  { id: 'CONSTRAINED_FACTORY_12', name: 'CONSTRAINED_FACTORY_12 (12 Depts, 81.3% Util, Fixed Dock & Reserved Spine)' },
-  { id: 'LOGISTICS_FACTORY_15', name: 'LOGISTICS_FACTORY_15 (15 Depts, 85.0% Util, Asymmetric Tote Logistics)' },
-  { id: 'FLP_ACADEMIC_4', name: 'FLP_ACADEMIC_4 (4 Depts, Small Unconstrained Flow)' },
-  { id: 'FLP_MEDIUM_6', name: 'FLP_MEDIUM_6 (6 Depts, Medium Plant)' },
-  { id: 'FLP_EXPANSION_8', name: 'FLP_EXPANSION_8 (8 Depts, Reserved Spine Aisle)' },
-  { id: 'FLP_LOGISTICS_5', name: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
+  { id: 'FLP_INDUSTRIAL_10', nameTr: 'FLP_INDUSTRIAL_10 (10 Bölüm, %91,7 Alan Kullanımı, Sıkı Sınırlar)', nameEn: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
+  { id: 'HIGH_DENSITY_15', nameTr: 'HIGH_DENSITY_15 (15 Bölüm, %90,0 Alan Kullanımı, Yoğun Gerçekçi Akışlar)', nameEn: 'HIGH_DENSITY_15 (15 Depts, 90.0% Util, Realistic Dense Flows)' },
+  { id: 'HIGH_DENSITY_20', nameTr: 'HIGH_DENSITY_20 (20 Bölüm, %95,8 Alan Kullanımı, Heterojen Yoğun Tesis)', nameEn: 'HIGH_DENSITY_20 (20 Depts, 95.8% Util, Heterogeneous Dense Plant)' },
+  { id: 'CONSTRAINED_FACTORY_12', nameTr: 'CONSTRAINED_FACTORY_12 (12 Bölüm, %81,3 Alan Kullanımı, Sabit Rampa & Ayrılmış Koridor)', nameEn: 'CONSTRAINED_FACTORY_12 (12 Depts, 81.3% Util, Fixed Dock & Reserved Spine)' },
+  { id: 'LOGISTICS_FACTORY_15', nameTr: 'LOGISTICS_FACTORY_15 (15 Bölüm, %85,0 Alan Kullanımı, Asimetrik Kutu Lojistiği)', nameEn: 'LOGISTICS_FACTORY_15 (15 Depts, 85.0% Util, Asymmetric Tote Logistics)' },
+  { id: 'FLP_ACADEMIC_4', nameTr: 'FLP_ACADEMIC_4 (4 Bölüm, Küçük Kısıtsız Akış)', nameEn: 'FLP_ACADEMIC_4 (4 Depts, Small Unconstrained Flow)' },
+  { id: 'FLP_MEDIUM_6', nameTr: 'FLP_MEDIUM_6 (6 Bölüm, Orta Ölçekli Tesis)', nameEn: 'FLP_MEDIUM_6 (6 Depts, Medium Plant)' },
+  { id: 'FLP_EXPANSION_8', nameTr: 'FLP_EXPANSION_8 (8 Bölüm, Ayrılmış Ana Koridor)', nameEn: 'FLP_EXPANSION_8 (8 Depts, Reserved Spine Aisle)' },
+  { id: 'FLP_LOGISTICS_5', nameTr: 'FLP_LOGISTICS_5 (5 Bölüm, Doğrusal Akış Merkezi)', nameEn: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
 ];
 
 const PRESET_QUESTIONS: { type: PresetQuestionType; labelTr: string; labelEn: string; textTr: string; textEn: string }[] = [
@@ -233,7 +233,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
           alignItems: 'flex-end',
           gap: '2px',
         }}>
-          <div><strong>{t('Aktarım Politikası:', 'Transmission Policy:')}</strong> Whitelist Only</div>
+          <div><strong>{t('Aktarım Politikası:', 'Transmission Policy:')}</strong> {t('Yalnızca İzin Listesi', 'Whitelist Only')}</div>
           <div>{t('Hariç Tutulan: Koordinatlar, Akış Matrisi, Kaynak Kod, İsimler', 'Excluded: Coordinates, Raw Flows, Source Code, Names')}</div>
         </div>
       </div>
@@ -316,7 +316,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             }}
           >
             {BENCHMARK_PROBLEMS.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id}>{t(p.nameTr, p.nameEn)}</option>
             ))}
           </select>
         </div>
@@ -524,7 +524,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
 
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '0.25rem' }}>
-                  Exact JSON Payload:
+                  {t('Birebir JSON Yükü:', 'Exact JSON Payload:')}
                 </div>
                 <pre style={{
                   backgroundColor: '#f8fafc',
@@ -539,7 +539,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
                   {JSON.stringify(preview.payload, null, 2)}
                 </pre>
                 <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px', fontFamily: 'monospace' }}>
-                  SHA-256 Payload Hash: {preview.payload_hash}
+                  {t('SHA-256 Yük Özeti:', 'SHA-256 Payload Hash:')} {preview.payload_hash}
                 </div>
               </div>
 
@@ -596,7 +596,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
                 </label>
 
                 <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <span style={{ color: '#059669', fontWeight: 700 }}>&#x1F512; Single-Use Replay Protection:</span>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>&#x1F512; {t('Tek Kullanımlık Tekrar Koruması:', 'Single-Use Replay Protection:')}</span>
                   {t(
                     `Yetkilendirme 15 dakika geçerlidir, ${clientSessionId.substring(0, 10)}... oturumuna bağlıdır ve ilk kullanımda geçersiz kılınır.`,
                     `Authorization is valid for 15 minutes, bound to session ${clientSessionId.substring(0, 10)}..., and invalidated immediately upon first execution.`
@@ -672,7 +672,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
                 color: '#ffffff',
                 textTransform: 'uppercase',
               }}>
-                {result.mode === 'gemini' ? 'Google Gemini 3.8 Flash' : 'Local Deterministic Explainer'}
+                {result.mode === 'gemini' ? 'Google Gemini 3.8 Flash' : t('Yerel Deterministik Açıklayıcı', 'Local Deterministic Explainer')}
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 {t('Soru:', 'Question:')} "{result.question}"
@@ -688,7 +688,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
                 padding: '2px 8px',
                 borderRadius: '4px',
               }}>
-                Fallback Active: {result.fallback_reason || 'AI offline'}
+                {t('Yedek Mod Etkin:', 'Fallback Active:')} {result.fallback_reason || t('AI çevrimdışı', 'AI offline')}
               </span>
             )}
           </div>
@@ -720,15 +720,15 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
               borderRadius: '6px',
             }}>
               <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Material Handling Cost (MHC): </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{t('Malzeme Taşıma Maliyeti (MHC): ', 'Material Handling Cost (MHC): ')}</span>
                 <strong>${Number(result.verified_canonical_metrics.material_handling_cost || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>REL Satisfaction: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{t('REL Memnuniyeti: ', 'REL Satisfaction: ')}</span>
                 <strong>{Number(result.verified_canonical_metrics.relationship_satisfaction || 0).toFixed(2)}%</strong>
               </div>
               <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Soft Constraint Penalty: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{t('Esnek Kısıt Cezası: ', 'Soft Constraint Penalty: ')}</span>
                 <strong>${Number(result.verified_canonical_metrics.soft_penalty || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
             </div>

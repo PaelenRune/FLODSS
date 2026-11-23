@@ -136,7 +136,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
             FL
           </div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '0 0 0.4rem 0' }}>
-            FLODSS Research Portal
+            {t('FLODSS Araştırma Portalı', 'FLODSS Research Portal')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>
             {t(
@@ -216,7 +216,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onOpenInvite }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="researcher@university.edu"
+              placeholder={t('arastirmaci@universite.edu.tr', 'researcher@university.edu')}
               required
               style={{
                 width: '100%',

@@ -28,8 +28,10 @@ import {
   fetchExampleLayouts,
 } from '../services/api';
 import { LayoutCanvas } from './LayoutCanvas';
+import { useLanguage } from '../context/LanguageContext';
 
 export const AlgorithmRunnerCard: React.FC = () => {
+  const { t } = useLanguage();
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [selectedProblemId, setSelectedProblemId] = useState<string>('');
   const [algorithms, setAlgorithms] = useState<AlgorithmMetadata[]>([]);
@@ -130,7 +132,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
         setAlgorithms(algos);
         setExampleLayouts(exLayouts);
       } catch (err: any) {
-        setError(err.message || 'Failed to load initial data');
+        setError(err.message || t('Başlangıç verileri yüklenemedi', 'Failed to load initial data'));
       } finally {
         setLoading(false);
       }
@@ -176,7 +178,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
       setSolveResult(res);
       setActiveTraceStep(null);
     } catch (err: any) {
-      setError(err.message || 'CORELAP solver execution failed');
+      setError(err.message || t('CORELAP çözücü çalıştırması başarısız oldu', 'CORELAP solver execution failed'));
     } finally {
       setRunning(false);
     }
@@ -201,15 +203,15 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
       if (craftSource === 'BASELINE') {
         if (!selectedBaselineId) {
-          throw new Error('No baseline layout selected for this problem.');
+          throw new Error(t('Bu problem için temel yerleşim seçilmedi.', 'No baseline layout selected for this problem.'));
         }
         payload.initial_layout_id = selectedBaselineId;
       } else {
         if (!solveResult) {
-          throw new Error('No CORELAP solution available. Run CORELAP first.');
+          throw new Error(t('CORELAP çözümü bulunamadı. Önce CORELAP çalıştırın.', 'No CORELAP solution available. Run CORELAP first.'));
         }
         if (!isCORELAPComplete) {
-          throw new Error('CORELAP layout is incomplete. CRAFT requires a complete and feasible initial layout.');
+          throw new Error(t('CORELAP yerleşimi eksik. CRAFT tam ve uygun bir başlangıç yerleşimi gerektirir.', 'CORELAP layout is incomplete. CRAFT requires a complete and feasible initial layout.'));
         }
         payload.initial_layout = solveResult.continuous_layout;
       }
@@ -218,7 +220,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
       setCraftResult(res);
       setActiveCraftStep(null);
     } catch (err: any) {
-      setCraftError(err.message || 'CRAFT execution failed');
+      setCraftError(err.message || t('CRAFT çalıştırması başarısız oldu', 'CRAFT execution failed'));
     } finally {
       setCraftRunning(false);
     }
@@ -249,7 +251,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
       setSelectedCandidateIdx(res.best_candidate.candidate_index);
       setActiveAldepStep(null);
     } catch (err: any) {
-      setAldepError(err.message || 'ALDEP solver execution failed');
+      setAldepError(err.message || t('ALDEP çözücü çalıştırması başarısız oldu', 'ALDEP solver execution failed'));
     } finally {
       setAldepRunning(false);
     }
@@ -276,7 +278,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
       });
       setGenResult(res);
     } catch (err: any) {
-      setGenError(err.message || 'Feasible Generator execution failed');
+      setGenError(err.message || t('Uygun Yerleşim Üreticisi çalıştırması başarısız oldu', 'Feasible Generator execution failed'));
     } finally {
       setGenRunning(false);
     }
@@ -306,7 +308,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
       });
       setGaResult(res);
     } catch (err: any) {
-      setGaError(err.message || 'Genetic Algorithm execution failed');
+      setGaError(err.message || t('Genetik Algoritma çalıştırması başarısız oldu', 'Genetic Algorithm execution failed'));
     } finally {
       setGaRunning(false);
     }
@@ -336,18 +338,21 @@ export const AlgorithmRunnerCard: React.FC = () => {
   );
 
   const craftDisabledReason = (() => {
-    if (!selectedProblemId) return 'Please select a problem first.';
+    if (!selectedProblemId) return t('Lütfen önce bir problem seçin.', 'Please select a problem first.');
     if (craftSource === 'BASELINE' && !selectedBaselineId) {
-      return 'No baseline layout file available for this problem.';
+      return t('Bu problem için temel yerleşim dosyası mevcut değil.', 'No baseline layout file available for this problem.');
     }
     if (craftSource === 'CORELAP') {
       if (!solveResult) {
-        return 'No CORELAP layout generated yet. Please run CORELAP first or select a baseline layout.';
+        return t('Henüz CORELAP yerleşimi üretilmedi. Lütfen önce CORELAP çalıştırın veya bir temel yerleşim seçin.', 'No CORELAP layout generated yet. Please run CORELAP first or select a baseline layout.');
       }
       if (!isCORELAPComplete) {
         const placed = solveResult.trace.placed_department_count ?? solveResult.trace.placed_count;
         const total = solveResult.trace.total_department_count ?? solveResult.trace.total_departments;
-        return `CRAFT requires a complete initial layout. Current CORELAP layout placed only ${placed} of ${total} departments (partial). The improvement heuristic cannot be executed on incomplete layouts.`;
+        return t(
+          `CRAFT tam bir başlangıç yerleşimi gerektirir. Mevcut CORELAP yerleşimi ${total} bölümden yalnızca ${placed} tanesini yerleştirdi (kısmi). İyileştirme sezgisel algoritması eksik yerleşimlerde çalıştırılamaz.`,
+          `CRAFT requires a complete initial layout. Current CORELAP layout placed only ${placed} of ${total} departments (partial). The improvement heuristic cannot be executed on incomplete layouts.`
+        );
       }
     }
     return null;
@@ -374,7 +379,9 @@ export const AlgorithmRunnerCard: React.FC = () => {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>Optimization Algorithms & Layout Generation</h2>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+              {t('Optimizasyon Algoritmaları ve Yerleşim Üretimi', 'Optimization Algorithms & Layout Generation')}
+            </h2>
             <span
               style={{
                 fontSize: '0.7rem',
@@ -415,26 +422,41 @@ export const AlgorithmRunnerCard: React.FC = () => {
               }}
             >
               {activeAlgo === 'CORELAP'
-                ? 'CORELAP v1.0 (Construction)'
+                ? t('CORELAP v1.0 (Kurucu)', 'CORELAP v1.0 (Construction)')
                 : activeAlgo === 'CRAFT'
-                ? 'CRAFT v1.0 (Improvement)'
+                ? t('CRAFT v1.0 (İyileştirme)', 'CRAFT v1.0 (Improvement)')
                 : activeAlgo === 'ALDEP'
-                ? 'ALDEP v1.0 (Construction)'
+                ? t('ALDEP v1.0 (Kurucu)', 'ALDEP v1.0 (Construction)')
                 : activeAlgo === 'FEASIBLE_GENERATOR'
-                ? 'Feasible Generator v1.0 (Construction)'
-                : 'Genetic Algorithm v1.0 (Metaheuristic)'}
+                ? t('Uygun Üretici v1.0 (Kurucu)', 'Feasible Generator v1.0 (Construction)')
+                : t('Genetik Algoritma v1.0 (Metasezgisel)', 'Genetic Algorithm v1.0 (Metaheuristic)')}
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
             {activeAlgo === 'CORELAP'
-              ? 'Deterministic Muther SLP relationship-driven layout construction with step-by-step explainability trace'
+              ? t(
+                  'Adım adım açıklanabilirlik iziyle deterministik Muther SLP ilişki odaklı yerleşim kurulumu',
+                  'Deterministic Muther SLP relationship-driven layout construction with step-by-step explainability trace'
+                )
               : activeAlgo === 'CRAFT'
-              ? 'Pairwise department exchange improvement heuristic minimizing Material Handling Cost (MHC)'
+              ? t(
+                  'Malzeme Taşıma Maliyetini (MHC) en aza indiren ikili bölüm değişimi iyileştirme sezgisel algoritması',
+                  'Pairwise department exchange improvement heuristic minimizing Material Handling Cost (MHC)'
+                )
               : activeAlgo === 'ALDEP'
-              ? 'Stochastic Muther REL-driven strip-sweep construction heuristic generating multiple layout alternatives'
+              ? t(
+                  'Birden fazla yerleşim alternatifi üreten stokastik Muther REL odaklı şerit tarama kurucu sezgisel algoritması',
+                  'Stochastic Muther REL-driven strip-sweep construction heuristic generating multiple layout alternatives'
+                )
               : activeAlgo === 'FEASIBLE_GENERATOR'
-              ? 'Deterministic constructive search (Free-Rectangle MER DFS & Guillotine Row Packing) generating 100% legal layouts from scratch'
-              : 'Flexible Bay Structure (FBS) Order Crossover (OX) genetic optimization minimizing Material Handling Cost (MHC) and soft penalties'}
+              ? t(
+                  'Sıfırdan %100 geçerli yerleşimler üreten deterministik kurucu arama (Serbest Dikdörtgen MER DFS ve Giyotin Sıra Paketleme)',
+                  'Deterministic constructive search (Free-Rectangle MER DFS & Guillotine Row Packing) generating 100% legal layouts from scratch'
+                )
+              : t(
+                  'Malzeme Taşıma Maliyetini (MHC) ve esnek cezaları en aza indiren Esnek Hol Yapısı (FBS) Sıra Çaprazlamalı (OX) genetik optimizasyon',
+                  'Flexible Bay Structure (FBS) Order Crossover (OX) genetic optimization minimizing Material Handling Cost (MHC) and soft penalties'
+                )}
           </p>
         </div>
 
@@ -449,7 +471,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 borderRadius: '6px',
               }}
             >
-              Registered: {activeMetadata.name} (v{activeMetadata.version})
+              {t('Kayıtlı:', 'Registered:')} {activeMetadata.name} (v{activeMetadata.version})
             </span>
           )}
           <button
@@ -465,7 +487,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            CORELAP (Construction)
+            {t('CORELAP (Kurucu)', 'CORELAP (Construction)')}
           </button>
           <button
             onClick={() => setActiveAlgo('ALDEP')}
@@ -480,7 +502,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            ALDEP (Construction)
+            {t('ALDEP (Kurucu)', 'ALDEP (Construction)')}
           </button>
           <button
             onClick={() => setActiveAlgo('CRAFT')}
@@ -495,7 +517,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            CRAFT (Improvement)
+            {t('CRAFT (İyileştirme)', 'CRAFT (Improvement)')}
           </button>
           <button
             onClick={() => setActiveAlgo('FEASIBLE_GENERATOR')}
@@ -510,7 +532,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            Feasible Generator (Phase 8)
+            {t('Uygun Üretici (Faz 8)', 'Feasible Generator (Phase 8)')}
           </button>
           <button
             onClick={() => setActiveAlgo('GENETIC_ALGORITHM')}
@@ -525,7 +547,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            Genetic Algorithm (Phase 9)
+            {t('Genetik Algoritma (Faz 9)', 'Genetic Algorithm (Phase 9)')}
           </button>
         </div>
       </div>
@@ -614,7 +636,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
           >
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Target Problem:
+                {t('Hedef Problem:', 'Target Problem:')}
               </label>
               <select
                 value={selectedProblemId}
@@ -632,7 +654,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               >
                 {problems.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.department_count} depts)
+                    {p.name} ({p.department_count} {t('bölüm', 'depts')})
                   </option>
                 ))}
               </select>
@@ -640,7 +662,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Scoring Mode:
+                {t('Puanlama Modu:', 'Scoring Mode:')}
               </label>
               <select
                 value={placementMode}
@@ -656,14 +678,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="classical_adjacency">Mode A: Classical Adjacency (Shared Border)</option>
-                <option value="extended_distance_weighted">Mode B: Extended Distance-Weighted</option>
+                <option value="classical_adjacency">{t('Mod A: Klasik Komşuluk (Ortak Kenar)', 'Mode A: Classical Adjacency (Shared Border)')}</option>
+                <option value="extended_distance_weighted">{t('Mod B: Genişletilmiş Mesafe Ağırlıklı', 'Mode B: Extended Distance-Weighted')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Initial Anchor Mode:
+                {t('Başlangıç Çıpa Modu:', 'Initial Anchor Mode:')}
               </label>
               <select
                 value={initialAnchorMode}
@@ -679,14 +701,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="center">Center of Facility (Classical CORELAP)</option>
-                <option value="bottom_left">Bottom-Left Origin (0, 0)</option>
+                <option value="center">{t('Tesis Merkezi (Klasik CORELAP)', 'Center of Facility (Classical CORELAP)')}</option>
+                <option value="bottom_left">{t('Sol-Alt Başlangıç (0, 0)', 'Bottom-Left Origin (0, 0)')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Trace Level:
+                {t('İzleme Düzeyi:', 'Trace Level:')}
               </label>
               <select
                 value={traceLevel}
@@ -702,14 +724,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="SUMMARY">Summary Trace</option>
-                <option value="DETAILED">Detailed Diagnostics</option>
+                <option value="SUMMARY">{t('Özet İzleme', 'Summary Trace')}</option>
+                <option value="DETAILED">{t('Ayrıntılı Tanılama', 'Detailed Diagnostics')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Shape Alternatives & Rotation:
+                {t('Şekil Alternatifleri ve Döndürme:', 'Shape Alternatives & Rotation:')}
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>
                 <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -719,7 +741,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     onChange={(e) => setAllowShapeAlternatives(e.target.checked)}
                     disabled={running}
                   />
-                  Legal Shape Dimensions
+                  {t('Geçerli Şekil Boyutları', 'Legal Shape Dimensions')}
                 </label>
                 <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                   <input
@@ -728,14 +750,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     onChange={(e) => setEvaluateOrientations(e.target.checked)}
                     disabled={running}
                   />
-                  0° / 90° Rotations
+                  {t('0° / 90° Döndürmeler', '0° / 90° Rotations')}
                 </label>
               </div>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                X-Penalty Multiplier:
+                {t('X-Ceza Çarpanı:', 'X-Penalty Multiplier:')}
               </label>
               <input
                 type="number"
@@ -759,7 +781,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Candidate Gap (m):
+                {t('Aday Boşluğu (m):', 'Candidate Gap (m):')}
               </label>
               <input
                 type="number"
@@ -799,7 +821,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   transition: 'background-color 0.2s',
                 }}
               >
-                {running ? 'Executing CORELAP...' : 'Run CORELAP Solver'}
+                {running ? t('CORELAP Çalıştırılıyor...', 'Executing CORELAP...') : t('CORELAP Çözücüsünü Çalıştır', 'Run CORELAP Solver')}
               </button>
             </div>
           </div>
@@ -834,13 +856,15 @@ export const AlgorithmRunnerCard: React.FC = () => {
                         }}
                       >
                         {isCORELAPComplete
-                          ? '✓ Construction Complete (100% Placed)'
-                          : '⚠️ INCOMPLETE CONSTRUCTION (Partial Solution)'}
+                          ? t('✓ Kurulum Tamamlandı (%100 Yerleştirildi)', '✓ Construction Complete (100% Placed)')
+                          : t('⚠️ EKSİK KURULUM (Kısmi Çözüm)', '⚠️ INCOMPLETE CONSTRUCTION (Partial Solution)')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         ({solveResult.trace.placed_department_count ?? solveResult.trace.placed_count} /{' '}
-                        {solveResult.trace.total_department_count ?? solveResult.trace.total_departments} departments placed in{' '}
-                        {solveResult.trace.execution_time_seconds}s)
+                        {solveResult.trace.total_department_count ?? solveResult.trace.total_departments}{' '}
+                        {t('bölüm', 'departments placed in')}{' '}
+                        {solveResult.trace.execution_time_seconds}s{' '}
+                        {t('içinde yerleştirildi', '')})
                       </span>
                       {solveResult.trace.termination_reason && (
                         <span
@@ -860,7 +884,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
                     {!isCORELAPComplete && (solveResult.trace.unplaced_departments?.length ?? 0) > 0 && (
                       <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#fca5a5' }}>
-                        <strong>Unplaced Departments:</strong>{' '}
+                        <strong>{t('Yerleştirilemeyen Bölümler:', 'Unplaced Departments:')}</strong>{' '}
                         {solveResult.trace.unplaced_departments?.map((d) => (
                           <span
                             key={d}
@@ -882,13 +906,13 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
                     {solveResult.trace.failure_reason && (
                       <p style={{ fontSize: '0.8rem', color: '#f59e0b', marginTop: '0.35rem' }}>
-                        Diagnostic Cause: {solveResult.trace.failure_reason}
+                        {t('Tanılama Nedeni:', 'Diagnostic Cause:')} {solveResult.trace.failure_reason}
                       </p>
                     )}
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Deterministic Invariant:</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('Deterministik Değişmez:', 'Deterministic Invariant:')}</div>
                     <code style={{ fontSize: '0.75rem', color: 'var(--accent-color)' }}>
                       {solveResult.evaluation.layout_signature.slice(0, 16)}...
                     </code>
@@ -904,7 +928,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               {/* Step-by-Step Construction Trace */}
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                  CORELAP Placement Sequence ({solveResult.trace.steps.length} Steps)
+                  {t('CORELAP Yerleştirme Sırası', 'CORELAP Placement Sequence')} ({solveResult.trace.steps.length} {t('Adım', 'Steps')})
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
                   {solveResult.trace.steps.map((step) => {
@@ -924,18 +948,18 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span>
-                            <strong>Step #{step.step_number}:</strong> Placed{' '}
+                            <strong>{t('Adım', 'Step')} #{step.step_number}:</strong> {t('Yerleştirildi:', 'Placed')}{' '}
                             <span style={{ color: 'var(--accent-color)', fontWeight: 600 }}>{step.selected_department}</span> (TCR: {step.tcr})
                           </span>
                           <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                            ({step.selected_candidate.width.toFixed(1)}m × {step.selected_candidate.height.toFixed(1)}m at ({step.selected_candidate.x.toFixed(1)}, {step.selected_candidate.y.toFixed(1)}))
+                            ({step.selected_candidate.width.toFixed(1)}m × {step.selected_candidate.height.toFixed(1)}m @ ({step.selected_candidate.x.toFixed(1)}, {step.selected_candidate.y.toFixed(1)}))
                           </span>
                         </div>
                         {isExp && (
                           <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            <div>Candidates evaluated: {step.candidate_count} (Rejected: {step.rejected_candidates})</div>
-                            <div>Affinity score with placed neighbors: {step.placed_relationship_score}</div>
-                            <div>Neighbors: {step.neighbors.join(', ') || 'None (Initial placement)'}</div>
+                            <div>{t('Değerlendirilen adaylar:', 'Candidates evaluated:')} {step.candidate_count} ({t('Reddedilen:', 'Rejected:')} {step.rejected_candidates})</div>
+                            <div>{t('Yerleştirilen komşularla yakınlık skoru:', 'Affinity score with placed neighbors:')} {step.placed_relationship_score}</div>
+                            <div>{t('Komşular:', 'Neighbors:')} {step.neighbors.join(', ') || t('Yok (İlk yerleşim)', 'None (Initial placement)')}</div>
                           </div>
                         )}
                       </div>
@@ -968,7 +992,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
           >
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Target Problem:
+                {t('Hedef Problem:', 'Target Problem:')}
               </label>
               <select
                 value={selectedProblemId}
@@ -986,7 +1010,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               >
                 {problems.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.department_count} depts)
+                    {p.name} ({p.department_count} {t('bölüm', 'depts')})
                   </option>
                 ))}
               </select>
@@ -994,7 +1018,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Initial Layout Source:
+                {t('Başlangıç Yerleşim Kaynağı:', 'Initial Layout Source:')}
               </label>
               <select
                 value={craftSource}
@@ -1010,15 +1034,15 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="BASELINE">Preloaded Baseline Layout</option>
-                <option value="CORELAP">Generated CORELAP Solution</option>
+                <option value="BASELINE">{t('Ön Yüklü Temel Yerleşim', 'Preloaded Baseline Layout')}</option>
+                <option value="CORELAP">{t('Üretilen CORELAP Çözümü', 'Generated CORELAP Solution')}</option>
               </select>
             </div>
 
             {craftSource === 'BASELINE' ? (
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                  Select Baseline Layout:
+                  {t('Temel Yerleşim Seç:', 'Select Baseline Layout:')}
                 </label>
                 <select
                   value={selectedBaselineId}
@@ -1035,11 +1059,11 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   {currentProblemBaselineLayouts.length === 0 ? (
-                    <option value="">No baseline available for this problem</option>
+                    <option value="">{t('Bu problem için temel yerleşim mevcut değil', 'No baseline available for this problem')}</option>
                   ) : (
                     currentProblemBaselineLayouts.map((l) => (
                       <option key={l.id} value={l.id}>
-                        {l.name} ({l.department_count} depts)
+                        {l.name} ({l.department_count} {t('bölüm', 'depts')})
                       </option>
                     ))
                   )}
@@ -1048,7 +1072,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
             ) : (
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                  CORELAP Status:
+                  {t('CORELAP Durumu:', 'CORELAP Status:')}
                 </label>
                 <div
                   style={{
@@ -1066,16 +1090,16 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 >
                   {solveResult
                     ? isCORELAPComplete
-                      ? '✓ Complete Layout Ready'
-                      : `⚠️ Incomplete (${solveResult.trace.placed_department_count ?? solveResult.trace.placed_count} depts)`
-                    : 'No CORELAP solution yet'}
+                      ? t('✓ Tam Yerleşim Hazır', '✓ Complete Layout Ready')
+                      : t(`⚠️ Eksik (${solveResult.trace.placed_department_count ?? solveResult.trace.placed_count} bölüm)`, `⚠️ Incomplete (${solveResult.trace.placed_department_count ?? solveResult.trace.placed_count} depts)`)
+                    : t('Henüz CORELAP çözümü yok', 'No CORELAP solution yet')}
                 </div>
               </div>
             )}
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Max Iterations:
+                {t('Maks. İterasyon:', 'Max Iterations:')}
               </label>
               <input
                 type="number"
@@ -1099,7 +1123,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Min Improvement Threshold ($):
+                {t('Min. İyileşme Eşiği ($):', 'Min Improvement Threshold ($):')}
               </label>
               <input
                 type="number"
@@ -1123,7 +1147,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Rotational Swaps & Trace:
+                {t('Döndürmeli Değişimler ve İzleme:', 'Rotational Swaps & Trace:')}
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>
                 <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -1133,7 +1157,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     onChange={(e) => setCraftAllowRotation(e.target.checked)}
                     disabled={craftRunning}
                   />
-                  Allow 90° Rotational Swaps
+                  {t('90° Döndürmeli Değişimlere İzin Ver', 'Allow 90° Rotational Swaps')}
                 </label>
                 <select
                   value={craftTraceLevel}
@@ -1148,8 +1172,8 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     fontSize: '0.75rem',
                   }}
                 >
-                  <option value="SUMMARY">Summary Trace</option>
-                  <option value="DETAILED">Detailed Trace</option>
+                  <option value="SUMMARY">{t('Özet İzleme', 'Summary Trace')}</option>
+                  <option value="DETAILED">{t('Ayrıntılı İzleme', 'Detailed Trace')}</option>
                 </select>
               </div>
             </div>
@@ -1173,7 +1197,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   transition: 'all 0.2s',
                 }}
               >
-                {craftRunning ? 'Optimizing with CRAFT...' : 'Run CRAFT Optimization'}
+                {craftRunning ? t('CRAFT ile Optimize Ediliyor...', 'Optimizing with CRAFT...') : t('CRAFT Optimizasyonunu Çalıştır', 'Run CRAFT Optimization')}
               </button>
             </div>
           </div>
@@ -1215,21 +1239,21 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Initial Material Handling Cost</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Başlangıç Taşıma Maliyeti (MHC)', 'Initial Material Handling Cost')}</div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                     ${craftResult.result.initial_mhc.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Final Optimized MHC</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Nihai Optimize MHC', 'Final Optimized MHC')}</div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#34d399' }}>
                     ${craftResult.result.final_mhc.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MHC Improvement</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('MHC İyileşmesi', 'MHC Improvement')}</div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#34d399' }}>
                     -${craftResult.result.absolute_improvement.toLocaleString(undefined, { minimumFractionDigits: 2 })}{' '}
                     <span style={{ fontSize: '0.9rem', color: '#10b981' }}>
@@ -1239,14 +1263,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Swaps Accepted / Iterations</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Kabul Edilen Değişim / İterasyon', 'Swaps Accepted / Iterations')}</div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {craftResult.result.accepted_swaps.length} swaps / {craftResult.result.iterations} iters
+                    {craftResult.result.accepted_swaps.length} {t('değişim', 'swaps')} / {craftResult.result.iterations} {t('iter.', 'iters')}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Stopping Reason</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Durdurma Nedeni', 'Stopping Reason')}</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
                     <span
                       style={{
@@ -1280,7 +1304,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>Initial Layout (Before)</h3>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('Başlangıç Yerleşimi (Önce)', 'Initial Layout (Before)')}</h3>
                     <span
                       style={{
                         fontSize: '0.75rem',
@@ -1306,7 +1330,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>CRAFT Optimized Layout (After)</h3>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t('CRAFT Optimize Yerleşim (Sonra)', 'CRAFT Optimized Layout (After)')}</h3>
                     <span
                       style={{
                         fontSize: '0.75rem',
@@ -1334,25 +1358,28 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 }}
               >
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                  Accepted Department Exchanges ({craftResult.result.accepted_swaps.length})
+                  {t('Kabul Edilen Bölüm Değişimleri', 'Accepted Department Exchanges')} ({craftResult.result.accepted_swaps.length})
                 </h4>
 
                 {craftResult.result.accepted_swaps.length === 0 ? (
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>
-                    No pairwise swaps improved the layout. Layout was already at a local minimum for eligible swaps ({craftResult.result.termination_reason}).
+                    {t(
+                      `Hiçbir ikili değişim yerleşimi iyileştirmedi. Yerleşim uygun değişimler için zaten yerel minimumdaydı (${craftResult.result.termination_reason}).`,
+                      `No pairwise swaps improved the layout. Layout was already at a local minimum for eligible swaps (${craftResult.result.termination_reason}).`
+                    )}
                   </div>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
                       <thead>
                         <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
-                          <th style={{ padding: '0.5rem' }}>Iteration</th>
-                          <th style={{ padding: '0.5rem' }}>Exchanged Departments</th>
-                          <th style={{ padding: '0.5rem' }}>Swap Type</th>
-                          <th style={{ padding: '0.5rem' }}>MHC Before</th>
-                          <th style={{ padding: '0.5rem' }}>MHC After</th>
-                          <th style={{ padding: '0.5rem' }}>Reduction (ΔMHC)</th>
-                          <th style={{ padding: '0.5rem' }}>Cumulative Reduction</th>
+                          <th style={{ padding: '0.5rem' }}>{t('İterasyon', 'Iteration')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Değiştirilen Bölümler', 'Exchanged Departments')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Değişim Türü', 'Swap Type')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Önceki MHC', 'MHC Before')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Sonraki MHC', 'MHC After')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Azalma (ΔMHC)', 'Reduction (ΔMHC)')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Kümülatif Azalma', 'Cumulative Reduction')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1373,7 +1400,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                                   color: s.is_rotational ? '#c084fc' : '#60a5fa',
                                 }}
                               >
-                                {s.is_rotational ? '90° Rotational' : 'Direct Coordinate'}
+                                {s.is_rotational ? t('90° Döndürmeli', '90° Rotational') : t('Doğrudan Koordinat', 'Direct Coordinate')}
                               </span>
                             </td>
                             <td style={{ padding: '0.5rem' }}>${s.mhc_before.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
@@ -1402,7 +1429,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 }}
               >
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                  Iteration Trace Diagnostic History ({craftResult.trace.steps.length} Steps)
+                  {t('İterasyon İzleme Tanılama Geçmişi', 'Iteration Trace Diagnostic History')} ({craftResult.trace.steps.length} {t('Adım', 'Steps')})
                 </h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '350px', overflowY: 'auto' }}>
@@ -1422,22 +1449,22 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                            <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>Iteration #{step.iteration}</span>
+                            <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t('İterasyon', 'Iteration')} #{step.iteration}</span>
                             {step.selected_swap ? (
                               <span style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 600 }}>
-                                Swapped {step.selected_swap.dept_a} ↔ {step.selected_swap.dept_b} (-${step.selected_swap.improvement})
+                                {t('Değiştirildi:', 'Swapped')} {step.selected_swap.dept_a} ↔ {step.selected_swap.dept_b} (-${step.selected_swap.improvement})
                               </span>
                             ) : (
                               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                No Improving Swap Found (Terminated)
+                                {t('İyileştirici Değişim Bulunamadı (Sonlandırıldı)', 'No Improving Swap Found (Terminated)')}
                               </span>
                             )}
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            <span>Candidates: {step.candidate_pairs}</span>
-                            <span>Feasible: {step.feasible_candidates}</span>
-                            <span>Rejected: {step.rejected_candidates}</span>
+                            <span>{t('Adaylar:', 'Candidates:')} {step.candidate_pairs}</span>
+                            <span>{t('Uygun:', 'Feasible:')} {step.feasible_candidates}</span>
+                            <span>{t('Reddedilen:', 'Rejected:')} {step.rejected_candidates}</span>
                             <span>MHC: ${step.mhc_after.toFixed(2)}</span>
                           </div>
                         </div>
@@ -1455,9 +1482,9 @@ export const AlgorithmRunnerCard: React.FC = () => {
                             }}
                           >
                             <div>
-                              <strong>Rejection Breakdown:</strong>{' '}
+                              <strong>{t('Reddetme Dağılımı:', 'Rejection Breakdown:')}</strong>{' '}
                               {Object.keys(step.rejection_breakdown).length === 0 ? (
-                                <span style={{ color: 'var(--text-muted)' }}>None</span>
+                                <span style={{ color: 'var(--text-muted)' }}>{t('Yok', 'None')}</span>
                               ) : (
                                 Object.entries(step.rejection_breakdown).map(([cause, cnt]) => (
                                   <span key={cause} style={{ marginRight: '0.75rem', color: '#f87171' }}>
@@ -1469,12 +1496,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
                             {step.candidate_evaluations && (
                               <div style={{ marginTop: '0.25rem' }}>
-                                <strong>Detailed Candidate Evaluations:</strong>
+                                <strong>{t('Ayrıntılı Aday Değerlendirmeleri:', 'Detailed Candidate Evaluations:')}</strong>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
                                   {step.candidate_evaluations.map((ce, idx) => (
                                     <div key={idx} style={{ color: ce.is_feasible ? '#34d399' : '#f87171' }}>
-                                      {ce.pair[0]} ↔ {ce.pair[1]} {ce.is_rotational ? '(Rotated)' : ''}:{' '}
-                                      {ce.is_feasible ? `Feasible (MHC: $${ce.mhc_after?.toFixed(2)}, Imp: $${ce.improvement?.toFixed(2)})` : `Infeasible (${ce.rejection_reason})`}
+                                      {ce.pair[0]} ↔ {ce.pair[1]} {ce.is_rotational ? t('(Döndürülmüş)', '(Rotated)') : ''}:{' '}
+                                      {ce.is_feasible
+                                        ? t(`Uygun (MHC: $${ce.mhc_after?.toFixed(2)}, İyileşme: $${ce.improvement?.toFixed(2)})`, `Feasible (MHC: $${ce.mhc_after?.toFixed(2)}, Imp: $${ce.improvement?.toFixed(2)})`)
+                                        : t(`Uygun Değil (${ce.rejection_reason})`, `Infeasible (${ce.rejection_reason})`)}
                                     </div>
                                   ))}
                                 </div>
@@ -1512,7 +1541,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
           >
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Target Problem:
+                {t('Hedef Problem:', 'Target Problem:')}
               </label>
               <select
                 value={selectedProblemId}
@@ -1530,7 +1559,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               >
                 {problems.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.department_count} depts)
+                    {p.name} ({p.department_count} {t('bölüm', 'depts')})
                   </option>
                 ))}
               </select>
@@ -1538,7 +1567,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Candidates Count (K):
+                {t('Aday Sayısı (K):', 'Candidates Count (K):')}
               </label>
               <input
                 type="number"
@@ -1561,7 +1590,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Base Random Seed:
+                {t('Temel Rastgele Tohum (Seed):', 'Base Random Seed:')}
               </label>
               <input
                 type="number"
@@ -1582,7 +1611,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Cell Size (m):
+                {t('Hücre Boyutu (m):', 'Cell Size (m):')}
               </label>
               <input
                 type="number"
@@ -1605,7 +1634,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Strip Width (cells):
+                {t('Şerit Genişliği (hücre):', 'Strip Width (cells):')}
               </label>
               <input
                 type="number"
@@ -1628,7 +1657,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Sweep Direction:
+                {t('Tarama Yönü:', 'Sweep Direction:')}
               </label>
               <select
                 value={aldepSweepDirection}
@@ -1644,14 +1673,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="VERTICAL">Vertical Strips (Serpentine Columns)</option>
-                <option value="HORIZONTAL">Horizontal Strips (Serpentine Rows)</option>
+                <option value="VERTICAL">{t('Dikey Şeritler (Yılankavi Sütunlar)', 'Vertical Strips (Serpentine Columns)')}</option>
+                <option value="HORIZONTAL">{t('Yatay Şeritler (Yılankavi Satırlar)', 'Horizontal Strips (Serpentine Rows)')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Selection Threshold (T):
+                {t('Seçim Eşiği (T):', 'Selection Threshold (T):')}
               </label>
               <select
                 value={aldepThreshold}
@@ -1667,17 +1696,17 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value={16.0}>16.0 — Absolutely Necessary ('A' only)</option>
-                <option value={8.0}>8.0 — Especially Important ('E' or higher - Default)</option>
-                <option value={4.0}>4.0 — Important ('I' or higher)</option>
-                <option value={2.0}>2.0 — Ordinary Closeness ('O' or higher)</option>
-                <option value={0.0}>0.0 — Any Closeness ('U' or higher)</option>
+                <option value={16.0}>{t("16.0 — Kesinlikle Gerekli (Yalnızca 'A')", "16.0 — Absolutely Necessary ('A' only)")}</option>
+                <option value={8.0}>{t("8.0 — Çok Önemli ('E' veya üstü - Varsayılan)", "8.0 — Especially Important ('E' or higher - Default)")}</option>
+                <option value={4.0}>{t("4.0 — Önemli ('I' veya üstü)", "4.0 — Important ('I' or higher)")}</option>
+                <option value={2.0}>{t("2.0 — Olağan Yakınlık ('O' veya üstü)", "2.0 — Ordinary Closeness ('O' or higher)")}</option>
+                <option value={0.0}>{t("0.0 — Herhangi Bir Yakınlık ('U' veya üstü)", "0.0 — Any Closeness ('U' or higher)")}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Strip Splitting Mode:
+                {t('Şerit Bölme Modu:', 'Strip Splitting Mode:')}
               </label>
               <select
                 value={aldepAllowSplitting ? 'true' : 'false'}
@@ -1693,14 +1722,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="true">Classical ALDEP (Continuous Serpentine Wraps)</option>
-                <option value="false">FLODSS Adaptation (No Strip Splitting - Rectangular)</option>
+                <option value="true">{t('Klasik ALDEP (Sürekli Yılankavi Sarma)', 'Classical ALDEP (Continuous Serpentine Wraps)')}</option>
+                <option value="false">{t('FLODSS Uyarlaması (Şerit Bölmesiz - Dikdörtgensel)', 'FLODSS Adaptation (No Strip Splitting - Rectangular)')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Tie-Breaker Rule:
+                {t('Eşitlik Bozma Kuralı:', 'Tie-Breaker Rule:')}
               </label>
               <select
                 value={aldepTieBreaker}
@@ -1716,14 +1745,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="RANDOM_AMONG_MAX">Random Among Tied Maxima (Classical)</option>
-                <option value="RANDOM_AMONG_THRESHOLD">Random Among All Above Threshold</option>
+                <option value="RANDOM_AMONG_MAX">{t('Eşit Maksimumlar Arasından Rastgele (Klasik)', 'Random Among Tied Maxima (Classical)')}</option>
+                <option value="RANDOM_AMONG_THRESHOLD">{t('Eşik Üzerindeki Tüm Adaylardan Rastgele', 'Random Among All Above Threshold')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Trace Detail Level:
+                {t('İzleme Ayrıntı Düzeyi:', 'Trace Detail Level:')}
               </label>
               <select
                 value={aldepTraceLevel}
@@ -1739,8 +1768,8 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="SUMMARY">Summary Trace</option>
-                <option value="DETAILED">Detailed Step-by-Step Trace</option>
+                <option value="SUMMARY">{t('Özet İzleme', 'Summary Trace')}</option>
+                <option value="DETAILED">{t('Adım Adım Ayrıntılı İzleme', 'Detailed Step-by-Step Trace')}</option>
               </select>
             </div>
 
@@ -1765,7 +1794,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   gap: '0.5rem',
                 }}
               >
-                {aldepRunning ? 'Generating Candidates...' : 'Run ALDEP Construction Heuristic'}
+                {aldepRunning ? t('Adaylar Üretiliyor...', 'Generating Candidates...') : t('ALDEP Kurucu Sezgiselini Çalıştır', 'Run ALDEP Construction Heuristic')}
               </button>
             </div>
           </div>
@@ -1797,12 +1826,12 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       padding: '1rem',
                     }}
                   >
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Top Candidate</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('En İyi Aday', 'Top Candidate')}</div>
                     <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fbbf24', marginTop: '0.25rem' }}>
-                      Candidate #{aldepResult.best_candidate.candidate_index}
+                      {t('Aday', 'Candidate')} #{aldepResult.best_candidate.candidate_index}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      Seed: {aldepResult.best_candidate.seed}
+                      {t('Tohum:', 'Seed:')} {aldepResult.best_candidate.seed}
                     </div>
                   </div>
 
@@ -1814,14 +1843,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       padding: '1rem',
                     }}
                   >
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Best Material Handling Cost</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('En İyi Malzeme Taşıma Maliyeti', 'Best Material Handling Cost')}</div>
                     <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#34d399', marginTop: '0.25rem' }}>
                       {aldepResult.best_candidate.material_handling_cost != null
                         ? `$${aldepResult.best_candidate.material_handling_cost.toLocaleString()}`
-                        : 'N/A'}
+                        : t('Yok', 'N/A')}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      Flow Distance: {aldepResult.best_candidate.flow_distance?.toFixed(1) ?? 'N/A'} m
+                      {t('Akış Mesafesi:', 'Flow Distance:')} {aldepResult.best_candidate.flow_distance?.toFixed(1) ?? t('Yok', 'N/A')} m
                     </div>
                   </div>
 
@@ -1833,12 +1862,12 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       padding: '1rem',
                     }}
                   >
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Diversity & Validity</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Çeşitlilik ve Geçerlilik', 'Diversity & Validity')}</div>
                     <div style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>
                       {aldepResult.trace.unique_candidate_count} / {aldepResult.trace.number_of_candidates}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      Unique Candidates (Feasible: {aldepResult.trace.feasible_candidate_count})
+                      {t(`Benzersiz Aday (Uygun: ${aldepResult.trace.feasible_candidate_count})`, `Unique Candidates (Feasible: ${aldepResult.trace.feasible_candidate_count})`)}
                     </div>
                   </div>
 
@@ -1850,12 +1879,12 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       padding: '1rem',
                     }}
                   >
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Execution Runtime</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Çalışma Süresi', 'Execution Runtime')}</div>
                     <div style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>
                       {aldepResult.trace.execution_time_seconds.toFixed(3)}s
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      {aldepResult.trace.number_of_candidates} stochastic runs
+                      {aldepResult.trace.number_of_candidates} {t('stokastik çalıştırma', 'stochastic runs')}
                     </div>
                   </div>
                 </div>
@@ -1870,20 +1899,20 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                    Generated Candidate Layout Portfolio ({aldepResult.candidates.length} Alternatives)
+                    {t('Üretilen Aday Yerleşim Portföyü', 'Generated Candidate Layout Portfolio')} ({aldepResult.candidates.length} {t('Alternatif', 'Alternatives')})
                   </h3>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead>
                         <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textAlign: 'left' }}>
-                          <th style={{ padding: '0.5rem' }}>Candidate</th>
-                          <th style={{ padding: '0.5rem' }}>Seed</th>
-                          <th style={{ padding: '0.5rem' }}>Department Sequence</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Aday', 'Candidate')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Tohum', 'Seed')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Bölüm Sırası', 'Department Sequence')}</th>
                           <th style={{ padding: '0.5rem' }}>MHC ($)</th>
-                          <th style={{ padding: '0.5rem' }}>Flow Dist</th>
-                          <th style={{ padding: '0.5rem' }}>REL Score</th>
-                          <th style={{ padding: '0.5rem' }}>Status</th>
-                          <th style={{ padding: '0.5rem' }}>Action</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Akış Mes.', 'Flow Dist')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('REL Skoru', 'REL Score')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('Durum', 'Status')}</th>
+                          <th style={{ padding: '0.5rem' }}>{t('İşlem', 'Action')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1901,31 +1930,31 @@ export const AlgorithmRunnerCard: React.FC = () => {
                               }}
                             >
                               <td style={{ padding: '0.5rem', fontWeight: 600 }}>
-                                #{cand.candidate_index} {isBest && <span style={{ color: '#fbbf24', fontSize: '0.7rem' }}>(Best)</span>}
+                                #{cand.candidate_index} {isBest && <span style={{ color: '#fbbf24', fontSize: '0.7rem' }}>{t('(En İyi)', '(Best)')}</span>}
                               </td>
                               <td style={{ padding: '0.5rem' }}>{cand.seed}</td>
                               <td style={{ padding: '0.5rem', fontFamily: 'monospace', fontSize: '0.75rem' }}>
                                 {cand.department_order.join(' → ')}
                               </td>
                               <td style={{ padding: '0.5rem', fontWeight: 600, color: '#34d399' }}>
-                                {cand.material_handling_cost != null ? `$${cand.material_handling_cost.toLocaleString()}` : 'N/A'}
+                                {cand.material_handling_cost != null ? `$${cand.material_handling_cost.toLocaleString()}` : t('Yok', 'N/A')}
                               </td>
                               <td style={{ padding: '0.5rem' }}>
-                                {cand.flow_distance != null ? cand.flow_distance.toFixed(1) : 'N/A'}
+                                {cand.flow_distance != null ? cand.flow_distance.toFixed(1) : t('Yok', 'N/A')}
                               </td>
                               <td style={{ padding: '0.5rem' }}>
-                                {cand.relationship_score != null ? cand.relationship_score.toFixed(1) : 'N/A'}
+                                {cand.relationship_score != null ? cand.relationship_score.toFixed(1) : t('Yok', 'N/A')}
                               </td>
                               <td style={{ padding: '0.5rem' }}>
                                 {cand.is_feasible ? (
-                                  <span style={{ color: '#34d399', fontSize: '0.75rem', fontWeight: 600 }}>Feasible</span>
+                                  <span style={{ color: '#34d399', fontSize: '0.75rem', fontWeight: 600 }}>{t('Uygun', 'Feasible')}</span>
                                 ) : cand.is_complete ? (
-                                  <span style={{ color: '#fbbf24', fontSize: '0.75rem' }}>Complete (Warnings)</span>
+                                  <span style={{ color: '#fbbf24', fontSize: '0.75rem' }}>{t('Tam (Uyarılı)', 'Complete (Warnings)')}</span>
                                 ) : (
-                                  <span style={{ color: '#f87171', fontSize: '0.75rem' }}>Incomplete ({cand.placed_department_count}/{cand.total_department_count})</span>
+                                  <span style={{ color: '#f87171', fontSize: '0.75rem' }}>{t('Eksik', 'Incomplete')} ({cand.placed_department_count}/{cand.total_department_count})</span>
                                 )}
                                 {cand.is_duplicate && (
-                                  <span style={{ marginLeft: '0.4rem', color: 'var(--text-muted)', fontSize: '0.7rem' }}>(Dup #{cand.duplicate_of_index})</span>
+                                  <span style={{ marginLeft: '0.4rem', color: 'var(--text-muted)', fontSize: '0.7rem' }}>({t('Tekrar', 'Dup')} #{cand.duplicate_of_index})</span>
                                 )}
                               </td>
                               <td style={{ padding: '0.5rem' }}>
@@ -1944,7 +1973,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                                     cursor: 'pointer',
                                   }}
                                 >
-                                  {isSelected ? 'Viewing' : 'Inspect'}
+                                  {isSelected ? t('Görüntüleniyor', 'Viewing') : t('İncele', 'Inspect')}
                                 </button>
                               </td>
                             </tr>
@@ -1966,10 +1995,10 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>
-                      Candidate #{activeCand.candidate_index} Layout Preview & Shape Diagnostics
+                      {t(`Aday #${activeCand.candidate_index} Yerleşim Önizlemesi ve Şekil Tanılaması`, `Candidate #${activeCand.candidate_index} Layout Preview & Shape Diagnostics`)}
                     </h3>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Signature: {activeCand.layout_signature.slice(0, 16)}...
+                      {t('İmza:', 'Signature:')} {activeCand.layout_signature.slice(0, 16)}...
                     </span>
                   </div>
 
@@ -1977,7 +2006,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     {/* 2D Canvas Layout */}
                     <div>
                       <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                        2D Spatial Coordinates ({facW}m × {facH}m)
+                        {t('2D Mekânsal Koordinatlar', '2D Spatial Coordinates')} ({facW}m × {facH}m)
                       </div>
                       <LayoutCanvas
                         layout={activeCand.continuous_layout}
@@ -1987,18 +2016,18 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     {/* Shape Diagnostics Table */}
                     <div>
                       <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                        Grid Discretization & Aspect Ratios
+                        {t('Izgara Ayrıklaştırması ve En-Boy Oranları', 'Grid Discretization & Aspect Ratios')}
                       </div>
                       <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                           <thead>
                             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textAlign: 'left' }}>
-                              <th style={{ padding: '0.4rem' }}>Dept</th>
-                              <th style={{ padding: '0.4rem' }}>Req (m²)</th>
-                              <th style={{ padding: '0.4rem' }}>Alloc (m²)</th>
-                              <th style={{ padding: '0.4rem' }}>Cells</th>
-                              <th style={{ padding: '0.4rem' }}>AR</th>
-                              <th style={{ padding: '0.4rem' }}>Shape</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Bölüm', 'Dept')}</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Gerekli (m²)', 'Req (m²)')}</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Tahsis (m²)', 'Alloc (m²)')}</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Hücre', 'Cells')}</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Oran', 'AR')}</th>
+                              <th style={{ padding: '0.4rem' }}>{t('Şekil', 'Shape')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -2011,9 +2040,9 @@ export const AlgorithmRunnerCard: React.FC = () => {
                                 <td style={{ padding: '0.4rem' }}>{diag.aspect_ratio.toFixed(2)}</td>
                                 <td style={{ padding: '0.4rem' }}>
                                   {diag.is_rectangular ? (
-                                    <span style={{ color: '#34d399' }}>Rectangular</span>
+                                    <span style={{ color: '#34d399' }}>{t('Dikdörtgensel', 'Rectangular')}</span>
                                   ) : (
-                                    <span style={{ color: '#fbbf24' }}>Serpentine</span>
+                                    <span style={{ color: '#fbbf24' }}>{t('Yılankavi', 'Serpentine')}</span>
                                   )}
                                 </td>
                               </tr>
@@ -2036,7 +2065,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     }}
                   >
                     <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                      Department Selection Decision Trace ({activeCand.selection_steps.length} Steps)
+                      {t('Bölüm Seçimi Karar İzi', 'Department Selection Decision Trace')} ({activeCand.selection_steps.length} {t('Adım', 'Steps')})
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
                       {activeCand.selection_steps.map((step) => {
@@ -2056,8 +2085,8 @@ export const AlgorithmRunnerCard: React.FC = () => {
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                <span style={{ fontWeight: 600 }}>Step #{step.step_number}</span>
-                                <span style={{ color: '#fbbf24', fontWeight: 600 }}>Placed: {step.selected_department}</span>
+                                <span style={{ fontWeight: 600 }}>{t('Adım', 'Step')} #{step.step_number}</span>
+                                <span style={{ color: '#fbbf24', fontWeight: 600 }}>{t('Yerleştirilen:', 'Placed:')} {step.selected_department}</span>
                                 <span
                                   style={{
                                     fontSize: '0.7rem',
@@ -2081,15 +2110,15 @@ export const AlgorithmRunnerCard: React.FC = () => {
                                 </span>
                               </div>
                               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                {step.last_department_id ? `Affinity with ${step.last_department_id}` : 'Initial Seed Choice'}
+                                {step.last_department_id ? t(`${step.last_department_id} ile yakınlık`, `Affinity with ${step.last_department_id}`) : t('Başlangıç Tohum Seçimi', 'Initial Seed Choice')}
                               </span>
                             </div>
 
                             {isExpanded && (
                               <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                <div><strong>Eligible Candidates (Score ≥ {step.threshold}):</strong> {step.eligible_candidates.join(', ') || 'None (Fallback to random unplaced)'}</div>
+                                <div><strong>{t(`Uygun Adaylar (Skor ≥ ${step.threshold}):`, `Eligible Candidates (Score ≥ ${step.threshold}):`)}</strong> {step.eligible_candidates.join(', ') || t('Yok (Yerleştirilmemişlerden rastgele seçim)', 'None (Fallback to random unplaced)')}</div>
                                 <div style={{ marginTop: '0.25rem' }}>
-                                  <strong>Candidate Affinity Scores:</strong>{' '}
+                                  <strong>{t('Aday Yakınlık Skorları:', 'Candidate Affinity Scores:')}</strong>{' '}
                                   {Object.entries(step.candidate_scores).map(([d, s]) => `${d}: ${s}`).join(' | ')}
                                 </div>
                               </div>
@@ -2126,7 +2155,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
           >
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Target Problem:
+                {t('Hedef Problem:', 'Target Problem:')}
               </label>
               <select
                 value={selectedProblemId}
@@ -2144,7 +2173,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               >
                 {problems.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.department_count} depts)
+                    {p.name} ({p.department_count} {t('bölüm', 'depts')})
                   </option>
                 ))}
               </select>
@@ -2152,7 +2181,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Search Strategy:
+                {t('Arama Stratejisi:', 'Search Strategy:')}
               </label>
               <select
                 value={genStrategy}
@@ -2168,15 +2197,15 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="guillotine_row_packing">Guillotine Row Packing (Industrial Bays)</option>
-                <option value="free_rectangle_dfs">Free-Rectangle Backtracking (MER DFS)</option>
-                <option value="slicing_tree_decomposition">Slicing Tree Decomposition (Recursive)</option>
+                <option value="guillotine_row_packing">{t('Giyotin Sıra Paketleme (Endüstriyel Holler)', 'Guillotine Row Packing (Industrial Bays)')}</option>
+                <option value="free_rectangle_dfs">{t('Serbest Dikdörtgen Geri İzleme (MER DFS)', 'Free-Rectangle Backtracking (MER DFS)')}</option>
+                <option value="slicing_tree_decomposition">{t('Dilimleme Ağacı Ayrıştırması (Özyinelemeli)', 'Slicing Tree Decomposition (Recursive)')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Department Ordering:
+                {t('Bölüm Sıralaması:', 'Department Ordering:')}
               </label>
               <select
                 value={genOrderingStrategy}
@@ -2192,16 +2221,16 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
-                <option value="most_constrained_first">Most Constrained First (Area × AR)</option>
-                <option value="largest_area_first">Largest Area First</option>
-                <option value="flow_volume_descending">Flow Volume Descending</option>
-                <option value="relationship_weight_descending">Relationship Weight Descending</option>
+                <option value="most_constrained_first">{t('Önce En Kısıtlı (Alan × En-Boy Oranı)', 'Most Constrained First (Area × AR)')}</option>
+                <option value="largest_area_first">{t('Önce En Büyük Alan', 'Largest Area First')}</option>
+                <option value="flow_volume_descending">{t('Azalan Akış Hacmine Göre', 'Flow Volume Descending')}</option>
+                <option value="relationship_weight_descending">{t('Azalan İlişki Ağırlığına Göre', 'Relationship Weight Descending')}</option>
               </select>
             </div>
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Max Tree Nodes:
+                {t('Maks. Ağaç Düğümü:', 'Max Tree Nodes:')}
               </label>
               <input
                 type="number"
@@ -2225,7 +2254,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Max Backtracks:
+                {t('Maks. Geri İzleme:', 'Max Backtracks:')}
               </label>
               <input
                 type="number"
@@ -2249,7 +2278,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Max Wall Timeout (s):
+                {t('Maks. Süre Sınırı (sn):', 'Max Wall Timeout (s):')}
               </label>
               <input
                 type="number"
@@ -2273,7 +2302,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Shape Alternatives / Dept:
+                {t('Bölüm Başına Şekil Alternatifi:', 'Shape Alternatives / Dept:')}
               </label>
               <input
                 type="number"
@@ -2297,7 +2326,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-                Candidate Limit / Dept:
+                {t('Bölüm Başına Aday Sınırı:', 'Candidate Limit / Dept:')}
               </label>
               <input
                 type="number"
@@ -2342,10 +2371,10 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 {genRunning ? (
                   <>
                     <span className="spinner" style={{ width: '14px', height: '14px' }}></span>
-                    Searching Feasible Layout...
+                    {t('Uygun Yerleşim Aranıyor...', 'Searching Feasible Layout...')}
                   </>
                 ) : (
-                  'Run Feasible Generator'
+                  t('Uygun Yerleşim Üreticisini Çalıştır', 'Run Feasible Generator')
                 )}
               </button>
             </div>
@@ -2392,21 +2421,24 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       {genResult.result.termination_reason}
                     </span>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
-                      Placed {genResult.result.placed_department_count} / {genResult.result.total_department_count} Departments
+                      {t(
+                        `${genResult.result.placed_department_count} / ${genResult.result.total_department_count} Bölüm Yerleştirildi`,
+                        `Placed ${genResult.result.placed_department_count} / ${genResult.result.total_department_count} Departments`
+                      )}
                     </span>
                   </div>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                    Strategy: <strong style={{ color: 'var(--text-primary)' }}>{genResult.result.strategy}</strong> | Runtime:{' '}
-                    <strong>{genResult.result.runtime_seconds.toFixed(4)}s</strong> | Nodes Explored:{' '}
-                    <strong>{genResult.result.nodes_explored}</strong> | Backtracks:{' '}
-                    <strong>{genResult.result.backtracks}</strong> | Rejected Candidates:{' '}
+                    {t('Strateji:', 'Strategy:')} <strong style={{ color: 'var(--text-primary)' }}>{genResult.result.strategy}</strong> | {t('Süre:', 'Runtime:')}{' '}
+                    <strong>{genResult.result.runtime_seconds.toFixed(4)}s</strong> | {t('İncelenen Düğüm:', 'Nodes Explored:')}{' '}
+                    <strong>{genResult.result.nodes_explored}</strong> | {t('Geri İzleme:', 'Backtracks:')}{' '}
+                    <strong>{genResult.result.backtracks}</strong> | {t('Reddedilen Aday:', 'Rejected Candidates:')}{' '}
                     <strong>{genResult.result.candidates_rejected}</strong>
                   </p>
                 </div>
 
                 {genResult.result.layout_signature && (
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Deterministic Signature:</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('Deterministik İmza:', 'Deterministic Signature:')}</div>
                     <code style={{ fontSize: '0.75rem', color: '#a78bfa' }}>
                       {genResult.result.layout_signature.slice(0, 16)}...
                     </code>
@@ -2425,7 +2457,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                    Generated Feasible Continuous Layout
+                    {t('Üretilen Uygun Sürekli Yerleşim', 'Generated Feasible Continuous Layout')}
                   </h4>
                   <LayoutCanvas layout={genResult.result.layout} />
                 </div>
@@ -2453,23 +2485,23 @@ export const AlgorithmRunnerCard: React.FC = () => {
                       <span style={{ color: genResult.validation.is_valid ? '#10b981' : '#ef4444' }}>
                         {genResult.validation.is_valid ? '✓' : '✗'}
                       </span>
-                      Geometric Validation (Rectangular Integrity)
+                      {t('Geometrik Doğrulama (Dikdörtgensel Bütünlük)', 'Geometric Validation (Rectangular Integrity)')}
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
-                      <div>Total Overlap Area:</div>
+                      <div>{t('Toplam Çakışma Alanı:', 'Total Overlap Area:')}</div>
                       <div style={{ fontWeight: 600, color: genResult.validation.total_overlap_area === 0 ? '#10b981' : '#ef4444' }}>
                         {genResult.validation.total_overlap_area.toFixed(2)} m²
                       </div>
-                      <div>Boundary Violations:</div>
+                      <div>{t('Sınır İhlalleri:', 'Boundary Violations:')}</div>
                       <div style={{ fontWeight: 600 }}>
                         {genResult.validation.errors.filter((e) => e.toLowerCase().includes('boundary')).length}
                       </div>
-                      <div>Validated Departments:</div>
+                      <div>{t('Doğrulanan Bölümler:', 'Validated Departments:')}</div>
                       <div style={{ fontWeight: 600 }}>{genResult.validation.checked_departments.length}</div>
                     </div>
                     {genResult.validation.errors.length > 0 && (
                       <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#f87171' }}>
-                        <strong>Fatal Errors:</strong>
+                        <strong>{t('Kritik Hatalar:', 'Fatal Errors:')}</strong>
                         <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
                           {genResult.validation.errors.map((e, idx) => (
                             <li key={idx}>{e}</li>
@@ -2491,26 +2523,26 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     }}
                   >
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                      Multi-Criteria Evaluation Scores
+                      {t('Çok Ölçütlü Değerlendirme Skorları', 'Multi-Criteria Evaluation Scores')}
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
-                      <div>Material Handling Cost (MHC):</div>
+                      <div>{t('Malzeme Taşıma Maliyeti (MHC):', 'Material Handling Cost (MHC):')}</div>
                       <div style={{ fontWeight: 700, color: '#38bdf8' }}>
-                        ${genResult.evaluation.objective_values['material_handling_cost']?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? 'N/A'}
+                        ${genResult.evaluation.objective_values['material_handling_cost']?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? t('Yok', 'N/A')}
                       </div>
-                      <div>Flow-Distance Score:</div>
+                      <div>{t('Akış-Mesafe Skoru:', 'Flow-Distance Score:')}</div>
                       <div style={{ fontWeight: 600 }}>
-                        {genResult.evaluation.objective_values['flow_distance']?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? 'N/A'}
+                        {genResult.evaluation.objective_values['flow_distance']?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? t('Yok', 'N/A')}
                       </div>
-                      <div>Relationship Satisfaction:</div>
+                      <div>{t('İlişki Memnuniyeti:', 'Relationship Satisfaction:')}</div>
                       <div style={{ fontWeight: 600, color: '#10b981' }}>
-                        {genResult.evaluation.objective_values['relationship_satisfaction_percentage']?.toFixed(1) ?? 'N/A'}%
+                        {genResult.evaluation.objective_values['relationship_satisfaction_percentage']?.toFixed(1) ?? t('Yok', 'N/A')}%
                       </div>
-                      <div>Hard Constraint Violations:</div>
+                      <div>{t('Kesin Kısıt İhlalleri:', 'Hard Constraint Violations:')}</div>
                       <div style={{ fontWeight: 600, color: genResult.evaluation.hard_violation_count === 0 ? '#10b981' : '#ef4444' }}>
                         {genResult.evaluation.hard_violation_count}
                       </div>
-                      <div>Area Utilization:</div>
+                      <div>{t('Alan Kullanımı:', 'Area Utilization:')}</div>
                       <div style={{ fontWeight: 600 }}>
                         {(genResult.evaluation.objective_values['area_utilization'] ? genResult.evaluation.objective_values['area_utilization'] * 100 : 91.67).toFixed(1)}%
                       </div>
@@ -2530,7 +2562,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <h4 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f87171', marginBottom: '0.5rem' }}>
-                    Search Failure Diagnostics
+                    {t('Arama Başarısızlık Tanılaması', 'Search Failure Diagnostics')}
                   </h4>
                   <pre style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', overflowX: 'auto', margin: 0 }}>
                     {JSON.stringify(genResult.result.failure_diagnostics, null, 2)}
@@ -2557,7 +2589,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
             }}
           >
             <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: '#f472b6' }}>
-              Genetic Algorithm Configuration (Flexible Bay Structure)
+              {t('Genetik Algoritma Yapılandırması (Esnek Hol Yapısı - FBS)', 'Genetic Algorithm Configuration (Flexible Bay Structure)')}
             </h3>
 
             <div
@@ -2570,7 +2602,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
             >
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Population Size
+                  {t('Popülasyon Boyutu', 'Population Size')}
                 </label>
                 <input
                   type="number"
@@ -2592,7 +2624,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Max Generations
+                  {t('Maks. Nesil Sayısı', 'Max Generations')}
                 </label>
                 <input
                   type="number"
@@ -2614,7 +2646,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Crossover Rate (OX)
+                  {t('Çaprazlama Oranı (OX)', 'Crossover Rate (OX)')}
                 </label>
                 <input
                   type="number"
@@ -2637,7 +2669,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Mutation Rate
+                  {t('Mutasyon Oranı', 'Mutation Rate')}
                 </label>
                 <input
                   type="number"
@@ -2660,7 +2692,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Tournament Size
+                  {t('Turnuva Boyutu', 'Tournament Size')}
                 </label>
                 <input
                   type="number"
@@ -2682,7 +2714,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Elitism Count
+                  {t('Elitizm Sayısı', 'Elitism Count')}
                 </label>
                 <input
                   type="number"
@@ -2704,7 +2736,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Random Seed
+                  {t('Rastgele Tohum (Seed)', 'Random Seed')}
                 </label>
                 <input
                   type="number"
@@ -2724,7 +2756,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Soft Penalty Weight (λ)
+                  {t('Esnek Ceza Ağırlığı (λ)', 'Soft Penalty Weight (λ)')}
                 </label>
                 <input
                   type="number"
@@ -2746,7 +2778,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  Bay Orientation
+                  {t('Hol Yönelimi', 'Bay Orientation')}
                 </label>
                 <select
                   value={gaOrientation}
@@ -2761,8 +2793,8 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     fontSize: '0.85rem',
                   }}
                 >
-                  <option value="horizontal">Horizontal (Bays stacked along Y)</option>
-                  <option value="vertical">Vertical (Bays stacked along X)</option>
+                  <option value="horizontal">{t('Yatay (Y ekseninde dizili holler)', 'Horizontal (Bays stacked along Y)')}</option>
+                  <option value="vertical">{t('Dikey (X ekseninde dizili holler)', 'Vertical (Bays stacked along X)')}</option>
                 </select>
               </div>
 
@@ -2773,7 +2805,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     checked={gaSeedWithGuillotine}
                     onChange={(e) => setGaSeedWithGuillotine(e.target.checked)}
                   />
-                  <span>Seed with Guillotine Packing</span>
+                  <span>{t('Giyotin Paketleme ile Başlat', 'Seed with Guillotine Packing')}</span>
                 </label>
               </div>
             </div>
@@ -2795,7 +2827,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 fontSize: '0.9rem',
               }}
             >
-              {gaRunning ? 'Evolving Generations...' : 'Run Genetic Algorithm'}
+              {gaRunning ? t('Nesiller Evrimleşiyor...', 'Evolving Generations...') : t('Genetik Algoritmayı Çalıştır', 'Run Genetic Algorithm')}
             </button>
           </div>
 
@@ -2839,14 +2871,14 @@ export const AlgorithmRunnerCard: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {gaResult.result.is_feasible ? 'FEASIBLE OPTIMUM FOUND' : 'CONSTRAINED / PENALIZED'}
+                      {gaResult.result.is_feasible ? t('UYGUN OPTİMUM BULUNDU', 'FEASIBLE OPTIMUM FOUND') : t('KISITLI / CEZALI', 'CONSTRAINED / PENALIZED')}
                     </span>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                      Termination: <strong>{gaResult.result.termination_reason}</strong>
+                      {t('Sonlanma:', 'Termination:')} <strong>{gaResult.result.termination_reason}</strong>
                     </span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Runtime: <strong>{gaResult.result.runtime_seconds.toFixed(3)}s</strong> | Generations:{' '}
+                    {t('Süre:', 'Runtime:')} <strong>{gaResult.result.runtime_seconds.toFixed(3)}s</strong> | {t('Nesil:', 'Generations:')}{' '}
                     <strong>{gaResult.result.generation_count}</strong>
                   </div>
                 </div>
@@ -2859,21 +2891,21 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   }}
                 >
                   <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Best Material Handling Cost</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('En İyi Taşıma Maliyeti (MHC)', 'Best Material Handling Cost')}</div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#38bdf8' }}>
                       ${gaResult.result.best_mhc.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </div>
                   </div>
 
                   <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Initial Generation Best MHC</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('İlk Nesil En İyi MHC', 'Initial Generation Best MHC')}</div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 600 }}>
                       ${gaResult.result.initial_mhc.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </div>
                   </div>
 
                   <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cost Improvement</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Maliyet İyileşmesi', 'Cost Improvement')}</div>
                     <div
                       style={{
                         fontSize: '1.3rem',
@@ -2888,7 +2920,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   </div>
 
                   <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Soft Penalty Cost</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Esnek Ceza Maliyeti', 'Soft Penalty Cost')}</div>
                     <div
                       style={{
                         fontSize: '1.3rem',
@@ -2901,7 +2933,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   </div>
 
                   <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Combined Fitness</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('Bileşik Uygunluk (Fitness)', 'Combined Fitness')}</div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f472b6' }}>
                       {gaResult.result.best_fitness.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </div>
@@ -2919,7 +2951,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
               >
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                    Evolved 2D Layout Canvas ({selectedProblem?.facility_width ?? 150}m × {selectedProblem?.facility_height ?? 80}m)
+                    {t('Evrimleşen 2D Yerleşim Tuvali', 'Evolved 2D Layout Canvas')} ({selectedProblem?.facility_width ?? 150}m × {selectedProblem?.facility_height ?? 80}m)
                   </div>
                   <LayoutCanvas layout={gaResult.continuous_layout} />
                 </div>
@@ -2935,17 +2967,17 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     }}
                   >
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                      Flexible Bay Structure (FBS) Chromosome
+                      {t('Esnek Hol Yapısı (FBS) Kromozomu', 'Flexible Bay Structure (FBS) Chromosome')}
                     </h4>
                     <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       <div>
-                        <strong>Orientation:</strong> {gaResult.result.best_chromosome.orientation}
+                        <strong>{t('Yönelim:', 'Orientation:')}</strong> {gaResult.result.best_chromosome.orientation}
                       </div>
                       <div>
-                        <strong>Bay Partition Sizes:</strong> [{gaResult.result.best_chromosome.bay_sizes.join(', ')}]
+                        <strong>{t('Hol Bölümleme Boyutları:', 'Bay Partition Sizes:')}</strong> [{gaResult.result.best_chromosome.bay_sizes.join(', ')}]
                       </div>
                       <div>
-                        <strong>Bay Breakdown:</strong>
+                        <strong>{t('Hol Dağılımı:', 'Bay Breakdown:')}</strong>
                         <div style={{ marginTop: '0.4rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                           {(() => {
                             const bays: string[][] = [];
@@ -2964,7 +2996,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                                   fontSize: '0.75rem',
                                 }}
                               >
-                                <strong>Bay {bIdx + 1}:</strong> {b.join(' → ')}
+                                <strong>{t('Hol', 'Bay')} {bIdx + 1}:</strong> {b.join(' → ')}
                               </div>
                             ));
                           })()}
@@ -2983,24 +3015,24 @@ export const AlgorithmRunnerCard: React.FC = () => {
                     }}
                   >
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                      Geometric Feasibility & Conservation
+                      {t('Geometrik Uygunluk ve Korunum', 'Geometric Feasibility & Conservation')}
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', fontSize: '0.8rem' }}>
-                      <div>Feasibility:</div>
+                      <div>{t('Uygunluk:', 'Feasibility:')}</div>
                       <div style={{ fontWeight: 600, color: gaResult.validation.is_valid ? '#10b981' : '#f87171' }}>
-                        {gaResult.validation.is_valid ? '100% Strictly Feasible' : 'Infeasible'}
+                        {gaResult.validation.is_valid ? t('%100 Kesin Uygun', '100% Strictly Feasible') : t('Uygun Değil', 'Infeasible')}
                       </div>
-                      <div>Overlap Area:</div>
+                      <div>{t('Çakışma Alanı:', 'Overlap Area:')}</div>
                       <div style={{ fontWeight: 600, color: gaResult.validation.total_overlap_area === 0 ? '#10b981' : '#f87171' }}>
-                        {gaResult.validation.total_overlap_area} m² (Zero Overlap)
+                        {gaResult.validation.total_overlap_area} m² ({t('Sıfır Çakışma', 'Zero Overlap')})
                       </div>
-                      <div>Departments Placed:</div>
+                      <div>{t('Yerleştirilen Bölümler:', 'Departments Placed:')}</div>
                       <div style={{ fontWeight: 600 }}>
                         {gaResult.validation.checked_departments.length} / {selectedProblem?.department_count ?? 10}
                       </div>
-                      <div>Layout Signature:</div>
+                      <div>{t('Yerleşim İmzası:', 'Layout Signature:')}</div>
                       <div style={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                        {gaResult.validation.signature ? `${gaResult.validation.signature.substring(0, 16)}...` : 'N/A'}
+                        {gaResult.validation.signature ? `${gaResult.validation.signature.substring(0, 16)}...` : t('Yok', 'N/A')}
                       </div>
                     </div>
                   </div>
@@ -3017,19 +3049,19 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 }}
               >
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                  Generational Convergence Telemetry ({gaResult.result.history.length} Sampling Points)
+                  {t('Nesilsel Yakınsama Telemetrisi', 'Generational Convergence Telemetry')} ({gaResult.result.history.length} {t('Örnekleme Noktası', 'Sampling Points')})
                 </h4>
                 <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textAlign: 'left' }}>
-                        <th style={{ padding: '0.4rem' }}>Gen</th>
-                        <th style={{ padding: '0.4rem' }}>Best Fitness</th>
-                        <th style={{ padding: '0.4rem' }}>Best MHC ($)</th>
-                        <th style={{ padding: '0.4rem' }}>Soft Penalty ($)</th>
-                        <th style={{ padding: '0.4rem' }}>Avg Fitness</th>
-                        <th style={{ padding: '0.4rem' }}>Status</th>
-                        <th style={{ padding: '0.4rem' }}>Diversity</th>
+                        <th style={{ padding: '0.4rem' }}>{t('Nesil', 'Gen')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('En İyi Uygunluk', 'Best Fitness')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('En İyi MHC ($)', 'Best MHC ($)')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('Esnek Ceza ($)', 'Soft Penalty ($)')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('Ort. Uygunluk', 'Avg Fitness')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('Durum', 'Status')}</th>
+                        <th style={{ padding: '0.4rem' }}>{t('Çeşitlilik', 'Diversity')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3052,7 +3084,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                             </td>
                             <td style={{ padding: '0.4rem' }}>
                               <span style={{ color: rec.best_is_feasible ? '#10b981' : '#f87171' }}>
-                                {rec.best_is_feasible ? 'Feasible' : 'Infeasible'}
+                                {rec.best_is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')}
                               </span>
                             </td>
                             <td style={{ padding: '0.4rem' }}>{(rec.diversity * 100).toFixed(1)}%</td>

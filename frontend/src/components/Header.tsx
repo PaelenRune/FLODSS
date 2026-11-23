@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
             {t(
-              'Karar Destek & Modüler Yöneylem Araştırması (Operations Research) Platformu • Multi-Tenant Local-First',
+              'Karar Destek ve Modüler Yöneylem Araştırması Platformu • Çok Kiracılı Yerel Öncelikli',
               'Decision Support & Modular Operations Research Platform • Multi-Tenant Local-First'
             )}
           </p>
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
               backgroundColor: user.role === 'ADMIN' ? 'rgba(239, 68, 68, 0.2)' : user.role === 'RESEARCHER' ? 'rgba(37, 99, 235, 0.2)' : 'rgba(148, 163, 184, 0.2)',
               color: user.role === 'ADMIN' ? '#f87171' : user.role === 'RESEARCHER' ? '#60a5fa' : '#cbd5e1',
             }}>
-              {user.role}
+              {user.role === 'ADMIN' ? t('YÖNETİCİ', 'ADMIN') : user.role === 'RESEARCHER' ? t('ARAŞTIRMACI', 'RESEARCHER') : user.role === 'VIEWER' ? t('İZLEYİCİ', 'VIEWER') : user.role}
             </span>
 
             {isAdmin && onOpenUserManagement && (

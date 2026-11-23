@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { buildCockpitData, calculateFlowMetrics, percentageDelta } from '../src/components/cockpit/CockpitDataContext';
 import { swapDepartments } from '../src/components/cockpit/liveScenarios';
 import { CockpitOverview } from '../src/components/cockpit/CockpitOverview';
+import { LanguageProvider } from '../src/context/LanguageContext';
 import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../src/types/api';
 
 const problem: FacilityLayoutProblem = {
@@ -42,11 +43,20 @@ assert.equal(buildCockpitData(null, null, null).live, false);
 const evaluation = { problem_id: problem.id, layout_signature: 'first', algorithm_name: 'GA', is_feasible: true, flow_distance: 777, material_handling_cost: 888 } as EvaluationReport;
 assert.equal(buildCockpitData(problem, { ...layout, layout_signature: 'first' }, evaluation).evaluation, evaluation);
 assert.equal(buildCockpitData(problem, { ...layout, layout_signature: 'second' }, evaluation).evaluation, null);
-const evaluatedMarkup = renderToStaticMarkup(<CockpitOverview problem={problem} layout={{ ...layout, layout_signature: 'first' }} evaluation={evaluation} onOpenWorkspace={() => {}}/>);
+const evaluatedMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="en">
+    <CockpitOverview problem={problem} layout={{ ...layout, layout_signature: 'first' }} evaluation={evaluation} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
 assert.match(evaluatedMarkup, /777/);
 assert.match(evaluatedMarkup, /888/);
 
-const render = (currentLayout: ContinuousLayout | null) => renderToStaticMarkup(<CockpitOverview problem={problem} layout={currentLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+const render = (currentLayout: ContinuousLayout | null, initialLang: 'tr' | 'en' = 'en') =>
+  renderToStaticMarkup(
+    <LanguageProvider initialLang={initialLang}>
+      <CockpitOverview problem={problem} layout={currentLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+    </LanguageProvider>
+  );
 const markup = render(layout), updated = render(nextLayout);
 assert.match(markup, /Actual cutting/);
 assert.match(markup, /130/);
@@ -57,6 +67,11 @@ assert.ok(markup.includes((3250).toLocaleString(undefined, { maximumFractionDigi
 assert.match(markup, /0% vs Baseline/);
 assert.notEqual(markup, updated);
 assert.match(render(null), /Awaiting layout/);
+const trMarkup = render(layout, 'tr');
+assert.match(trMarkup, /Gerçek çözücü geometrisi/);
+assert.match(trMarkup, /Temel Yerleşim/);
+assert.doesNotMatch(trMarkup, /NaN|Infinity/);
+assert.match(render(null, 'tr'), /Yerleşim bekleniyor/);
 console.log('Cockpit bridge: geometry updates, directional flows, live rendering and empty/mismatched layout checks passed.');
 
 const diagonal = { ...layout, layout_signature: 'original', placements: { ...layout.placements, B: { ...layout.placements.B, x: 20, y: 40 } } };
@@ -99,7 +114,11 @@ const factoryLayout: ContinuousLayout = {
   problem_id: factory.id, representation_type: 'continuous', facility_width: 120, facility_height: 100,
   placements: Object.fromEntries(factoryIds.map((id, i) => [id, { department_id: id, x: i % 5 * 24, y: Math.floor(i / 5) * 50, width: 24, height: 50 }])),
 };
-const factoryMarkup = renderToStaticMarkup(<CockpitOverview problem={factory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+const factoryMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="en">
+    <CockpitOverview problem={factory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
 assert.equal((factoryMarkup.match(/data-department=/g) ?? []).length, 10);
 assert.equal((factoryMarkup.match(/class="factory-flow"/g) ?? []).length, 9);
 assert.equal((factoryMarkup.match(/class="factory-truck"/g) ?? []).length, 4);
@@ -112,12 +131,20 @@ assert.match(factoryMarkup, /cockpit-secondary/);
 assert.doesNotMatch(factoryMarkup, /NaN|Infinity/);
 
 const denseFactory = { ...factory, flows: factoryIds.flatMap(source_department => factoryIds.filter(id => id !== source_department).map(target_department => ({ source_department, target_department, quantity: 100, unit: 'units/day' }))) };
-const denseMarkup = renderToStaticMarkup(<CockpitOverview problem={denseFactory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+const denseMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="en">
+    <CockpitOverview problem={denseFactory} layout={factoryLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
 assert.equal((denseMarkup.match(/class="factory-flow"/g) ?? []).length, 16, 'Dense matrices must not overwhelm the scene');
 for (const [width, height] of [[1000, 10], [10, 1000]]) {
   const narrow = { ...factory, facility: { ...factory.facility, width, height } };
   const narrowLayout = { ...factoryLayout, placements: Object.fromEntries(factoryIds.map((id, i) => [id, { department_id: id, x: width / 10 * i, y: 0, width: width / 10, height }])) };
-  const narrowMarkup = renderToStaticMarkup(<CockpitOverview problem={narrow} layout={narrowLayout} evaluation={null} onOpenWorkspace={() => {}}/>);
+  const narrowMarkup = renderToStaticMarkup(
+    <LanguageProvider initialLang="en">
+      <CockpitOverview problem={narrow} layout={narrowLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+    </LanguageProvider>
+  );
   assert.equal((narrowMarkup.match(/data-department=/g) ?? []).length, 10);
   assert.doesNotMatch(narrowMarkup, /NaN|Infinity/);
 }

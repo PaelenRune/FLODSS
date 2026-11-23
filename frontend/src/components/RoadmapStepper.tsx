@@ -1,16 +1,67 @@
 import React from 'react';
-
-const STAGES = [
-  { id: 'problem', name: 'Problem Modeling', desc: 'Facility, Departments, Flows, SLP Relations, Ingestion', phase: 'Phase 2', status: 'completed' },
-  { id: 'geometry', name: 'Geometry & Layouts', desc: 'Continuous/Grid representation, overlap checks, signatures', phase: 'Phase 3', status: 'completed' },
-  { id: 'constraints', name: 'Evaluation & Constraints', desc: 'Flow-Distance, MHC, Muther SLP, hard/soft constraints, multi-layout ranking', phase: 'Phase 4', status: 'completed' },
-  { id: 'optimization', name: 'Optimization Solvers', desc: 'Construction (CORELAP v1.0), explainability trace, deterministic placement', phase: 'Phase 5', status: 'active' },
-  { id: 'improvement', name: 'Improvement Heuristics', desc: 'CRAFT pairwise exchange, steepest descent improvement', phase: 'Phase 6', status: 'upcoming' },
-  { id: 'metaheuristics', name: 'Metaheuristics & GA', desc: 'Genetic Algorithms, Simulated Annealing, NSGA-II', phase: 'Phase 7', status: 'upcoming' },
-  { id: 'simulation', name: 'Dynamic Simulation', desc: 'Discrete event, aisle congestion, material flow validation', phase: 'Phase 8', status: 'upcoming' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const RoadmapStepper: React.FC = () => {
+  const { t } = useLanguage();
+
+  const stages = [
+    {
+      id: 'problem',
+      name: t('Problem Modelleme', 'Problem Modeling'),
+      desc: t('Tesis, Bölümler, Akışlar, SLP İlişkileri, Veri Girişi', 'Facility, Departments, Flows, SLP Relations, Ingestion'),
+      phase: t('Faz 2', 'Phase 2'),
+      status: 'completed' as const,
+    },
+    {
+      id: 'geometry',
+      name: t('Geometri ve Yerleşimler', 'Geometry & Layouts'),
+      desc: t('Sürekli/Izgara gösterimi, çakışma denetimi, imzalar', 'Continuous/Grid representation, overlap checks, signatures'),
+      phase: t('Faz 3', 'Phase 3'),
+      status: 'completed' as const,
+    },
+    {
+      id: 'constraints',
+      name: t('Değerlendirme ve Kısıtlar', 'Evaluation & Constraints'),
+      desc: t('Akış-Mesafe, MHC, Muther SLP, kesin/esnek kısıtlar, çoklu yerleşim sıralama', 'Flow-Distance, MHC, Muther SLP, hard/soft constraints, multi-layout ranking'),
+      phase: t('Faz 4', 'Phase 4'),
+      status: 'completed' as const,
+    },
+    {
+      id: 'optimization',
+      name: t('Optimizasyon Çözücüleri', 'Optimization Solvers'),
+      desc: t('Kurucu algoritma (CORELAP v1.0), açıklanabilirlik izi, deterministik yerleşim', 'Construction (CORELAP v1.0), explainability trace, deterministic placement'),
+      phase: t('Faz 5', 'Phase 5'),
+      status: 'active' as const,
+    },
+    {
+      id: 'improvement',
+      name: t('İyileştirme Sezgisel Algoritmaları', 'Improvement Heuristics'),
+      desc: t('CRAFT ikili değişim, en dik iniş (steepest descent) iyileştirme', 'CRAFT pairwise exchange, steepest descent improvement'),
+      phase: t('Faz 6', 'Phase 6'),
+      status: 'upcoming' as const,
+    },
+    {
+      id: 'metaheuristics',
+      name: t('Metasezgiseller ve GA', 'Metaheuristics & GA'),
+      desc: t('Genetik Algoritmalar, Tavlama Benzetimi, NSGA-II', 'Genetic Algorithms, Simulated Annealing, NSGA-II'),
+      phase: t('Faz 7', 'Phase 7'),
+      status: 'upcoming' as const,
+    },
+    {
+      id: 'simulation',
+      name: t('Dinamik Simülasyon', 'Dynamic Simulation'),
+      desc: t('Ayrık olay simülasyonu, koridor yoğunluğu, malzeme akış doğrulaması', 'Discrete event, aisle congestion, material flow validation'),
+      phase: t('Faz 8', 'Phase 8'),
+      status: 'upcoming' as const,
+    },
+  ];
+
+  const statusLabel = (status: 'completed' | 'active' | 'upcoming') => {
+    if (status === 'completed') return t('Tamamlandı', 'completed');
+    if (status === 'active') return t('Aktif', 'active');
+    return t('Planlanan', 'upcoming');
+  };
+
   return (
     <div style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -21,9 +72,14 @@ export const RoadmapStepper: React.FC = () => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>System Pipeline & Workflow Progression</h2>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+            {t('Sistem Hattı ve İş Akışı İlerlemesi', 'System Pipeline & Workflow Progression')}
+          </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Modular architecture designed for multi-stage layout exploration and decision support
+            {t(
+              'Çok aşamalı yerleşim keşfi ve karar destek için tasarlanmış modüler mimari',
+              'Modular architecture designed for multi-stage layout exploration and decision support'
+            )}
           </p>
         </div>
         <span style={{
@@ -37,7 +93,7 @@ export const RoadmapStepper: React.FC = () => {
           border: '1px solid rgba(59, 130, 246, 0.3)',
           fontWeight: 600,
         }}>
-          Phase 5: CORELAP Construction Solver Active
+          {t('Faz 5: CORELAP Kurucu Çözücü Aktif', 'Phase 5: CORELAP Construction Solver Active')}
         </span>
       </div>
 
@@ -46,7 +102,7 @@ export const RoadmapStepper: React.FC = () => {
         gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))',
         gap: '0.75rem',
       }}>
-        {STAGES.map((stage, idx) => {
+        {stages.map((stage, idx) => {
           const isActive = stage.status === 'active';
           const isCompleted = stage.status === 'completed';
           const borderColor = isActive ? 'var(--accent-color)' : isCompleted ? '#10b981' : 'var(--border-color)';
@@ -84,7 +140,7 @@ export const RoadmapStepper: React.FC = () => {
                   fontWeight: 600,
                   textTransform: 'capitalize',
                 }}>
-                  {stage.status}
+                  {statusLabel(stage.status)}
                 </span>
               </div>
               <div style={{

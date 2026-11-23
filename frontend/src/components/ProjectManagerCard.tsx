@@ -170,7 +170,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
               {t('Aktif Araştırma Projesi', 'Active Research Project')}
             </h3>
             <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>
-              {t('İzole çalışma alanı & tekrarlanabilir deney (Experiment Run) arşivi', 'Isolated workspace & reproducible experiment run archive')}
+              {t('İzole çalışma alanı ve tekrarlanabilir deney arşivi', 'Isolated workspace & reproducible experiment run archive')}
             </p>
           </div>
         </div>
@@ -311,9 +311,9 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
                   <tr style={{ borderBottom: '1px solid #334155', color: '#94a3b8', textAlign: 'left' }}>
                     <th style={{ padding: '0.4rem' }}>{t('Algoritma', 'Algorithm')}</th>
                     <th style={{ padding: '0.4rem' }}>Problem</th>
-                    <th style={{ padding: '0.4rem' }}>MHC Cost</th>
-                    <th style={{ padding: '0.4rem' }}>Runtime</th>
-                    <th style={{ padding: '0.4rem' }}>Feasibility</th>
+                    <th style={{ padding: '0.4rem' }}>{t('MHC Maliyeti', 'MHC Cost')}</th>
+                    <th style={{ padding: '0.4rem' }}>{t('Çalışma Süresi', 'Runtime')}</th>
+                    <th style={{ padding: '0.4rem' }}>{t('Uygunluk', 'Feasibility')}</th>
                     <th style={{ padding: '0.4rem', textAlign: 'right' }}>{t('İşlem', 'Action')}</th>
                   </tr>
                 </thead>
@@ -326,7 +326,7 @@ export const ProjectManagerCard: React.FC<ProjectManagerCardProps> = ({
                         <td style={{ padding: '0.4rem' }}>{r.problem_id}</td>
                         <td style={{ padding: '0.4rem' }}>{mhc !== undefined ? mhc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
                         <td style={{ padding: '0.4rem' }}>{r.runtime_ms.toFixed(1)} ms</td>
-                        <td style={{ padding: '0.4rem', color: r.is_feasible ? '#34d399' : '#f87171' }}>{r.is_feasible ? '✓ Feasible' : '✗ Infeasible'}</td>
+                        <td style={{ padding: '0.4rem', color: r.is_feasible ? '#34d399' : '#f87171' }}>{r.is_feasible ? t('✓ Uygun', '✓ Feasible') : t('✗ Uygun Değil', '✗ Infeasible')}</td>
                         <td style={{ padding: '0.4rem', textAlign: 'right' }}>
                           <button
                             onClick={() => handleLoadRun(r.id)}

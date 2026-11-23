@@ -9,6 +9,7 @@ import { LayoutVersionsTable } from './LayoutVersionsTable';
 import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../../types/api';
 import { buildCockpitData, calculateFlowMetrics, CockpitDataContext } from './CockpitDataContext';
 import { useCockpitScenarios, type CockpitScenarios } from './liveScenarios';
+import { useLanguage } from '../../context/LanguageContext';
 import './cockpit.css';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function CockpitOverview({ onOpenWorkspace, problem, layout, evaluation, liveScenarios }: Props) {
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<string | null>(null);
   const [scenario, setScenario] = useState(1);
   const localScenarios = useCockpitScenarios(problem, layout, evaluation);
@@ -39,10 +41,37 @@ export function CockpitOverview({ onOpenWorkspace, problem, layout, evaluation, 
   const activeSelection = data.departments.some(department => department.id === selected) ? selected : null;
   const select = (id: string) => setSelected(s => s === id ? null : id);
   return <CockpitDataContext.Provider value={data}><div className="cockpit-overview">
-    <header className="cockpit-page-heading"><div><div className="cockpit-breadcrumb">Workspace / <span>Industrial decision support</span></div><h1>Factory intelligence. <span>In perspective.</span></h1><p>FLODSS: Tesis Yerleşimi Optimizasyonu ve Karar Destek Arayüzü</p></div><button className="workspace-button" onClick={onOpenWorkspace}>Open layout editor <ArrowUpRight size={15}/></button></header>
-    <div className="cockpit-context"><span><i/> {data.live ? 'Active workspace' : 'Reference scenario'}</span><span>{problem ? `${problem.name} / ${problem.facility.width * problem.facility.height} m² / ${problem.departments.length} departments` : 'Plant 04 / 3,000 m² / 5 departments'}</span><span className="context-note"><CircleHelp size={13}/>{data.live ? (data.layout ? 'Live problem and current layout' : 'No layout yet — run a solver') : 'Illustrative portfolio dataset, not live solver output'}</span></div>
+    <header className="cockpit-page-heading">
+      <div>
+        <div className="cockpit-breadcrumb">
+          {t('Çalışma Alanı', 'Workspace')} / <span>{t('Endüstriyel karar destek', 'Industrial decision support')}</span>
+        </div>
+        <h1>{t('Fabrika zekâsı.', 'Factory intelligence.')} <span>{t('Perspektiften.', 'In perspective.')}</span></h1>
+        <p>{t('FLODSS: Tesis Yerleşimi Optimizasyonu ve Karar Destek Arayüzü', 'FLODSS: Facility Layout Optimization & Decision Support Interface')}</p>
+      </div>
+      <button className="workspace-button" onClick={onOpenWorkspace}>
+        {t('Yerleşim düzenleyiciyi aç', 'Open layout editor')} <ArrowUpRight size={15}/>
+      </button>
+    </header>
+    <div className="cockpit-context">
+      <span><i/> {data.live ? t('Aktif çalışma alanı', 'Active workspace') : t('Referans senaryo', 'Reference scenario')}</span>
+      <span>
+        {problem
+          ? `${problem.name} / ${problem.facility.width * problem.facility.height} m² / ${problem.departments.length} ${t('bölüm', 'departments')}`
+          : t('Tesis 04 / 3.000 m² / 5 bölüm', 'Plant 04 / 3,000 m² / 5 departments')}
+      </span>
+      <span className="context-note">
+        <CircleHelp size={13}/>
+        {data.live
+          ? (data.layout ? t('Canlı problem ve güncel yerleşim', 'Live problem and current layout') : t('Henüz yerleşim yok — bir çözücü çalıştırın', 'No layout yet — run a solver'))
+          : t('Örnek portföy veri seti, canlı çözücü çıktısı değildir', 'Illustrative portfolio dataset, not live solver output')}
+      </span>
+    </div>
     <div className="cockpit-primary"><IsometricFactoryCanvas selected={activeSelection} onSelect={select} scenario={scenario}/><aside className="cockpit-analytics"><KpiMetricsCard scenario={scenario}/><DepartmentDistributionChart selected={activeSelection} onSelect={select}/></aside></div>
     <div className="cockpit-secondary"><DepartmentSpaceTreemap selected={activeSelection} onSelect={select}/><FromToMatrixHeatmap/><LayoutVersionsTable selected={scenario} onSelect={setScenario}/></div>
-    <footer className="cockpit-disclaimer"><span><i/> Decision support cockpit <b>·</b> {data.live ? 'Active problem configuration' : 'Reference configuration'}</span><span>{data.live ? 'Instant centroid estimates · What-If layouts require backend feasibility validation.' : '*Savings figure follows the supplied mock-up; scenario cost delta is $922/mo.'}</span></footer>
+    <footer className="cockpit-disclaimer">
+      <span><i/> {t('Karar destek kokpiti', 'Decision support cockpit')} <b>·</b> {data.live ? t('Aktif problem yapılandırması', 'Active problem configuration') : t('Referans yapılandırması', 'Reference configuration')}</span>
+      <span>{data.live ? t('Anlık ağırlık merkezi tahminleri · Senaryo denemesi yerleşimleri sunucu uygunluk doğrulaması gerektirir.', 'Instant centroid estimates · What-If layouts require backend feasibility validation.') : t('*Tasarruf tutarı örnek taslağa göredir; senaryo maliyet farkı aylık $922 değerindedir.', '*Savings figure follows the supplied mock-up; scenario cost delta is $922/mo.')}</span>
+    </footer>
   </div></CockpitDataContext.Provider>;
 }

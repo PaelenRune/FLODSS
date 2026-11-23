@@ -14,8 +14,10 @@ import {
   compareLayouts,
 } from '../services/api';
 import { formatCost } from '../utils/formatters';
+import { useLanguage } from '../context/LanguageContext';
 
 export const LayoutEvaluationCard: React.FC = () => {
+  const { t } = useLanguage();
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [selectedProblemId, setSelectedProblemId] = useState<string>('');
   const [layouts, setLayouts] = useState<LayoutExampleSummary[]>([]);
@@ -50,7 +52,7 @@ export const LayoutEvaluationCard: React.FC = () => {
           setSelectedLayoutId(layoutData[0].id);
         }
       } catch (err: any) {
-        setError(err?.message || 'Failed to initialize evaluation resources.');
+        setError(err?.message || t('Değerlendirme kaynakları başlatılamadı.', 'Failed to initialize evaluation resources.'));
       }
     }
     loadData();
@@ -69,7 +71,7 @@ export const LayoutEvaluationCard: React.FC = () => {
       const rep = await evaluateLayout(selectedProblemId, layoutObj, config);
       setReport(rep);
     } catch (err: any) {
-      setError(err?.message || 'Failed to evaluate layout.');
+      setError(err?.message || t('Yerleşim değerlendirilemedi.', 'Failed to evaluate layout.'));
     } finally {
       setLoading(false);
     }
@@ -98,7 +100,7 @@ export const LayoutEvaluationCard: React.FC = () => {
       setComparisonReport(comp);
       setActiveTab('compare');
     } catch (err: any) {
-      setError(err?.message || 'Failed to compare layouts.');
+      setError(err?.message || t('Yerleşimler karşılaştırılamadı.', 'Failed to compare layouts.'));
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,9 @@ export const LayoutEvaluationCard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Multi-Criteria Layout Evaluation</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>
+              {t('Çok Ölçütlü Yerleşim Değerlendirmesi', 'Multi-Criteria Layout Evaluation')}
+            </h2>
             <span style={{
               fontSize: '0.75rem',
               padding: '0.2rem 0.5rem',
@@ -131,11 +135,14 @@ export const LayoutEvaluationCard: React.FC = () => {
               color: '#60a5fa',
               fontWeight: 600,
             }}>
-              Phase 4 Engine
+              {t('Faz 4 Motoru', 'Phase 4 Engine')}
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Decoupled industrial evaluation: Flow-Distance, MHC, Muther SLP closeness, area utilization, and hard/soft constraints.
+            {t(
+              'Ayrıştırılmış endüstriyel değerlendirme: Akış-Mesafe, MHC, Muther SLP yakınlığı, alan kullanımı ve kesin/esnek kısıtlar.',
+              'Decoupled industrial evaluation: Flow-Distance, MHC, Muther SLP closeness, area utilization, and hard/soft constraints.'
+            )}
           </p>
         </div>
 
@@ -153,7 +160,7 @@ export const LayoutEvaluationCard: React.FC = () => {
               border: '1px solid var(--border-color)',
             }}
           >
-            Single Evaluation
+            {t('Tekli Değerlendirme', 'Single Evaluation')}
           </button>
           <button
             onClick={handleCompare}
@@ -169,7 +176,7 @@ export const LayoutEvaluationCard: React.FC = () => {
               border: '1px solid var(--border-color)',
             }}
           >
-            {loading && activeTab === 'compare' ? 'Comparing...' : 'Compare Catalog'}
+            {loading && activeTab === 'compare' ? t('Karşılaştırılıyor...', 'Comparing...') : t('Kataloğu Karşılaştır', 'Compare Catalog')}
           </button>
         </div>
       </div>
@@ -187,7 +194,7 @@ export const LayoutEvaluationCard: React.FC = () => {
       }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-            Problem Case
+            {t('Problem Vakası', 'Problem Case')}
           </label>
           <select
             value={selectedProblemId}
@@ -204,7 +211,7 @@ export const LayoutEvaluationCard: React.FC = () => {
           >
             {problems.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name} ({p.department_count} depts)
+                {p.name} ({p.department_count} {t('bölüm', 'depts')})
               </option>
             ))}
           </select>
@@ -212,7 +219,7 @@ export const LayoutEvaluationCard: React.FC = () => {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-            Candidate Layout
+            {t('Aday Yerleşim', 'Candidate Layout')}
           </label>
           <select
             value={selectedLayoutId}
@@ -237,7 +244,7 @@ export const LayoutEvaluationCard: React.FC = () => {
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-            Distance Metric
+            {t('Mesafe Ölçütü', 'Distance Metric')}
           </label>
           <select
             value={distanceMetric}
@@ -252,14 +259,14 @@ export const LayoutEvaluationCard: React.FC = () => {
               fontSize: '0.85rem',
             }}
           >
-            <option value="manhattan">Manhattan (Rectilinear / Aisle)</option>
-            <option value="euclidean">Euclidean (Straight Line / Crane)</option>
+            <option value="manhattan">{t('Manhattan (Dik Doğrusal / Koridor)', 'Manhattan (Rectilinear / Aisle)')}</option>
+            <option value="euclidean">{t('Öklid (Kuş Uçuşu / Vinç)', 'Euclidean (Straight Line / Crane)')}</option>
           </select>
         </div>
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
-            Default Unit Cost ($/m)
+            {t('Varsayılan Birim Maliyet ($/m)', 'Default Unit Cost ($/m)')}
           </label>
           <input
             type="number"
@@ -296,7 +303,7 @@ export const LayoutEvaluationCard: React.FC = () => {
 
       {loading && !report && (
         <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          Computing layout evaluations and matrix cross-products...
+          {t('Yerleşim değerlendirmeleri ve matris çarpımları hesaplanıyor...', 'Computing layout evaluations and matrix cross-products...')}
         </div>
       )}
 
@@ -325,16 +332,16 @@ export const LayoutEvaluationCard: React.FC = () => {
                 backgroundColor: report.is_feasible ? '#10b981' : '#ef4444',
                 color: '#ffffff',
               }}>
-                {report.is_feasible ? 'FEASIBLE LAYOUT' : 'INFEASIBLE LAYOUT'}
+                {report.is_feasible ? t('UYGUN YERLEŞİM', 'FEASIBLE LAYOUT') : t('UYGUN OLMAYAN YERLEŞİM', 'INFEASIBLE LAYOUT')}
               </span>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                 {report.is_feasible
-                  ? 'All hard spatial, boundary, and non-overlapping constraints satisfied.'
-                  : `${report.hard_violation_count} hard constraint violation(s) detected.`}
+                  ? t('Tüm kesin mekânsal, sınır ve çakışmama kısıtları sağlandı.', 'All hard spatial, boundary, and non-overlapping constraints satisfied.')
+                  : t(`${report.hard_violation_count} adet kesin kısıt ihlali tespit edildi.`, `${report.hard_violation_count} hard constraint violation(s) detected.`)}
               </span>
             </div>
             <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-secondary)' }}>
-              Signature: {report.layout_signature.slice(0, 16)}...
+              {t('İmza:', 'Signature:')} {report.layout_signature.slice(0, 16)}...
             </div>
           </div>
 
@@ -352,13 +359,13 @@ export const LayoutEvaluationCard: React.FC = () => {
               padding: '1rem',
             }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Material Handling Cost
+                {t('Malzeme Taşıma Maliyeti (MHC)', 'Material Handling Cost')}
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#38bdf8', marginTop: '0.25rem' }}>
                 {formatCost(report.objective_values.material_handling_cost)}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Cost per flow cycle
+                {t('Akış döngüsü başına maliyet', 'Cost per flow cycle')}
               </div>
             </div>
 
@@ -369,13 +376,13 @@ export const LayoutEvaluationCard: React.FC = () => {
               padding: '1rem',
             }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Total Flow Distance
+                {t('Toplam Akış Mesafesi', 'Total Flow Distance')}
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#818cf8', marginTop: '0.25rem' }}>
-                {(report.objective_values.flow_distance ?? 0).toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 400 }}>m-moves</span>
+                {(report.objective_values.flow_distance ?? 0).toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 400 }}>{t('m-taşıma', 'm-moves')}</span>
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Directed sum Σ Fij × Dij
+                {t('Yönlü toplam Σ Fij × Dij', 'Directed sum Σ Fij × Dij')}
               </div>
             </div>
 
@@ -386,13 +393,13 @@ export const LayoutEvaluationCard: React.FC = () => {
               padding: '1rem',
             }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Relationship Score
+                {t('İlişki Skoru', 'Relationship Score')}
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#a78bfa', marginTop: '0.25rem' }}>
                 {report.objective_values.relationship_score ?? 0}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Muther SLP satisfaction
+                {t('Muther SLP memnuniyeti', 'Muther SLP satisfaction')}
               </div>
             </div>
 
@@ -403,13 +410,13 @@ export const LayoutEvaluationCard: React.FC = () => {
               padding: '1rem',
             }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Area Utilization
+                {t('Alan Kullanımı', 'Area Utilization')}
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#34d399', marginTop: '0.25rem' }}>
                 {report.objective_values.area_utilization ?? 0}%
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                Floor space occupied
+                {t('Kullanılan zemin alanı', 'Floor space occupied')}
               </div>
             </div>
 
@@ -420,7 +427,7 @@ export const LayoutEvaluationCard: React.FC = () => {
               padding: '1rem',
             }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>
-                Constraint Penalty
+                {t('Kısıt Cezası', 'Constraint Penalty')}
               </div>
               <div style={{
                 fontSize: '1.4rem',
@@ -431,7 +438,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                 {formatCost(report.objective_values.constraint_penalty)}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                {report.soft_violation_count} soft penalty item(s)
+                {report.soft_violation_count} {t('esnek ceza kalemi', 'soft penalty item(s)')}
               </div>
             </div>
           </div>
@@ -440,7 +447,7 @@ export const LayoutEvaluationCard: React.FC = () => {
           {report.top_contributors && report.top_contributors.material_handling_cost && (
             <div style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Top Material Handling Flow Contributors
+                {t('En Yüksek Malzeme Taşıma Akışı Katkıda Bulunanlar', 'Top Material Handling Flow Contributors')}
               </h3>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{
@@ -453,12 +460,12 @@ export const LayoutEvaluationCard: React.FC = () => {
                 }}>
                   <thead>
                     <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Source Department</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Target Department</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Flow (moves)</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Distance ({distanceMetric})</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Cost ($)</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>% of Total MHC</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Kaynak Bölüm', 'Source Department')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Hedef Bölüm', 'Target Department')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Akış (taşıma)', 'Flow (moves)')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Mesafe', 'Distance')} ({distanceMetric})</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Maliyet ($)', 'Cost ($)')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Toplam MHC Payı (%)', '% of Total MHC')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -500,7 +507,7 @@ export const LayoutEvaluationCard: React.FC = () => {
           {report.constraint_violations && report.constraint_violations.length > 0 && (
             <div>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem', color: '#f87171' }}>
-                Detected Constraint Violations ({report.constraint_violations.length})
+                {t('Tespit Edilen Kısıt İhlalleri', 'Detected Constraint Violations')} ({report.constraint_violations.length})
               </h3>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{
@@ -513,13 +520,13 @@ export const LayoutEvaluationCard: React.FC = () => {
                 }}>
                   <thead>
                     <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>ID</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Classification</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Type</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Departments</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Magnitude</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Penalty ($)</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Details</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Kod', 'ID')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Sınıflandırma', 'Classification')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Tür', 'Type')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Bölümler', 'Departments')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Büyüklük', 'Magnitude')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Ceza ($)', 'Penalty ($)')}</th>
+                      <th style={{ padding: '0.5rem 0.75rem' }}>{t('Ayrıntılar', 'Details')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -535,7 +542,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                             backgroundColor: v.classification === 'hard' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
                             color: v.classification === 'hard' ? '#f87171' : '#fbbf24',
                           }}>
-                            {v.classification.toUpperCase()}
+                            {v.classification === 'hard' ? t('KESİN', 'HARD') : t('ESNEK', 'SOFT')}
                           </span>
                         </td>
                         <td style={{ padding: '0.5rem 0.75rem' }}>{v.constraint_type}</td>
@@ -558,10 +565,13 @@ export const LayoutEvaluationCard: React.FC = () => {
         <div>
           <div style={{ marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>
-              Multi-Layout Benchmark Ranking ({comparisonReport.solution_count} solutions)
+              {t('Çoklu Yerleşim Kıyaslama Sıralaması', 'Multi-Layout Benchmark Ranking')} ({comparisonReport.solution_count} {t('çözüm', 'solutions')})
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Feasibility-first lexicographical ranking with multi-criteria min-max normalization.
+              {t(
+                'Çok ölçütlü min-maks normalizasyonu ile önce-uygunluk sözlükbilimsel (lexicographical) sıralaması.',
+                'Feasibility-first lexicographical ranking with multi-criteria min-max normalization.'
+              )}
             </p>
           </div>
 
@@ -576,15 +586,15 @@ export const LayoutEvaluationCard: React.FC = () => {
             }}>
               <thead>
                 <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Rank</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Layout / Algorithm</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Status</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Composite Score</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Material Handling Cost</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Flow Distance</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Relationship Score</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Utilization</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Penalty</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Sıra', 'Rank')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Yerleşim / Algoritma', 'Layout / Algorithm')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Durum', 'Status')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Bileşik Skor', 'Composite Score')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Malzeme Taşıma Maliyeti', 'Material Handling Cost')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Akış Mesafesi', 'Flow Distance')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('İlişki Skoru', 'Relationship Score')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Kullanım', 'Utilization')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Ceza', 'Penalty')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -620,7 +630,7 @@ export const LayoutEvaluationCard: React.FC = () => {
                         backgroundColor: r.is_feasible ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
                         color: r.is_feasible ? '#34d399' : '#f87171',
                       }}>
-                        {r.is_feasible ? 'FEASIBLE' : 'INFEASIBLE'}
+                        {r.is_feasible ? t('UYGUN', 'FEASIBLE') : t('UYGUN DEĞİL', 'INFEASIBLE')}
                       </span>
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem', fontWeight: 700, color: 'var(--accent-color)' }}>

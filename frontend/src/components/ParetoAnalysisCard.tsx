@@ -50,11 +50,11 @@ function candidateToContinuousLayout(
   };
 }
 
-function candidateToValidation(cand: ParetoCandidate | null): LayoutValidationResult | null {
+function candidateToValidation(cand: ParetoCandidate | null, infeasibleMessage?: string): LayoutValidationResult | null {
   if (!cand) return null;
   return {
     is_valid: cand.is_feasible,
-    errors: cand.is_feasible ? [] : ['Candidate marked infeasible in Pareto portfolio'],
+    errors: cand.is_feasible ? [] : [infeasibleMessage || 'Aday Pareto portföyünde uygun değil olarak işaretlendi'],
     warnings: [],
     total_overlap_area: 0,
     checked_departments: Object.keys(cand.placements || {}),
@@ -140,16 +140,22 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
   }, [selectedCandidate, problem]);
 
   const candidateValidation = useMemo<LayoutValidationResult | null>(() => {
-    return candidateToValidation(selectedCandidate);
-  }, [selectedCandidate]);
+    return candidateToValidation(
+      selectedCandidate,
+      t('Aday Pareto portföyünde uygun değil olarak işaretlendi', 'Candidate marked infeasible in Pareto portfolio')
+    );
+  }, [selectedCandidate, t]);
 
   const previewLayoutB = useMemo<ContinuousLayout | null>(() => {
     return candidateToContinuousLayout(compareCandidate, problem);
   }, [compareCandidate, problem]);
 
   const candidateValidationB = useMemo<LayoutValidationResult | null>(() => {
-    return candidateToValidation(compareCandidate);
-  }, [compareCandidate]);
+    return candidateToValidation(
+      compareCandidate,
+      t('Aday Pareto portföyünde uygun değil olarak işaretlendi', 'Candidate marked infeasible in Pareto portfolio')
+    );
+  }, [compareCandidate, t]);
 
   // Handle setting candidate as active solution
   const handleSetActiveSolution = (candidateToSet: ParetoCandidate | null) => {
@@ -473,28 +479,28 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
           }}
         >
           <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#166534', textTransform: 'uppercase' }}>Pareto Frontier (Rank 1)</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#166534', textTransform: 'uppercase' }}>{t('Pareto Sınırı (1. Sıra)', 'Pareto Frontier (Rank 1)')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#15803d' }}>
               {analysisResult.frontier_count} {t('Çözüm', 'Solutions')}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#166534' }}>{t('Kesin Non-Dominated (en iyi bulunan) alternatifler', 'Strictly non-dominated (best-found) candidates')}</div>
+            <div style={{ fontSize: '0.75rem', color: '#166534' }}>{t('Baskılanmayan (en iyi bulunan) alternatifler', 'Strictly non-dominated (best-found) candidates')}</div>
           </div>
           <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>{t('Geçerli Adaylar (Valid)', 'Valid Candidates')}</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>{t('Geçerli Adaylar', 'Valid Candidates')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1d4ed8' }}>
               {analysisResult.valid_candidates_count} {t('Yerleşim', 'Layouts')}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>{t('%100 tam ve Feasible geometriler', '100% complete & feasible geometries')}</div>
+            <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>{t('%100 tam ve uygun geometriler', '100% complete & feasible geometries')}</div>
           </div>
           <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Pareto Layers</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>{t('Pareto Katmanları', 'Pareto Layers')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#334155' }}>
-              {Object.keys(analysisResult.ranks).length} Ranks
+              {Object.keys(analysisResult.ranks).length} {t('Katman', 'Ranks')}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#475569' }}>{t('Hiyerarşik Non-Dominated katmanlama', 'Hierarchical non-dominated peeling')}</div>
+            <div style={{ fontSize: '0.75rem', color: '#475569' }}>{t('Hiyerarşik baskılanmayan katmanlama', 'Hierarchical non-dominated peeling')}</div>
           </div>
           <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>{t('Hariç Tutulanlar (Excluded)', 'Excluded Layouts')}</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>{t('Hariç Tutulanlar', 'Excluded Layouts')}</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#b91c1c' }}>
               {analysisResult.excluded_candidates_count}
             </div>
@@ -518,11 +524,11 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Scale size={20} color="#7c3aed" />
               <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#581c87' }}>
-                {t('Yan Yana Aday Karşılaştırma Modu (Candidate A vs Candidate B)', 'Side-by-Side Candidate Comparison Mode (A vs B)')}
+                {t('Yan Yana Aday Karşılaştırma Modu (A ve B)', 'Side-by-Side Candidate Comparison Mode (A vs B)')}
               </h3>
             </div>
             <div style={{ fontSize: '0.8rem', color: '#6b21a8', fontWeight: 600 }}>
-              {t('Matematiksel Δ Farkları ve Dominance Analizi', 'Mathematical Δ Differences & Dominance Analysis')}
+              {t('Matematiksel Δ Farkları ve Baskınlık Analizi', 'Mathematical Δ Differences & Dominance Analysis')}
             </div>
           </div>
 
@@ -539,7 +545,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
               >
                 {analysisResult.candidates.map((c) => (
                   <option key={c.candidate_id} value={c.candidate_id}>
-                    {c.candidate_id} ({c.pareto_rank === 1 ? '★ Rank 1' : `Rank ${c.pareto_rank}`} • {formatCost(c.objective_values.material_handling_cost, problem?.metadata?.currency)})
+                    {c.candidate_id} ({c.pareto_rank === 1 ? t('★ 1. Sıra', '★ Rank 1') : `${t('Sıra', 'Rank')} ${c.pareto_rank}`} • {formatCost(c.objective_values.material_handling_cost, problem?.metadata?.currency)})
                   </option>
                 ))}
               </select>
@@ -556,7 +562,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
               >
                 {selectableCandidatesB.map((c) => (
                   <option key={c.candidate_id} value={c.candidate_id}>
-                    {c.candidate_id} ({c.pareto_rank === 1 ? '★ Rank 1' : `Rank ${c.pareto_rank}`} • {formatCost(c.objective_values.material_handling_cost, problem?.metadata?.currency)})
+                    {c.candidate_id} ({c.pareto_rank === 1 ? t('★ 1. Sıra', '★ Rank 1') : `${t('Sıra', 'Rank')} ${c.pareto_rank}`} • {formatCost(c.objective_values.material_handling_cost, problem?.metadata?.currency)})
                   </option>
                 ))}
               </select>
@@ -597,7 +603,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                 <tr style={{ backgroundColor: '#f3e8ff', borderBottom: '2px solid #d8b4fe' }}>
                   <th style={{ padding: '0.6rem 0.8rem' }}>{t('Kriter / Metrik', 'Criterion / Metric')}</th>
                   <th style={{ padding: '0.6rem 0.8rem', color: '#1d4ed8' }}>Aday A ({selectedCandidate.candidate_id})</th>
-                  <th style={{ padding: '0.6rem 0.8rem', color: '#7c3aed' }}>Aday B ({compareCandidate.candidate_id})</th>
+                  <th style={{ padding: '0.6rem 0.8rem', color: '#7c3aed' }}>{t('Aday B', 'Candidate B')} ({compareCandidate.candidate_id})</th>
                   <th style={{ padding: '0.6rem 0.8rem' }}>{t('Fark (Δ = B - A)', 'Difference (Δ = B - A)')}</th>
                   <th style={{ padding: '0.6rem 0.8rem' }}>{t('Değerlendirme', 'Evaluation')}</th>
                 </tr>
@@ -605,7 +611,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
               <tbody>
                 {/* MHC Row */}
                 <tr style={{ borderBottom: '1px solid #f3e8ff' }}>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Material Handling Cost (MHC)</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Malzeme Taşıma Maliyeti (MHC)', 'Material Handling Cost (MHC)')}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{formatCost(comparisonDeltas.mhcA, problem?.metadata?.currency)}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{formatCost(comparisonDeltas.mhcB, problem?.metadata?.currency)}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700, color: comparisonDeltas.deltaMhc <= 0 ? '#16a34a' : '#dc2626' }}>
@@ -619,11 +625,11 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
 
                 {/* REL Satisfaction Row */}
                 <tr style={{ borderBottom: '1px solid #f3e8ff' }}>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>REL Satisfaction (%)</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('İlişki (REL) Memnuniyeti (%)', 'REL Satisfaction (%)')}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{comparisonDeltas.relA.toFixed(2)}%</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{comparisonDeltas.relB.toFixed(2)}%</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700, color: comparisonDeltas.deltaRel >= 0 ? '#16a34a' : '#dc2626' }}>
-                    {comparisonDeltas.deltaRel > 0 ? '+' : ''}{comparisonDeltas.deltaRel.toFixed(2)} %p (yüzde puanı)
+                    {comparisonDeltas.deltaRel > 0 ? '+' : ''}{comparisonDeltas.deltaRel.toFixed(2)} {t('%p (yüzde puanı)', 'pp (percentage points)')}
                   </td>
                   <td style={{ padding: '0.6rem 0.8rem', fontSize: '0.75rem', color: comparisonDeltas.deltaRel >= 0 ? '#16a34a' : '#dc2626' }}>
                     {comparisonDeltas.deltaRel > 0 ? t('B daha iyi yakınlık memnuniyeti', 'B has higher REL satisfaction') : comparisonDeltas.deltaRel < 0 ? t('A daha iyi yakınlık memnuniyeti', 'A has higher REL satisfaction') : t('Eşit memnuniyet', 'Equal satisfaction')}
@@ -632,7 +638,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
 
                 {/* Soft Penalty Row */}
                 <tr style={{ borderBottom: '1px solid #f3e8ff' }}>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Soft Penalty</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Esnek Kısıt Cezası', 'Soft Penalty')}</td>
                   <td style={{ padding: '0.6rem 0.8rem' }}>{formatCost(comparisonDeltas.softA, problem?.metadata?.currency)}</td>
                   <td style={{ padding: '0.6rem 0.8rem' }}>{formatCost(comparisonDeltas.softB, problem?.metadata?.currency)}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, color: comparisonDeltas.deltaSoft <= 0 ? '#16a34a' : '#dc2626' }}>
@@ -645,15 +651,15 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
 
                 {/* Feasibility Row */}
                 <tr style={{ borderBottom: '1px solid #f3e8ff' }}>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Fiziksel Geçerlilik (Feasibility)', 'Feasibility')}</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Fiziksel Geçerlilik (Uygunluk)', 'Feasibility')}</td>
                   <td style={{ padding: '0.6rem 0.8rem' }}>
                     <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, backgroundColor: selectedCandidate.is_feasible ? '#dcfce7' : '#fee2e2', color: selectedCandidate.is_feasible ? '#15803d' : '#991b1b' }}>
-                      {selectedCandidate.is_feasible ? 'Feasible' : 'Infeasible'}
+                      {selectedCandidate.is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')}
                     </span>
                   </td>
                   <td style={{ padding: '0.6rem 0.8rem' }}>
                     <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, backgroundColor: compareCandidate.is_feasible ? '#dcfce7' : '#fee2e2', color: compareCandidate.is_feasible ? '#15803d' : '#991b1b' }}>
-                      {compareCandidate.is_feasible ? 'Feasible' : 'Infeasible'}
+                      {compareCandidate.is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')}
                     </span>
                   </td>
                   <td style={{ padding: '0.6rem 0.8rem' }} colSpan={2}>
@@ -665,25 +671,25 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
 
                 {/* Pareto Rank Row */}
                 <tr style={{ borderBottom: '1px solid #f3e8ff' }}>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Pareto Rank</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Pareto Sırası', 'Pareto Rank')}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700, color: selectedCandidate.pareto_rank === 1 ? '#15803d' : '#475569' }}>
-                    {selectedCandidate.pareto_rank === 1 ? '★ Rank 1 (Non-Dominated)' : `Rank ${selectedCandidate.pareto_rank}`}
+                    {selectedCandidate.pareto_rank === 1 ? t('★ 1. Sıra (Baskın Olmayan)', '★ Rank 1 (Non-Dominated)') : `${t('Sıra', 'Rank')} ${selectedCandidate.pareto_rank}`}
                   </td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700, color: compareCandidate.pareto_rank === 1 ? '#15803d' : '#475569' }}>
-                    {compareCandidate.pareto_rank === 1 ? '★ Rank 1 (Non-Dominated)' : `Rank ${compareCandidate.pareto_rank}`}
+                    {compareCandidate.pareto_rank === 1 ? t('★ 1. Sıra (Baskın Olmayan)', '★ Rank 1 (Non-Dominated)') : `${t('Sıra', 'Rank')} ${compareCandidate.pareto_rank}`}
                   </td>
                   <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }} colSpan={2}>
                     {comparisonDeltas.aDominatesB
-                      ? t('Aday A, Aday B\'yi DOMINE EDER!', 'Candidate A DOMINATES Candidate B!')
+                      ? t('Aday A, Aday B\'ye BASKINDIR!', 'Candidate A DOMINATES Candidate B!')
                       : comparisonDeltas.bDominatesA
-                      ? t('Aday B, Aday A\'yı DOMINE EDER!', 'Candidate B DOMINATES Candidate A!')
-                      : t('Trade-Off: İkisi de birbirini domine etmez.', 'Trade-Off: Neither strictly dominates the other.')}
+                      ? t('Aday B, Aday A\'ya BASKINDIR!', 'Candidate B DOMINATES Candidate A!')
+                      : t('Ödünleşim: İkisi de birbirine baskın değildir.', 'Trade-Off: Neither strictly dominates the other.')}
                   </td>
                 </tr>
 
                 {/* Layout Signature & Hash Row (Part 6.3) */}
                 <tr>
-                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Yerleşim İmzası (Signature)', 'Layout Signature')}</td>
+                  <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>{t('Yerleşim İmzası', 'Layout Signature')}</td>
                   <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.72rem' }}>
                     {selectedCandidate.layout_signature ? selectedCandidate.layout_signature.slice(0, 14) + '…' : t('Mevcut değil', 'N/A')}
                   </td>
@@ -714,7 +720,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.75rem', backgroundColor: '#ffffff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontWeight: 700, color: '#1d4ed8', fontSize: '0.85rem' }}>Aday A: {selectedCandidate.candidate_id}</span>
+                <span style={{ fontWeight: 700, color: '#1d4ed8', fontSize: '0.85rem' }}>{t('Aday A:', 'Candidate A:')} {selectedCandidate.candidate_id}</span>
                 <button
                   onClick={() => handleSetActiveSolution(selectedCandidate)}
                   style={{
@@ -736,7 +742,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
 
             <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', padding: '0.75rem', backgroundColor: '#ffffff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontWeight: 700, color: '#7c3aed', fontSize: '0.85rem' }}>Aday B: {compareCandidate.candidate_id}</span>
+                <span style={{ fontWeight: 700, color: '#7c3aed', fontSize: '0.85rem' }}>{t('Aday B:', 'Candidate B:')} {compareCandidate.candidate_id}</span>
                 <button
                   onClick={() => handleSetActiveSolution(compareCandidate)}
                   style={{
@@ -773,7 +779,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>
-                📈 {t('Çok Amaçlı Pareto Frontier Grafiği (MHC vs. REL Satisfaction)', 'Multi-Objective Frontier Chart (MHC vs. Relationship)')}
+                📈 {t('Çok Amaçlı Pareto Sınır Grafiği (MHC vs. REL Memnuniyeti)', 'Multi-Objective Frontier Chart (MHC vs. Relationship)')}
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                 {t('İdeal: Sol-Üst (Düşük MHC, Yüksek REL)', 'Ideal: Top-Left (Low Cost, High Rel)')}
@@ -810,7 +816,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                   fill="#475569"
                   fontWeight="600"
                 >
-                  {t('Material Handling Cost (MHC) ➔ [Düşük Daha İyi / Minimize]', 'Material Handling Cost (MHC) ➔ [Lower is Better]')}
+                  {t('Malzeme Taşıma Maliyeti (MHC) ➔ [Düşük Daha İyi / En Aza İndir]', 'Material Handling Cost (MHC) ➔ [Lower is Better]')}
                 </text>
                 <text
                   x={16}
@@ -821,7 +827,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                   fontWeight="600"
                   transform={`rotate(-90 16 ${chartData.height / 2})`}
                 >
-                  {t('REL Satisfaction (%) ➔ [Yüksek Daha İyi / Maximize]', 'Relationship Satisfaction (%) ➔ [Higher is Better]')}
+                  {t('REL Memnuniyeti (%) ➔ [Yüksek Daha İyi / En Çoklaştır]', 'Relationship Satisfaction (%) ➔ [Higher is Better]')}
                 </text>
 
                 {/* X Axis Ticks */}
@@ -914,15 +920,15 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
             <div style={{ display: 'flex', gap: '1.25rem', marginTop: '0.75rem', fontSize: '0.785rem', color: '#475569', justifyContent: 'center', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
-                <strong>Pareto Frontier (Rank 1)</strong>
+                <strong>{t('Pareto Sınırı (1. Sıra)', 'Pareto Frontier (Rank 1)')}</strong>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#6366f1', display: 'inline-block' }} />
-                <span>Rank 2 Dominated</span>
+                <span>{t('2. Sıra Baskılanan', 'Rank 2 Dominated')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#94a3b8', display: 'inline-block' }} />
-                <span>Dominated (Rank 3+)</span>
+                <span>{t('Baskılanan (3. Sıra+)', 'Dominated (Rank 3+)')}</span>
               </div>
             </div>
           </div>
@@ -947,7 +953,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                   {selectedCandidate?.candidate_id || t('Seçilmedi', 'None Selected')}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.15rem' }}>
-                  {t('Kaynak Algoritma:', 'Algorithm:')} <strong>{selectedCandidate?.algorithm_source || 'Unknown'}</strong>
+                  {t('Kaynak Algoritma:', 'Algorithm:')} <strong>{selectedCandidate?.algorithm_source || t('Bilinmiyor', 'Unknown')}</strong>
                 </div>
               </div>
               {selectedCandidate && (
@@ -963,7 +969,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                       border: `1px solid ${selectedCandidate.is_non_dominated ? '#86efac' : '#cbd5e1'}`,
                     }}
                   >
-                    {selectedCandidate.is_non_dominated ? '★ Pareto Frontier' : `Rank ${selectedCandidate.pareto_rank} Dominated`}
+                    {selectedCandidate.is_non_dominated ? t('★ Pareto Sınırı', '★ Pareto Frontier') : t(`${selectedCandidate.pareto_rank}. Sıra Baskılanan`, `Rank ${selectedCandidate.pareto_rank} Dominated`)}
                   </span>
 
                   {/* SET AS ACTIVE SOLUTION BUTTON */}
@@ -999,19 +1005,19 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
             {selectedCandidate && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.85rem' }}>
                 <div style={{ padding: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>MHC Cost</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{t('MHC Maliyeti', 'MHC Cost')}</div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
                     {formatCost(selectedCandidate.objective_values.material_handling_cost, problem?.metadata?.currency)}
                   </div>
                 </div>
                 <div style={{ padding: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>REL Satisfaction</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{t('REL Memnuniyeti', 'REL Satisfaction')}</div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#16a34a' }}>
                     {selectedCandidate.objective_values.relationship_satisfaction?.toFixed(2)}%
                   </div>
                 </div>
                 <div style={{ padding: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Soft Penalty</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{t('Esnek Kısıt Cezası', 'Soft Penalty')}</div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 700, color: selectedCandidate.objective_values.soft_penalty ? '#dc2626' : '#15803d' }}>
                     {formatCost(selectedCandidate.objective_values.soft_penalty, problem?.metadata?.currency)}
                   </div>
@@ -1032,7 +1038,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
             {/* Dominated Details */}
             {selectedCandidate && selectedCandidate.dominated_by.length > 0 && (
               <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '6px', fontSize: '0.75rem', color: '#92400e' }}>
-                ⚠️ <strong>Dominated by:</strong> {selectedCandidate.dominated_by.join(', ')}
+                ⚠️ <strong>{t('Baskın olanlar:', 'Dominated by:')}</strong> {selectedCandidate.dominated_by.join(', ')}
               </div>
             )}
           </div>
@@ -1122,7 +1128,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                       color: activeRecommendation.is_on_pareto_frontier ? '#15803d' : '#991b1b',
                     }}
                   >
-                    {activeRecommendation.is_on_pareto_frontier ? 'Pareto Non-Dominated' : 'Dominated Candidate'}
+                    {activeRecommendation.is_on_pareto_frontier ? t('Pareto Baskın Olmayan', 'Pareto Non-Dominated') : t('Baskılanan Aday', 'Dominated Candidate')}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.25rem', maxWidth: '750px' }}>
@@ -1176,7 +1182,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
       {analysisResult && (
         <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
           <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: '0.6rem' }}>
-            📋 {t('Değerlendirilen Aday Portföy Sıralaması (Portfolio Ranking)', 'Evaluated Candidates Portfolio Ranking')}
+            📋 {t('Değerlendirilen Aday Portföy Sıralaması', 'Evaluated Candidates Portfolio Ranking')}
           </div>
           <table
             style={{
@@ -1188,13 +1194,13 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
           >
             <thead>
                 <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Rank</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Sıra', 'Rank')}</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>{t('Aday ID', 'Candidate ID')}</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>{t('Kaynak Algoritma', 'Algorithm Source')}</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>MHC Cost</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>REL Satisfaction (%)</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Soft Penalty</th>
-                <th style={{ padding: '0.6rem 0.8rem' }}>Flow-Distance</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('MHC Maliyeti', 'MHC Cost')}</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('REL Memnuniyeti (%)', 'REL Satisfaction (%)')}</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Esnek Ceza', 'Soft Penalty')}</th>
+                <th style={{ padding: '0.6rem 0.8rem' }}>{t('Akış-Mesafe', 'Flow-Distance')}</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>{t('Durum', 'Status')}</th>
                 <th style={{ padding: '0.6rem 0.8rem' }}>{t('İşlem', 'Action')}</th>
               </tr>
@@ -1230,10 +1236,10 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                     <td style={{ padding: '0.6rem 0.8rem', fontWeight: 700 }}>
                       {isRank1 ? (
                         <span style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          ★ 1 (Frontier)
+                          ★ 1 ({t('Sınır', 'Frontier')})
                         </span>
                       ) : (
-                        `Rank ${cand.pareto_rank}`
+                        `${t('Sıra', 'Rank')} ${cand.pareto_rank}`
                       )}
                     </td>
                     <td style={{ padding: '0.6rem 0.8rem', fontWeight: isSelected || isCompareTarget ? 700 : 500 }}>
@@ -1254,7 +1260,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                       {formatCost(cand.objective_values.soft_penalty, problem?.metadata?.currency)}
                     </td>
                     <td style={{ padding: '0.6rem 0.8rem', color: '#64748b' }}>
-                      {cand.auxiliary_metrics.flow_distance?.toLocaleString('en-US', { minimumFractionDigits: 2 })} m
+                      {cand.auxiliary_metrics.flow_distance?.toLocaleString(undefined, { minimumFractionDigits: 2 })} m
                     </td>
                     <td style={{ padding: '0.6rem 0.8rem' }}>
                       <span
@@ -1267,7 +1273,7 @@ export const ParetoAnalysisCard: React.FC<ParetoAnalysisCardProps> = ({
                           color: cand.is_feasible ? '#15803d' : '#991b1b',
                         }}
                       >
-                        {cand.is_feasible ? 'Feasible' : 'Infeasible'}
+                        {cand.is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')}
                       </span>
                     </td>
                     <td style={{ padding: '0.6rem 0.8rem' }}>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ProblemSummary, FacilityLayoutProblem } from '../types/api';
 import { fetchExampleProblems, fetchExampleProblem } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export const ProblemDefinitionCard: React.FC = () => {
+  const { t } = useLanguage();
   const [examples, setExamples] = useState<ProblemSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
   const [problem, setProblem] = useState<FacilityLayoutProblem | null>(null);
@@ -22,7 +24,7 @@ export const ProblemDefinitionCard: React.FC = () => {
           setSelectedId(data[0].id);
         }
       } catch (err: any) {
-        setError(err?.message || 'Failed to fetch example problems');
+        setError(err?.message || t('Örnek problemler alınamadı', 'Failed to fetch example problems'));
       } finally {
         setLoading(false);
       }
@@ -38,7 +40,7 @@ export const ProblemDefinitionCard: React.FC = () => {
         const data = await fetchExampleProblem(selectedId);
         setProblem(data);
       } catch (err: any) {
-        setError(err?.message || `Failed to load problem ${selectedId}`);
+        setError(err?.message || t(`${selectedId} problemi yüklenemedi`, `Failed to load problem ${selectedId}`));
       } finally {
         setProblemLoading(false);
       }
@@ -72,7 +74,7 @@ export const ProblemDefinitionCard: React.FC = () => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}>
-              Phase 2 Active
+              {t('Faz 2 Aktif', 'Phase 2 Active')}
             </span>
             <span style={{
               fontSize: '0.7rem',
@@ -82,21 +84,24 @@ export const ProblemDefinitionCard: React.FC = () => {
               color: '#34d399',
               fontWeight: 600,
             }}>
-              Data Ingestion Ready
+              {t('Veri Girişi Hazır', 'Data Ingestion Ready')}
             </span>
           </div>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginTop: '0.2rem' }}>
-            Facility Layout Problem Specification
+            {t('Tesis Yerleşimi Problem Tanımı', 'Facility Layout Problem Specification')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Inspect validated plant boundary, department footprints, material flows, and constraints.
+            {t(
+              'Doğrulanmış tesis sınırlarını, bölüm alanlarını, malzeme akışlarını ve kısıtları inceleyin.',
+              'Inspect validated plant boundary, department footprints, material flows, and constraints.'
+            )}
           </p>
         </div>
 
         {/* Example Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <label htmlFor="example-select" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Active Case:
+            {t('Aktif Vaka:', 'Active Case:')}
           </label>
           <select
             id="example-select"
@@ -117,7 +122,7 @@ export const ProblemDefinitionCard: React.FC = () => {
           >
             {examples.map((ex) => (
               <option key={ex.id} value={ex.id}>
-                {ex.name} ({ex.department_count} depts)
+                {ex.name} ({ex.department_count} {t('bölüm', 'depts')})
               </option>
             ))}
           </select>
@@ -140,7 +145,7 @@ export const ProblemDefinitionCard: React.FC = () => {
 
       {problemLoading || !problem ? (
         <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Loading problem parameters...
+          {t('Problem parametreleri yükleniyor...', 'Loading problem parameters...')}
         </div>
       ) : (
         <div>
@@ -157,12 +162,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Facility Boundary</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Tesis Sınırı', 'Facility Boundary')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
                 {problem.facility.width}m × {problem.facility.height}m
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                {problem.facility.area?.toLocaleString()} m² total area
+                {problem.facility.area?.toLocaleString()} m² {t('toplam alan', 'total area')}
               </div>
             </div>
 
@@ -172,12 +177,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Departments</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Bölümler', 'Departments')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--accent-blue)', marginTop: '0.2rem' }}>
-                {problem.departments.length} Work Cells
+                {problem.departments.length} {t('İş Hücresi', 'Work Cells')}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                {problem.departments.reduce((acc, d) => acc + d.required_area, 0).toLocaleString()} m² required
+                {problem.departments.reduce((acc, d) => acc + d.required_area, 0).toLocaleString()} m² {t('gerekli', 'required')}
               </div>
             </div>
 
@@ -187,12 +192,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Area Utilization</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Alan Kullanımı', 'Area Utilization')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#34d399', marginTop: '0.2rem' }}>
                 {((problem.departments.reduce((acc, d) => acc + d.required_area, 0) / (problem.facility.area || 1)) * 100).toFixed(1)}%
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Clearance for aisles & buffers
+                {t('Koridorlar ve tamponlar için boşluk', 'Clearance for aisles & buffers')}
               </div>
             </div>
 
@@ -202,12 +207,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Material Flow</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Malzeme Akışı', 'Material Flow')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f59e0b', marginTop: '0.2rem' }}>
-                {problem.flows.length} Connections
+                {problem.flows.length} {t('Bağlantı', 'Connections')}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                {problem.flows.reduce((acc, f) => acc + f.quantity, 0).toLocaleString()} loads/day
+                {problem.flows.reduce((acc, f) => acc + f.quantity, 0).toLocaleString()} {t('yük/gün', 'loads/day')}
               </div>
             </div>
 
@@ -217,12 +222,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>REL Relationships</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('REL İlişkileri', 'REL Relationships')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#a78bfa', marginTop: '0.2rem' }}>
-                {problem.relationships.length} Ratings
+                {problem.relationships.length} {t('Derece', 'Ratings')}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Muther SLP closeness chart
+                {t('Muther SLP yakınlık çizelgesi', 'Muther SLP closeness chart')}
               </div>
             </div>
 
@@ -232,12 +237,12 @@ export const ProblemDefinitionCard: React.FC = () => {
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
             }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Constraints</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{t('Kısıtlar', 'Constraints')}</div>
               <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f43f5e', marginTop: '0.2rem' }}>
-                {problem.constraints.length} Rules
+                {problem.constraints.length} {t('Kural', 'Rules')}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                {problem.constraints.filter(c => c.classification === 'hard').length} Hard &bull; {problem.constraints.filter(c => c.classification === 'soft').length} Soft
+                {problem.constraints.filter(c => c.classification === 'hard').length} {t('Kesin', 'Hard')} &bull; {problem.constraints.filter(c => c.classification === 'soft').length} {t('Esnek', 'Soft')}
               </div>
             </div>
           </div>
@@ -263,7 +268,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                 backgroundColor: activeTab === 'overview' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               }}
             >
-              Overview & Objectives
+              {t('Genel Bakış ve Amaçlar', 'Overview & Objectives')}
             </button>
             <button
               onClick={() => setActiveTab('departments')}
@@ -278,7 +283,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                 backgroundColor: activeTab === 'departments' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               }}
             >
-              Departments ({problem.departments.length})
+              {t('Bölümler', 'Departments')} ({problem.departments.length})
             </button>
             <button
               onClick={() => setActiveTab('flows')}
@@ -293,7 +298,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                 backgroundColor: activeTab === 'flows' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               }}
             >
-              Flows ({problem.flows.length})
+              {t('Akışlar', 'Flows')} ({problem.flows.length})
             </button>
             <button
               onClick={() => setActiveTab('constraints')}
@@ -308,7 +313,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                 backgroundColor: activeTab === 'constraints' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               }}
             >
-              Constraints & Rules ({problem.constraints.length})
+              {t('Kısıtlar ve Kurallar', 'Constraints & Rules')} ({problem.constraints.length})
             </button>
           </div>
 
@@ -321,10 +326,10 @@ export const ProblemDefinitionCard: React.FC = () => {
               border: '1px solid var(--border-color)',
             }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Optimization Objectives Configuration
+                {t('Optimizasyon Amaçları Yapılandırması', 'Optimization Objectives Configuration')}
               </h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Weights and optimization directions parsed from problem specification:
+                {t('Problem tanımından okunan ağırlıklar ve optimizasyon yönleri:', 'Weights and optimization directions parsed from problem specification:')}
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
                 {problem.objective_config?.objectives && Object.entries(problem.objective_config.objectives).map(([k, v]: [string, any]) => (
@@ -345,11 +350,11 @@ export const ProblemDefinitionCard: React.FC = () => {
                         textTransform: 'uppercase',
                         fontWeight: 600,
                       }}>
-                        {v.direction}
+                        {v.direction === 'minimize' ? t('EN KÜÇÜKLE', 'minimize') : t('EN BÜYÜKLE', 'maximize')}
                       </span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                      Weight factor: <strong>{v.weight}</strong> &bull; {v.enabled ? 'Enabled' : 'Disabled'}
+                      {t('Ağırlık faktörü:', 'Weight factor:')} <strong>{v.weight}</strong> &bull; {v.enabled ? t('Etkin', 'Enabled') : t('Devre Dışı', 'Disabled')}
                     </div>
                   </div>
                 ))}
@@ -362,11 +367,11 @@ export const ProblemDefinitionCard: React.FC = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
-                    <th style={{ padding: '0.6rem' }}>ID</th>
-                    <th style={{ padding: '0.6rem' }}>Department Name</th>
-                    <th style={{ padding: '0.6rem' }}>Required Area</th>
-                    <th style={{ padding: '0.6rem' }}>Width Bounds</th>
-                    <th style={{ padding: '0.6rem' }}>Dock / Attributes</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Kod', 'ID')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Bölüm Adı', 'Department Name')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Gerekli Alan', 'Required Area')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Genişlik Sınırları', 'Width Bounds')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Rampa / Özellikler', 'Dock / Attributes')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -376,10 +381,10 @@ export const ProblemDefinitionCard: React.FC = () => {
                       <td style={{ padding: '0.6rem', fontWeight: 500 }}>{d.name}</td>
                       <td style={{ padding: '0.6rem' }}>{d.required_area} m²</td>
                       <td style={{ padding: '0.6rem', color: 'var(--text-muted)' }}>
-                        {d.min_width ? `${d.min_width}m – ${d.max_width}m` : 'Unconstrained'}
+                        {d.min_width ? `${d.min_width}m – ${d.max_width}m` : t('Sınırsız', 'Unconstrained')}
                       </td>
                       <td style={{ padding: '0.6rem', color: 'var(--text-muted)' }}>
-                        {d.metadata?.requires_dock ? 'Dock Required' : d.metadata?.hazard ? d.metadata.hazard : '-'}
+                        {d.metadata?.requires_dock ? t('Rampa Gerekli', 'Dock Required') : d.metadata?.hazard ? d.metadata.hazard : '-'}
                       </td>
                     </tr>
                   ))}
@@ -393,11 +398,11 @@ export const ProblemDefinitionCard: React.FC = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
-                    <th style={{ padding: '0.6rem' }}>Source</th>
-                    <th style={{ padding: '0.6rem' }}>Target</th>
-                    <th style={{ padding: '0.6rem' }}>Quantity</th>
-                    <th style={{ padding: '0.6rem' }}>Product / Material</th>
-                    <th style={{ padding: '0.6rem' }}>Handling Unit Cost</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Kaynak', 'Source')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Hedef', 'Target')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Miktar', 'Quantity')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Ürün / Malzeme', 'Product / Material')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Birim Taşıma Maliyeti', 'Handling Unit Cost')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -406,7 +411,7 @@ export const ProblemDefinitionCard: React.FC = () => {
                       <td style={{ padding: '0.6rem', fontFamily: 'var(--font-mono)', color: '#38bdf8' }}>{f.source_department}</td>
                       <td style={{ padding: '0.6rem', fontFamily: 'var(--font-mono)', color: '#818cf8' }}>{f.target_department}</td>
                       <td style={{ padding: '0.6rem', fontWeight: 600 }}>{f.quantity} {f.unit}</td>
-                      <td style={{ padding: '0.6rem', color: 'var(--text-secondary)' }}>{f.product_or_process_id || 'General Material'}</td>
+                      <td style={{ padding: '0.6rem', color: 'var(--text-secondary)' }}>{f.product_or_process_id || t('Genel Malzeme', 'General Material')}</td>
                       <td style={{ padding: '0.6rem', color: 'var(--text-muted)' }}>{f.cost_per_unit_distance || 1.0} $/m</td>
                     </tr>
                   ))}
@@ -441,19 +446,19 @@ export const ProblemDefinitionCard: React.FC = () => {
                         textTransform: 'uppercase',
                         fontWeight: 700,
                       }}>
-                        {c.classification}
+                        {c.classification === 'hard' ? t('KESİN', 'hard') : t('ESNEK', 'soft')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Type: {c.type}
+                        {t('Tür:', 'Type:')} {c.type}
                       </span>
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                      Involved: {c.involved_departments.length > 0 ? c.involved_departments.join(', ') : 'All departments'}
-                      {c.parameters?.distance && ` | Distance parameter: ≥ ${c.parameters.distance}m`}
+                      {t('İlgili bölümler:', 'Involved:')} {c.involved_departments.length > 0 ? c.involved_departments.join(', ') : t('Tüm bölümler', 'All departments')}
+                      {c.parameters?.distance && ` | ${t('Mesafe parametresi:', 'Distance parameter:')} ≥ ${c.parameters.distance}m`}
                     </div>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Penalty: {c.penalty}
+                    {t('Ceza:', 'Penalty:')} {c.penalty}
                   </div>
                 </div>
               ))}

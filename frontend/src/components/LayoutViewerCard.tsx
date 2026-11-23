@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { LayoutExampleSummary, ContinuousLayout, LayoutValidationResult } from '../types/api';
 import { fetchExampleLayouts, fetchExampleLayout, validateLayout } from '../services/api';
 import { LayoutCanvas } from './LayoutCanvas';
+import { useLanguage } from '../context/LanguageContext';
 
 export const LayoutViewerCard: React.FC = () => {
+  const { t } = useLanguage();
   const [exampleLayouts, setExampleLayouts] = useState<LayoutExampleSummary[]>([]);
   const [selectedLayoutId, setSelectedLayoutId] = useState<string>('');
   const [layout, setLayout] = useState<ContinuousLayout | null>(null);
@@ -24,7 +26,7 @@ export const LayoutViewerCard: React.FC = () => {
           setSelectedLayoutId(data[0].id);
         }
       } catch (err: any) {
-        setError(err?.message || 'Failed to fetch layout examples catalog');
+        setError(err?.message || t('Örnek yerleşim kataloğu alınamadı', 'Failed to fetch layout examples catalog'));
       } finally {
         setLoading(false);
       }
@@ -51,7 +53,7 @@ export const LayoutViewerCard: React.FC = () => {
           console.warn('Validation error:', valErr);
         }
       } catch (err: any) {
-        setError(err?.message || `Failed to load layout ${selectedLayoutId}`);
+        setError(err?.message || t(`${selectedLayoutId} yerleşimi yüklenemedi`, `Failed to load layout ${selectedLayoutId}`));
       } finally {
         setValidating(false);
       }
@@ -81,7 +83,7 @@ export const LayoutViewerCard: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ fontSize: '1.4rem' }}>📐</span>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              Phase 3 &bull; Layout Representation & Geometry Engine
+              {t('Faz 3 • Yerleşim Gösterimi ve Geometri Motoru', 'Phase 3 • Layout Representation & Geometry Engine')}
             </h2>
             <span style={{
               fontSize: '0.75rem',
@@ -92,11 +94,14 @@ export const LayoutViewerCard: React.FC = () => {
               border: '1px solid #3b82f640',
               fontWeight: 600,
             }}>
-              2D Spatial Model
+              {t('2D Mekânsal Model', '2D Spatial Model')}
             </span>
           </div>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem', marginBottom: 0 }}>
-            Continuous Cartesian space (origin bottom-left) &bull; Pairwise overlap verification &bull; Canonical SHA-256 signatures
+            {t(
+              'Sürekli Kartezyen uzay (sol-alt orijin) • İkili çakışma doğrulaması • Kanonik SHA-256 imzaları',
+              'Continuous Cartesian space (origin bottom-left) • Pairwise overlap verification • Canonical SHA-256 signatures'
+            )}
           </p>
         </div>
 
@@ -104,11 +109,11 @@ export const LayoutViewerCard: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {validating && (
             <span style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 500 }}>
-              Validating...
+              {t('Doğrulanıyor...', 'Validating...')}
             </span>
           )}
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-            Select Layout:
+            {t('Yerleşim Seç:', 'Select Layout:')}
           </label>
           <select
             value={selectedLayoutId}
@@ -127,7 +132,7 @@ export const LayoutViewerCard: React.FC = () => {
           >
             {exampleLayouts.map((ex) => (
               <option key={ex.id} value={ex.id}>
-                {ex.name} ({ex.department_count} depts)
+                {ex.name} ({ex.department_count} {t('bölüm', 'depts')})
               </option>
             ))}
           </select>
@@ -160,7 +165,7 @@ export const LayoutViewerCard: React.FC = () => {
       {layout && (
         <div style={{ marginTop: '1rem' }}>
           <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-            Allocated Department Coordinates & Dimensions
+            {t('Tahsis Edilen Bölüm Koordinatları ve Boyutları', 'Allocated Department Coordinates & Dimensions')}
           </h3>
           <div style={{
             overflowX: 'auto',
@@ -171,13 +176,13 @@ export const LayoutViewerCard: React.FC = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-secondary)' }}>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Department ID</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Origin (X, Y)</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Width × Height</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Area</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Centroid</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Aspect Ratio</th>
-                  <th style={{ padding: '0.6rem 0.8rem' }}>Orientation</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Bölüm Kodu', 'Department ID')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Başlangıç (X, Y)', 'Origin (X, Y)')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Genişlik × Yükseklik', 'Width × Height')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Alan', 'Area')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Ağırlık Merkezi', 'Centroid')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('En-Boy Oranı', 'Aspect Ratio')}</th>
+                  <th style={{ padding: '0.6rem 0.8rem' }}>{t('Yönelim', 'Orientation')}</th>
                 </tr>
               </thead>
               <tbody>

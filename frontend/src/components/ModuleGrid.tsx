@@ -9,56 +9,80 @@ interface ModuleGridProps {
 const ARCHITECTURAL_MODULES = [
   {
     key: 'models',
-    name: 'Core Data Models',
-    desc: 'Pydantic schemas: Facility, Department, Material Flow, SLP Relationship, and Constraints.',
-    category: 'Domain Layer',
+    nameTr: 'Çekirdek Veri Modelleri',
+    nameEn: 'Core Data Models',
+    descTr: 'Pydantic şemaları: Tesis, Bölüm, Malzeme Akışı, SLP İlişkileri ve Kısıtlar.',
+    descEn: 'Pydantic schemas: Facility, Department, Material Flow, SLP Relationship, and Constraints.',
+    categoryTr: 'Alan Katmanı',
+    categoryEn: 'Domain Layer',
   },
   {
     key: 'algorithms',
-    name: 'Algorithm Registry & Base Interface',
-    desc: 'Extensible ABC contract enabling CORELAP, CRAFT, Metaheuristics, and MILP plug-ins.',
-    category: 'Optimization Core',
+    nameTr: 'Algoritma Kayıt Defteri ve Temel Arayüz',
+    nameEn: 'Algorithm Registry & Base Interface',
+    descTr: 'CORELAP, CRAFT, Metasezgiseller ve MILP eklentilerini destekleyen genişletilebilir soyut sözleşme.',
+    descEn: 'Extensible ABC contract enabling CORELAP, CRAFT, Metaheuristics, and MILP plug-ins.',
+    categoryTr: 'Optimizasyon Çekirdeği',
+    categoryEn: 'Optimization Core',
   },
   {
     key: 'evaluation',
-    name: 'Decoupled Evaluation Engine',
-    desc: 'Independent evaluation of material handling cost, flow distance, closeness satisfaction, compactness.',
-    category: 'Performance Analytics',
+    nameTr: 'Bağımsız Değerlendirme Motoru',
+    nameEn: 'Decoupled Evaluation Engine',
+    descTr: 'Malzeme taşıma maliyeti, akış mesafesi, yakınlık memnuniyeti ve kompaktlık metriklerinin bağımsız değerlendirmesi.',
+    descEn: 'Independent evaluation of material handling cost, flow distance, closeness satisfaction, compactness.',
+    categoryTr: 'Performans Analitiği',
+    categoryEn: 'Performance Analytics',
   },
   {
     key: 'constraints',
-    name: 'Constraint Validation Engine',
-    desc: 'Hard & soft feasibility checks: non-overlapping boundaries, clearances, and forbidden zones.',
-    category: 'Rule Engine',
+    nameTr: 'Kısıt Doğrulama Motoru',
+    nameEn: 'Constraint Validation Engine',
+    descTr: 'Kesin ve esnek uygunluk denetimleri: çakışmama sınırları, boşluklar ve yasaklı bölgeler.',
+    descEn: 'Hard & soft feasibility checks: non-overlapping boundaries, clearances, and forbidden zones.',
+    categoryTr: 'Kural Motoru',
+    categoryEn: 'Rule Engine',
   },
   {
     key: 'optimization',
-    name: 'Multi-Objective & Pareto Solvers',
-    desc: 'Foundation for NSGA-II, Pareto front ranking, and trade-off exploration.',
-    category: 'Metaheuristics & Exact',
+    nameTr: 'Çok Amaçlı ve Pareto Çözücüler',
+    nameEn: 'Multi-Objective & Pareto Solvers',
+    descTr: 'NSGA-II, Pareto sınırı sıralaması ve ödünleşim (trade-off) keşfi altyapısı.',
+    descEn: 'Foundation for NSGA-II, Pareto front ranking, and trade-off exploration.',
+    categoryTr: 'Metasezgiseller ve Kesin Yöntemler',
+    categoryEn: 'Metaheuristics & Exact',
   },
   {
     key: 'simulation',
-    name: 'Dynamic Simulation Engine',
-    desc: 'Discrete event flow validation, aisle congestion analysis, and stochastic material handling.',
-    category: 'Verification & Dynamics',
+    nameTr: 'Dinamik Simülasyon Motoru',
+    nameEn: 'Dynamic Simulation Engine',
+    descTr: 'Ayrık olay akış doğrulaması, koridor yoğunluğu analizi ve stokastik malzeme taşıma.',
+    descEn: 'Discrete event flow validation, aisle congestion analysis, and stochastic material handling.',
+    categoryTr: 'Doğrulama ve Dinamikler',
+    categoryEn: 'Verification & Dynamics',
   },
   {
     key: 'ai',
-    name: 'AI Advisor & Decision Support',
-    desc: 'Industrial layout diagnosis and reasoning engine (prepared for Gemini API integration).',
-    category: 'Cognitive Layer',
+    nameTr: 'Yapay Zekâ Danışmanı ve Karar Destek',
+    nameEn: 'AI Advisor & Decision Support',
+    descTr: 'Endüstriyel yerleşim tanılaması ve gerekçelendirme motoru (Gemini API entegrasyonuna hazır).',
+    descEn: 'Industrial layout diagnosis and reasoning engine (prepared for Gemini API integration).',
+    categoryTr: 'Bilişsel Katman',
+    categoryEn: 'Cognitive Layer',
   },
   {
     key: 'visualization',
-    name: 'Spatial Rendering Subsystem',
-    desc: 'Normalized coordinate transformers for 2D plant blueprints and future 3D factory view.',
-    category: 'Visualization',
+    nameTr: 'Mekânsal Görselleştirme Alt Sistemi',
+    nameEn: 'Spatial Rendering Subsystem',
+    descTr: '2D tesis planları ve 3D fabrika görünümü için normalize edilmiş koordinat dönüştürücüler.',
+    descEn: 'Normalized coordinate transformers for 2D plant blueprints and future 3D factory view.',
+    categoryTr: 'Görselleştirme',
+    categoryEn: 'Visualization',
   },
 ];
 
 export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   return (
     <div style={{
       backgroundColor: 'var(--bg-secondary)',
@@ -68,7 +92,7 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
     }}>
       <div style={{ marginBottom: '1.25rem' }}>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
-          {t('Modüler Alt Sistemler & Bağımsız Mimari (Decoupled Subsystems)', 'Modular Subsystems & Decoupled Architecture')}
+          {t('Modüler Alt Sistemler ve Bağımsız Mimari', 'Modular Subsystems & Decoupled Architecture')}
         </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           {t(
@@ -86,6 +110,12 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
         {ARCHITECTURAL_MODULES.map((mod) => {
           const modStatus = status?.modules[mod.key] || 'ready';
           const isActive = modStatus === 'active';
+          const statusLabel =
+            modStatus === 'active'
+              ? t('AKTİF', 'ACTIVE')
+              : modStatus === 'ready'
+              ? t('HAZIR', 'READY')
+              : modStatus.toUpperCase();
 
           return (
             <div
@@ -110,7 +140,7 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
                     letterSpacing: '0.05em',
                     fontWeight: 600,
                   }}>
-                    {mod.category}
+                    {lang === 'tr' ? mod.categoryTr : mod.categoryEn}
                   </span>
                   <span style={{
                     fontSize: '0.65rem',
@@ -122,14 +152,14 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({ status }) => {
                     fontWeight: 600,
                     textTransform: 'uppercase',
                   }}>
-                    {modStatus}
+                    {statusLabel}
                   </span>
                 </div>
                 <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                  {mod.name}
+                  {lang === 'tr' ? mod.nameTr : mod.nameEn}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                  {mod.desc}
+                  {lang === 'tr' ? mod.descTr : mod.descEn}
                 </p>
               </div>
 

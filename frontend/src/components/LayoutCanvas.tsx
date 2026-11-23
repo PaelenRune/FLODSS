@@ -551,7 +551,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
                 border: `1px solid ${validation.is_valid ? '#059669' : '#dc2626'}`,
               }}
             >
-              {validation.is_valid ? '✓ Feasible' : '⚠ Infeasible'}
+              {validation.is_valid ? t('✓ Uygun', '✓ Feasible') : t('⚠ Uygun Değil', '⚠ Infeasible')}
             </span>
           )}
 
@@ -566,7 +566,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
                 color: '#fcd34d',
                 border: '1px solid #d97706',
               }}
-              title={t('Aspect ratio sınırını aşan departmanlar var', 'Aspect ratio violations exist')}
+              title={t('En-boy oranı sınırını aşan bölümler var', 'Aspect ratio violations exist')}
             >
               ⚠ AR Sınırı ({arViolations.size})
             </span>
@@ -684,7 +684,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               <option value="top5">⭐ {t('İlk 5 Maliyet', 'Top 5 Cost')}</option>
               <option value="top10">{t('İlk 10 Maliyet', 'Top 10 Cost')}</option>
               <option value="all">{t('Tüm Akışlar', 'All Flows')}</option>
-              {selectedDeptId && <option value="selected">{t('Seçili Departman', 'Selected Dept')}</option>}
+              {selectedDeptId && <option value="selected">{t('Seçili Bölüm', 'Selected Dept')}</option>}
             </select>
           )}
 
@@ -770,7 +770,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
       >
         <svg
           ref={svgRef}
-          aria-label="2D Facility Layout Canvas"
+          aria-label={t('2D Tesis Yerleşim Kanvası', '2D Facility Layout Canvas')}
           data-testid="layout-canvas-svg"
           xmlns="http://www.w3.org/2000/svg"
           width="100%"
@@ -1166,7 +1166,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
               pointerEvents: 'none',
             }}
           >
-            Centroid Rectilinear Distance (Manhattan) • Conceptual Flow Arcs
+            {t('Ağırlık Merkezi Dikgen Mesafe (Manhattan) • Kavramsal Akış Yayları', 'Centroid Rectilinear Distance (Manhattan) • Conceptual Flow Arcs')}
           </div>
         )}
       </div>
@@ -1283,7 +1283,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
             <div>
               <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
-                {t('Departman İnceleme Paneli', 'Department Inspection')}
+                {t('Bölüm İnceleme Paneli', 'Department Inspection')}
               </div>
               <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>
                 {selectedDeptDetails.name}
@@ -1324,11 +1324,11 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
                 <strong>{selectedDeptDetails.reqArea.toFixed(1)} m²</strong>
               </div>
               <div>
-                <span style={{ color: '#94a3b8' }}>{t('Orjin (X, Y):', 'Origin:')}</span>{' '}
+                <span style={{ color: '#94a3b8' }}>{t('Orijin (X, Y):', 'Origin:')}</span>{' '}
                 <strong>({selectedDeptDetails.placement.x.toFixed(1)}, {selectedDeptDetails.placement.y.toFixed(1)})</strong>
               </div>
               <div>
-                <span style={{ color: '#94a3b8' }}>{t('Centroid:', 'Centroid:')}</span>{' '}
+                <span style={{ color: '#94a3b8' }}>{t('Ağırlık Merkezi:', 'Centroid:')}</span>{' '}
                 <strong>
                   ({(selectedDeptDetails.placement.x + selectedDeptDetails.placement.width / 2).toFixed(1)},{' '}
                   {(selectedDeptDetails.placement.y + selectedDeptDetails.placement.height / 2).toFixed(1)})
@@ -1339,7 +1339,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
             {/* Aspect Ratio Check */}
             <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #1e293b', fontSize: '0.75rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#94a3b8' }}>Aspect Ratio:</span>
+                <span style={{ color: '#94a3b8' }}>{t('En-Boy Oranı:', 'Aspect Ratio:')}</span>
                 <span
                   style={{
                     padding: '1px 6px',
@@ -1349,7 +1349,7 @@ export const LayoutCanvas: React.FC<LayoutCanvasProps> = ({
                     color: selectedDeptDetails.aspect <= selectedDeptDetails.maxAspect ? '#6ee7b7' : '#fca5a5',
                   }}
                 >
-                  {selectedDeptDetails.aspect.toFixed(2)} (max {selectedDeptDetails.maxAspect})
+                  {selectedDeptDetails.aspect.toFixed(2)} ({t('maks', 'max')} {selectedDeptDetails.maxAspect})
                 </span>
               </div>
             </div>

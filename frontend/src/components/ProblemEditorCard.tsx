@@ -64,7 +64,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
     }
     const newDept: Department = {
       id: cleanId,
-      name: newDeptName.trim() || `Department ${cleanId}`,
+      name: newDeptName.trim() || `${t('Bölüm', 'Department')} ${cleanId}`,
       required_area: Number(newDeptArea) || 1000,
       min_aspect_ratio: Number(newDeptMinAspect) || 1.0,
       max_aspect_ratio: Number(newDeptMaxAspect) || 3.0,
@@ -117,7 +117,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
     } catch (e: any) {
       setValidationReport({
         is_valid: false,
-        errors: [e.message || 'Validation request failed'],
+        errors: [e.message || t('Doğrulama isteği başarısız oldu', 'Validation request failed')],
         warnings: [],
         stats: {},
       });
@@ -151,9 +151,9 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       }}>
         <span style={{ fontSize: '1.25rem' }}>⚠️</span>
         <div style={{ fontSize: '0.825rem', color: '#ea580c', lineHeight: 1.45 }}>
-          <strong>{t('Gizlilik & Akademik Veri Notu:', 'Confidential Research Pilot Notice:')}</strong>{' '}
+          <strong>{t('Gizlilik ve Akademik Veri Notu:', 'Confidential Research Pilot Notice:')}</strong>{' '}
           {t(
-            'Bu web pilotu sentetik benchmark ve akademik test örnekleri (Simple 4, Industrial 10, Warehouse 12 vb.) için yapılandırılmıştır. Lütfen gerçek fabrika gizli verilerini veya ticari sır içeren üretim matrislerini yüklemeyiniz.',
+            'Bu web pilotu sentetik kıyaslama ve akademik test örnekleri (Simple 4, Industrial 10, Warehouse 12 vb.) için yapılandırılmıştır. Lütfen gerçek fabrika gizli verilerini veya ticari sır içeren üretim matrislerini yüklemeyiniz.',
             'This web pilot is restricted to synthetic benchmarks and academic test instances (e.g., Simple 4, Industrial 10, Warehouse 12). Do not enter, paste, or upload real-world proprietary factory layouts, sensitive customer bill-of-materials, or confidential production flow matrices.'
           )}
         </div>
@@ -163,11 +163,11 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            {t('Tesis Yerleşim Problemi Tanımlama (FLP Problem Editor)', 'Factory Problem Editor')}
+            {t('Tesis Yerleşimi Problemi Düzenleyici', 'Factory Problem Editor')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
             {t(
-              'Tesis sınırlarını, üretim/lojistik bölümlerini, Aspect Ratio kısıtlarını ve Fixed Position koordinatlarını yapılandırın.',
+              'Tesis sınırlarını, üretim/lojistik bölümlerini, En-Boy Oranı kısıtlarını ve Sabit Konum koordinatlarını yapılandırın.',
               'Configure plant boundaries, production departments, aspect ratio constraints, and fixed locations without editing raw JSON.'
             )}
           </p>
@@ -175,7 +175,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            {t('Benchmark Şablonu:', 'Load Template:')}
+            {t('Örnek Şablon:', 'Load Template:')}
           </label>
           <select
             data-testid="benchmark-template-select"
@@ -330,7 +330,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
 
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            {t('Toplam Tesis Alanı (Footprint):', 'Facility Footprint:')}
+            {t('Toplam Tesis Alanı:', 'Facility Footprint:')}
           </label>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
             {facArea.toLocaleString()} m²
@@ -342,13 +342,13 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
 
         <div>
           <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
-            {t('Alan Kullanım Oranı (Utilization):', 'Department Utilization:')}
+            {t('Alan Kullanım Oranı:', 'Department Utilization:')}
           </label>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: utilPct > 95 ? '#ef4444' : utilPct >= 80 ? '#10b981' : '#f59e0b', marginTop: '0.2rem' }}>
             {utilPct.toFixed(1)}% ({totalReqArea.toLocaleString()} m²)
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            {problem.departments.length} {t('Fonksiyonel Bölüm (Activity Center)', 'Functional Activity Centers')}
+            {problem.departments.length} {t('Fonksiyonel Bölüm', 'Functional Activity Centers')}
           </span>
         </div>
       </div>
@@ -369,11 +369,11 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                 <th style={{ padding: '0.65rem 0.85rem' }}>ID</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Bölüm Adı (Department)', 'Department Name')}</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Bölüm Adı', 'Department Name')}</th>
                 <th style={{ padding: '0.65rem 0.85rem' }}>{t('Gerekli Alan (m²)', 'Req Area (m²)')}</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Min Aspect Ratio</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Max Aspect Ratio</th>
-                <th style={{ padding: '0.65rem 0.85rem' }}>Fixed Position</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Min. En-Boy Oranı', 'Min Aspect Ratio')}</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Maks. En-Boy Oranı', 'Max Aspect Ratio')}</th>
+                <th style={{ padding: '0.65rem 0.85rem' }}>{t('Sabit Konum', 'Fixed Position')}</th>
                 <th style={{ padding: '0.65rem 0.85rem', textAlign: 'right' }}>{t('İşlemler', 'Actions')}</th>
               </tr>
             </thead>
@@ -441,7 +441,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                           📌 ({dept.fixed_position.x}, {dept.fixed_position.y})
                         </span>
                       ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>Floating</span>
+                        <span style={{ color: 'var(--text-muted)' }}>{t('Serbest', 'Floating')}</span>
                       )}
                     </td>
                     <td style={{ padding: '0.65rem 0.85rem', textAlign: 'right' }}>
@@ -489,14 +489,14 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
         border: '1px solid var(--border-color)',
       }}>
         <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.85rem', color: 'var(--text-primary)' }}>
-          {t('+ Yeni Bölüm (Department) Ekle', '+ Add New Department')}
+          {t('+ Yeni Bölüm Ekle', '+ Add New Department')}
         </h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', alignItems: 'end' }}>
           <div>
             <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>ID:</label>
             <input
               type="text"
-              placeholder="e.g. DEP_11"
+              placeholder={t('örn. DEP_11', 'e.g. DEP_11')}
               value={newDeptId}
               onChange={(e) => setNewDeptId(e.target.value)}
               style={{ width: '100%', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
@@ -526,7 +526,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Min Aspect Ratio:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>{t('Min. En-Boy Oranı:', 'Min Aspect Ratio:')}</label>
             <input
               type="number"
               step="0.1"
@@ -536,7 +536,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Max Aspect Ratio:</label>
+            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>{t('Maks. En-Boy Oranı:', 'Max Aspect Ratio:')}</label>
             <input
               type="number"
               step="0.1"
@@ -552,7 +552,7 @@ export const ProblemEditorCard: React.FC<ProblemEditorCardProps> = ({
                 checked={newDeptIsFixed}
                 onChange={(e) => setNewDeptIsFixed(e.target.checked)}
               />
-              Fixed Position?
+              {t('Sabit Konum mu?', 'Fixed Position?')}
             </label>
             {newDeptIsFixed && (
               <div style={{ display: 'flex', gap: '0.25rem' }}>

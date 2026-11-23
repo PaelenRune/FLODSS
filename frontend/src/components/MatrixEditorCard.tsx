@@ -8,16 +8,16 @@ interface MatrixEditorCardProps {
 }
 
 const REL_OPTIONS = [
-  { code: 'A', score: 4, label: 'A - Absolutely Necessary', color: '#059669', bg: 'rgba(5, 150, 105, 0.2)' },
-  { code: 'E', score: 3, label: 'E - Especially Important', color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-  { code: 'I', score: 2, label: 'I - Important', color: '#0284c7', bg: 'rgba(2, 132, 199, 0.2)' },
-  { code: 'O', score: 1, label: 'O - Ordinary Closeness', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)' },
-  { code: 'U', score: 0, label: 'U - Unimportant', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.15)' },
-  { code: 'X', score: -1, label: 'X - Undesirable', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.2)' },
+  { code: 'A', score: 4, labelTr: 'Kesinlikle Gerekli', labelEn: 'Absolutely Necessary', color: '#059669', bg: 'rgba(5, 150, 105, 0.2)' },
+  { code: 'E', score: 3, labelTr: 'Çok Önemli', labelEn: 'Especially Important', color: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
+  { code: 'I', score: 2, labelTr: 'Önemli', labelEn: 'Important', color: '#0284c7', bg: 'rgba(2, 132, 199, 0.2)' },
+  { code: 'O', score: 1, labelTr: 'Olağan Yakınlık', labelEn: 'Ordinary Closeness', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.2)' },
+  { code: 'U', score: 0, labelTr: 'Önemsiz', labelEn: 'Unimportant', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.15)' },
+  { code: 'X', score: -1, labelTr: 'İstenmeyen', labelEn: 'Undesirable', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.2)' },
 ];
 
 export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onUpdateProblem }) => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'flows' | 'relationships'>('flows');
 
   if (!problem || !problem.departments || problem.departments.length === 0) {
@@ -25,7 +25,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
       <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
         <p style={{ color: 'var(--text-muted)' }}>
           {t(
-            'Flow ve REL matrislerini oluşturmak için Problem Tanımı sekmesinde en az iki bölüm tanımlayın.',
+            'Akış ve REL matrislerini oluşturmak için Problem Tanımı sekmesinde en az iki bölüm tanımlayın.',
             'Define at least two departments in the Problem Editor to build flow and relationship matrices.'
           )}
         </p>
@@ -165,11 +165,11 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            {t('Malzeme Akış & Yakınlık Matrisleri (Flow & REL Matrices)', 'Flow & Relationship Matrices')}
+            {t('Malzeme Akış ve Yakınlık Matrisleri', 'Flow & Relationship Matrices')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
             {t(
-              'Bölümler arası malzeme taşıma miktarları (From-To Flow Matrix) ve Muther Systematic Layout Planning (SLP) yakınlık dereceleri (A, E, I, O, U, X).',
+              'Bölümler arası malzeme aktarım miktarları (Kaynak-Hedef Akış Matrisi) ve Muther Sistematik Yerleşim Planlaması (SLP) yakınlık dereceleri (A, E, I, O, U, X).',
               'Interactive matrix table editors for From-To material transfers and Systematic Layout Planning (SLP) closeness ratings.'
             )}
           </p>
@@ -189,7 +189,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 cursor: 'pointer',
               }}
             >
-              From-To Flow Matrix ({totalFlowSum.toLocaleString()} vol)
+              {t(`Kaynak-Hedef Akış Matrisi (${totalFlowSum.toLocaleString()} hacim)`, `From-To Flow Matrix (${totalFlowSum.toLocaleString()} vol)`)}
             </button>
             <button
               onClick={() => setActiveTab('relationships')}
@@ -203,7 +203,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 cursor: 'pointer',
               }}
             >
-              REL Closeness Matrix ({relCount} {t('çift', 'pairs')})
+              {t(`REL Yakınlık Matrisi (${relCount} çift)`, `REL Closeness Matrix (${relCount} pairs)`)}
             </button>
           </div>
 
@@ -230,7 +230,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
         <div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
             {t(
-              'Satırlar kaynak bölümleri (From), sütunlar hedef bölümleri (To) temsil eder. Hücrelere birim akış hacmini girin.',
+              'Satırlar kaynak bölümleri, sütunlar hedef bölümleri temsil eder. Hücrelere birim akış hacmini girin.',
               'Rows represent source departments (From); Columns represent destination departments (To). Enter transfer volume per cell.'
             )}
           </div>
@@ -238,7 +238,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'center' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>From \ To</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>{t('Kaynak \\ Hedef', 'From \\ To')}</th>
                   {deptIds.map(d => (
                     <th key={d} style={{ padding: '0.5rem', minWidth: '65px', color: 'var(--accent-blue)' }}>
                       {d.replace(/^DEP_/, '')}
@@ -310,7 +310,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
                 <span style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '3px', backgroundColor: opt.color, color: '#fff', fontWeight: 700 }}>
                   {opt.code}
                 </span>
-                <span style={{ color: 'var(--text-secondary)' }}>{opt.label.split(' - ')[1]} ({opt.score})</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{lang === 'tr' ? opt.labelTr : opt.labelEn} ({opt.score})</span>
               </div>
             ))}
           </div>
@@ -319,7 +319,7 @@ export const MatrixEditorCard: React.FC<MatrixEditorCardProps> = ({ problem, onU
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'center' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>Dept A \ B</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'left', minWidth: '90px' }}>{t('Bölüm A \\ B', 'Dept A \\ B')}</th>
                   {deptIds.map(d => (
                     <th key={d} style={{ padding: '0.5rem', minWidth: '60px', color: 'var(--accent-blue)' }}>
                       {d.replace(/^DEP_/, '')}

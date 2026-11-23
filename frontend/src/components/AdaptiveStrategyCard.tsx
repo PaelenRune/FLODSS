@@ -12,15 +12,15 @@ import { useLanguage } from '../context/LanguageContext';
 import { formatCost } from '../utils/formatters';
 
 const BENCHMARK_PROBLEMS = [
-  { id: 'FLP_INDUSTRIAL_10', name: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
-  { id: 'HIGH_DENSITY_15', name: 'HIGH_DENSITY_15 (15 Depts, 90.0% Util, Realistic Dense Flows)' },
-  { id: 'HIGH_DENSITY_20', name: 'HIGH_DENSITY_20 (20 Depts, 95.8% Util, Heterogeneous Dense Plant)' },
-  { id: 'CONSTRAINED_FACTORY_12', name: 'CONSTRAINED_FACTORY_12 (12 Depts, 81.3% Util, Fixed Dock & Reserved Spine)' },
-  { id: 'LOGISTICS_FACTORY_15', name: 'LOGISTICS_FACTORY_15 (15 Depts, 85.0% Util, Asymmetric Tote Logistics)' },
-  { id: 'FLP_ACADEMIC_4', name: 'FLP_ACADEMIC_4 (4 Depts, Small Unconstrained Flow)' },
-  { id: 'FLP_MEDIUM_6', name: 'FLP_MEDIUM_6 (6 Depts, Medium Plant)' },
-  { id: 'FLP_EXPANSION_8', name: 'FLP_EXPANSION_8 (8 Depts, Reserved Spine Aisle)' },
-  { id: 'FLP_LOGISTICS_5', name: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
+  { id: 'FLP_INDUSTRIAL_10', nameTr: 'FLP_INDUSTRIAL_10 (10 Bölüm, %91,7 Alan Kullanımı, Sıkı Sınırlar)', nameEn: 'FLP_INDUSTRIAL_10 (10 Depts, 91.7% Util, Strict Bounds)' },
+  { id: 'HIGH_DENSITY_15', nameTr: 'HIGH_DENSITY_15 (15 Bölüm, %90,0 Alan Kullanımı, Yoğun Gerçekçi Akışlar)', nameEn: 'HIGH_DENSITY_15 (15 Depts, 90.0% Util, Realistic Dense Flows)' },
+  { id: 'HIGH_DENSITY_20', nameTr: 'HIGH_DENSITY_20 (20 Bölüm, %95,8 Alan Kullanımı, Heterojen Yoğun Tesis)', nameEn: 'HIGH_DENSITY_20 (20 Depts, 95.8% Util, Heterogeneous Dense Plant)' },
+  { id: 'CONSTRAINED_FACTORY_12', nameTr: 'CONSTRAINED_FACTORY_12 (12 Bölüm, %81,3 Alan Kullanımı, Sabit Rampa & Ayrılmış Koridor)', nameEn: 'CONSTRAINED_FACTORY_12 (12 Depts, 81.3% Util, Fixed Dock & Reserved Spine)' },
+  { id: 'LOGISTICS_FACTORY_15', nameTr: 'LOGISTICS_FACTORY_15 (15 Bölüm, %85,0 Alan Kullanımı, Asimetrik Kutu Lojistiği)', nameEn: 'LOGISTICS_FACTORY_15 (15 Depts, 85.0% Util, Asymmetric Tote Logistics)' },
+  { id: 'FLP_ACADEMIC_4', nameTr: 'FLP_ACADEMIC_4 (4 Bölüm, Küçük Kısıtsız Akış)', nameEn: 'FLP_ACADEMIC_4 (4 Depts, Small Unconstrained Flow)' },
+  { id: 'FLP_MEDIUM_6', nameTr: 'FLP_MEDIUM_6 (6 Bölüm, Orta Ölçekli Tesis)', nameEn: 'FLP_MEDIUM_6 (6 Depts, Medium Plant)' },
+  { id: 'FLP_EXPANSION_8', nameTr: 'FLP_EXPANSION_8 (8 Bölüm, Ayrılmış Ana Koridor)', nameEn: 'FLP_EXPANSION_8 (8 Depts, Reserved Spine Aisle)' },
+  { id: 'FLP_LOGISTICS_5', nameTr: 'FLP_LOGISTICS_5 (5 Bölüm, Doğrusal Akış Merkezi)', nameEn: 'FLP_LOGISTICS_5 (5 Depts, Linear Flow Hub)' },
 ];
 
 export interface AdaptiveStrategyCardProps {
@@ -141,15 +141,15 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.5rem', borderRadius: '4px', backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Phase 11
+              {t('Faz 11', 'Phase 11')}
             </span>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              Adaptive Strategy Engine v1
+              {t('Uyarlanabilir Strateji Motoru v1', 'Adaptive Strategy Engine v1')}
             </h2>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
             {t(
-              'Otomatik Problem Fingerprint çıkarımı, kural tabanlı algoritma seçimi, Fallback dayanıklılığı ve paylaşımlı aday portföyü.',
+              'Otomatik problem parmak izi çıkarımı, kural tabanlı algoritma seçimi, yedek çözücü dayanıklılığı ve paylaşımlı aday portföyü.',
               'Automated fingerprint extraction, rule-based algorithm selection, fallback resilience, and shared candidate portfolio.'
             )}
           </p>
@@ -171,7 +171,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             disabled={solving}
             style={{ fontSize: '0.85rem', fontWeight: 600, backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
           >
-            {solving ? t('Adaptif Çözülüyor...', 'Solving Adaptively...') : t('Adaptive Optimizasyonu Başlat', 'Launch Adaptive Optimization')}
+            {solving ? t('Uyarlanabilir Çözüm Üretiliyor...', 'Solving Adaptively...') : t('Uyarlanabilir Optimizasyonu Başlat', 'Launch Adaptive Optimization')}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('PROBLEM ÖRNEĞİ (INSTANCE)', 'PROBLEM INSTANCE')}
+            {t('PROBLEM ÖRNEĞİ', 'PROBLEM INSTANCE')}
           </label>
           <select
             value={selectedProblemId}
@@ -190,7 +190,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
           >
             {BENCHMARK_PROBLEMS.map((bp) => (
               <option key={bp.id} value={bp.id}>
-                {bp.name}
+                {t(bp.nameTr, bp.nameEn)}
               </option>
             ))}
           </select>
@@ -198,7 +198,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('ZAMAN BÜTÇESİ / TIME BUDGET (SN)', 'TIME BUDGET (SECONDS)')}
+            {t('ZAMAN BÜTÇESİ (SN)', 'TIME BUDGET (SECONDS)')}
           </label>
           <input
             type="number"
@@ -229,7 +229,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
 
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            RANDOM SEED
+            {t('RASTGELELİK TOHUMU (SEED)', 'RANDOM SEED')}
           </label>
           <input
             type="number"
@@ -248,7 +248,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
               onChange={(e) => setFallbackEnabled(e.target.checked)}
               disabled={solving}
             />
-            <span style={{ fontWeight: 600 }}>{t('Adaptive Fallback Etkin', 'Enable Adaptive Fallback')}</span>
+            <span style={{ fontWeight: 600 }}>{t('Uyarlanabilir Yedek Çözücü Etkin', 'Enable Adaptive Fallback')}</span>
           </label>
           <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
             {t('Birincil sezgisel başarısız olursa otomatik ikincil çözücüye geç', 'Auto-switch to secondary solver if primary heuristic fails')}
@@ -268,38 +268,38 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
           {/* Fingerprint Card */}
           <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.75rem 0', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-              Deterministic Problem Fingerprint
+              {t('Deterministik Problem Parmak İzi', 'Deterministic Problem Fingerprint')}
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Departmanlar:', 'Departments:')}</span> <strong>{analysis.fingerprint.department_count}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Bölümler:', 'Departments:')}</span> <strong>{analysis.fingerprint.department_count}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Area Utilization:</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Alan Kullanımı:', 'Area Utilization:')}</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
               </div>
               <div>
                 <span style={{ color: 'var(--text-muted)' }}>{t('Tesis Boyutu:', 'Plant Footprint:')}</span> <strong>{analysis.fingerprint.facility_width} × {analysis.fingerprint.facility_height} m</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Area Variation:</span> <strong>{analysis.fingerprint.area_variation}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Alan Değişkenliği:', 'Area Variation:')}</span> <strong>{analysis.fingerprint.area_variation}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Flow Density:</span> <strong>{(analysis.fingerprint.flow_density * 100).toFixed(1)}%</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Akış Yoğunluğu:', 'Flow Density:')}</span> <strong>{(analysis.fingerprint.flow_density * 100).toFixed(1)}%</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>REL Density:</span> <strong>{(analysis.fingerprint.rel_density ? (analysis.fingerprint.rel_density * 100).toFixed(1) : 0)}%</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('REL Yoğunluğu:', 'REL Density:')}</span> <strong>{(analysis.fingerprint.rel_density ? (analysis.fingerprint.rel_density * 100).toFixed(1) : 0)}%</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Aspect Ratio Bounds:</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} Depts` : 'None'}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('En-Boy Oranı Sınırları:', 'Aspect Ratio Bounds:')}</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} ${t('Bölüm', 'Depts')}` : t('Yok', 'None')}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Reserved Zones:</span> <strong>{analysis.fingerprint.reserved_zone_count ? `${analysis.fingerprint.reserved_zone_count} (${(analysis.fingerprint.reserved_zone_ratio! * 100).toFixed(1)}%)` : 'None'}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Ayrılmış Bölgeler:', 'Reserved Zones:')}</span> <strong>{analysis.fingerprint.reserved_zone_count ? `${analysis.fingerprint.reserved_zone_count} (${(analysis.fingerprint.reserved_zone_ratio! * 100).toFixed(1)}%)` : t('Yok', 'None')}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Hard Constraints:</span> <strong>{analysis.fingerprint.hard_constraints_count}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Kesin Kısıtlar:', 'Hard Constraints:')}</span> <strong>{analysis.fingerprint.hard_constraints_count}</strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-muted)' }}>Soft Constraints:</span> <strong>{analysis.fingerprint.soft_constraints_count}</strong>
+                <span style={{ color: 'var(--text-muted)' }}>{t('Esnek Kısıtlar:', 'Soft Constraints:')}</span> <strong>{analysis.fingerprint.soft_constraints_count}</strong>
               </div>
             </div>
             {analysis.fingerprint.unavailable_features && analysis.fingerprint.unavailable_features.length > 0 && (
@@ -327,14 +327,14 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.75rem', marginTop: '0.5rem' }}>
               <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                <strong>Primary:</strong> {analysis.selected_strategy.primary_algorithm}
+                <strong>{t('Birincil:', 'Primary:')}</strong> {analysis.selected_strategy.primary_algorithm}
               </span>
               <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                <strong>Improvement:</strong> {analysis.selected_strategy.improvement_algorithms.join(', ') || 'None'}
+                <strong>{t('İyileştirme:', 'Improvement:')}</strong> {analysis.selected_strategy.improvement_algorithms.join(', ') || t('Yok', 'None')}
               </span>
               {analysis.selected_strategy.fallback_algorithm && (
                 <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)', color: '#f59e0b' }}>
-                  <strong>Fallback:</strong> {analysis.selected_strategy.fallback_algorithm}
+                  <strong>{t('Yedek Çözücü:', 'Fallback:')}</strong> {analysis.selected_strategy.fallback_algorithm}
                 </span>
               )}
             </div>
@@ -348,37 +348,37 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
           {/* Executive Metrics Bar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>FEASIBILITY STATUS</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('UYGUNLUK DURUMU', 'FEASIBILITY STATUS')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: result.feasible_status ? '#10b981' : '#ef4444' }}>
-                {result.feasible_status ? 'Complete & Feasible' : 'Infeasible / Failed'}
+                {result.feasible_status ? t('Tam & Uygun', 'Complete & Feasible') : t('Uygun Değil / Başarısız', 'Infeasible / Failed')}
               </div>
             </div>
 
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>BEST FEASIBLE MHC</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('EN İYİ UYGUN MHC', 'BEST FEASIBLE MHC')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#3b82f6' }}>
-                {result.final_recommendation?.material_handling_cost ? formatCost(result.final_recommendation.material_handling_cost) : 'N/A'}
+                {result.final_recommendation?.material_handling_cost ? formatCost(result.final_recommendation.material_handling_cost) : t('Yok', 'N/A')}
               </div>
             </div>
 
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PORTFOLIO CANDIDATES</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('PORTFÖY ADAYLARI', 'PORTFOLIO CANDIDATES')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>
-                {result.candidate_portfolio.feasible_candidates_count} Feasible / {result.candidate_portfolio.total_candidates_generated} Total
+                {result.candidate_portfolio.feasible_candidates_count} {t('Uygun', 'Feasible')} / {result.candidate_portfolio.total_candidates_generated} {t('Toplam', 'Total')}
               </div>
             </div>
 
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PARETO FRONTIER</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('PARETO SINIRI', 'PARETO FRONTIER')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#8b5cf6' }}>
-                {result.pareto_frontier.frontier_count} Non-Dominated
+                {result.pareto_frontier.frontier_count} {t('Baskılanmayan', 'Non-Dominated')}
               </div>
             </div>
 
             <div style={{ padding: '0.75rem', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>TOTAL EXECUTION TIME</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('TOPLAM ÇALIŞMA SÜRESİ', 'TOTAL EXECUTION TIME')}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>
-                {result.total_runtime_seconds.toFixed(2)}s ({result.total_algorithm_calls} calls)
+                {result.total_runtime_seconds.toFixed(2)}s ({result.total_algorithm_calls} {t('çağrı', 'calls')})
               </div>
             </div>
           </div>
@@ -386,7 +386,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
           {/* Explainable Decision Trace Table */}
           <div style={{ marginBottom: '1.5rem' }}>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-              {t('Açıklanabilir Karar & Çalıştırma İzi (Explainable Execution Trace)', 'Explainable Decision & Execution Trace (Honest Audit Record)')}
+              {t('Açıklanabilir Karar & Çalıştırma İzi', 'Explainable Decision & Execution Trace (Honest Audit Record)')}
             </h4>
             <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
@@ -397,7 +397,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
                     <th style={{ padding: '0.5rem' }}>{t('Kategori', 'Category')}</th>
                     <th style={{ padding: '0.5rem' }}>{t('Sonuç Durumu', 'Result Status')}</th>
                     <th style={{ padding: '0.5rem' }}>MHC ($)</th>
-                    <th style={{ padding: '0.5rem' }}>Runtime</th>
+                    <th style={{ padding: '0.5rem' }}>{t('Süre', 'Runtime')}</th>
                     <th style={{ padding: '0.5rem' }}>{t('Denetim Gerekçesi & Sonraki Adım', 'Audit Reason & Next Action')}</th>
                   </tr>
                 </thead>
@@ -406,15 +406,15 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
                     <tr key={step.step_index} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '0.5rem', fontWeight: 600 }}>{step.step_index}</td>
                       <td style={{ padding: '0.5rem' }}>
-                        <code>{step.selected_algorithm}</code> {step.was_fallback && <span style={{ color: '#f59e0b', fontSize: '0.7rem' }}>[FALLBACK]</span>}
+                        <code>{step.selected_algorithm}</code> {step.was_fallback && <span style={{ color: '#f59e0b', fontSize: '0.7rem' }}>[{t('YEDEK', 'FALLBACK')}]</span>}
                       </td>
                       <td style={{ padding: '0.5rem', textTransform: 'capitalize' }}>{step.algorithm_category}</td>
                       <td style={{ padding: '0.5rem' }}>
                         {step.success ? (
-                          <span style={{ color: '#10b981', fontWeight: 600 }}>Feasible</span>
+                          <span style={{ color: '#10b981', fontWeight: 600 }}>{t('Uygun', 'Feasible')}</span>
                         ) : (
                           <span style={{ color: '#ef4444', fontWeight: 600 }}>
-                            Infeasible {step.failure_reason && `(${step.failure_reason})`}
+                            {t('Uygun Değil', 'Infeasible')} {step.failure_reason && `(${step.failure_reason})`}
                           </span>
                         )}
                       </td>
@@ -438,7 +438,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>
-                  {t('Yerleşim Önizlemesi:', 'Layout Preview:')} {selectedCandidateSig ? `Sig ${selectedCandidateSig.substring(0, 8)}...` : 'None'}
+                  {t('Yerleşim Önizlemesi:', 'Layout Preview:')} {selectedCandidateSig ? `${t('İmza', 'Sig')} ${selectedCandidateSig.substring(0, 8)}...` : t('Yok', 'None')}
                 </h4>
                 {result.final_recommendation?.layout_signature === selectedCandidateSig && (
                   <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', backgroundColor: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>
@@ -461,10 +461,10 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             {/* Candidate Portfolio Selection List */}
             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
               <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>
-                {t('Aday Portföyü', 'Candidate Portfolio')} ({result.candidate_portfolio.unique_candidates_count} Unique)
+                {t('Aday Portföyü', 'Candidate Portfolio')} ({result.candidate_portfolio.unique_candidates_count} {t('Tekil', 'Unique')})
               </h4>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.75rem 0' }}>
-                {t('Algoritma Provenance kaydı korunmuş tekil imzalar. Görselleştirmek için bir adaya tıklayın.', 'Deduplicated signatures with preserved algorithm provenance. Click candidate to view layout.')}
+                {t('Algoritma köken kaydı korunmuş tekil imzalar. Görselleştirmek için bir adaya tıklayın.', 'Deduplicated signatures with preserved algorithm provenance. Click candidate to view layout.')}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '360px', overflowY: 'auto' }}>
@@ -485,14 +485,14 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
                         <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>{cand.candidate_id} ({cand.source_algorithm})</span>
                         <span style={{ fontSize: '0.7rem', fontWeight: 600, color: cand.feasibility ? '#10b981' : '#ef4444' }}>
-                          {cand.feasibility ? 'Feasible' : 'Infeasible'}
+                          {cand.feasibility ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')}
                         </span>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        MHC: <strong>{cand.material_handling_cost ? formatCost(cand.material_handling_cost) : 'N/A'}</strong> | REL Sat: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : 'N/A'}
+                        MHC: <strong>{cand.material_handling_cost ? formatCost(cand.material_handling_cost) : t('Yok', 'N/A')}</strong> | {t('REL Memnuniyeti', 'REL Sat')}: {cand.relationship_satisfaction ? `${cand.relationship_satisfaction.toFixed(1)}%` : t('Yok', 'N/A')}
                       </div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                        Provenance: {cand.provenance_sources.map((p) => p.algorithm_name).join(', ')}
+                        {t('Köken:', 'Provenance:')} {cand.provenance_sources.map((p) => p.algorithm_name).join(', ')}
                       </div>
                     </div>
                   );

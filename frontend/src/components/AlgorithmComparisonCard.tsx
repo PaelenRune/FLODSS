@@ -39,15 +39,15 @@ export const AlgorithmComparisonCard: React.FC = () => {
 
   const getAlgorithmBadge = (algo: string) => {
     if (algo.startsWith('CORELAP')) {
-      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#3b82f620', color: '#3b82f6' }}>CORELAP (Constructive)</span>;
+      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#3b82f620', color: '#3b82f6' }}>{t('CORELAP (Kurucu)', 'CORELAP (Constructive)')}</span>;
     }
     if (algo.startsWith('ALDEP')) {
-      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#8b5cf620', color: '#8b5cf6' }}>ALDEP (Stochastic)</span>;
+      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#8b5cf620', color: '#8b5cf6' }}>{t('ALDEP (Stokastik)', 'ALDEP (Stochastic)')}</span>;
     }
     if (algo.startsWith('CRAFT')) {
-      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#10b98120', color: '#10b981' }}>CRAFT (Improvement)</span>;
+      return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#10b98120', color: '#10b981' }}>{t('CRAFT (İyileştirme)', 'CRAFT (Improvement)')}</span>;
     }
-    return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#64748b20', color: '#64748b' }}>Manual Baseline</span>;
+    return <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: '#64748b20', color: '#64748b' }}>{t('Manuel Temel Yerleşim', 'Manual Baseline')}</span>;
   };
 
   return (
@@ -63,11 +63,11 @@ export const AlgorithmComparisonCard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>📊</span> {t('Algoritma Benchmark & Karşılaştırma Matrisi (CORELAP / ALDEP / CRAFT)', 'Algorithm Benchmark & Comparison (Phase 7.1)')}
+            <span>📊</span> {t('Algoritma Kıyaslama ve Karşılaştırma Matrisi (CORELAP / ALDEP / CRAFT)', 'Algorithm Benchmark & Comparison (Phase 7.1)')}
           </h2>
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-secondary, #64748b)' }}>
             {t(
-              'Standart fabrika Benchmark problemleri üzerinde CORELAP, ALDEP ve CRAFT sezgisellerinin ampirik performans değerlendirmesi.',
+              'Standart fabrika kıyaslama problemleri üzerinde CORELAP, ALDEP ve CRAFT sezgisel algoritmalarının deneysel performans değerlendirmesi.',
               'Empirical evaluation across CORELAP, ALDEP, and CRAFT on standardized factory benchmarks.'
             )}
           </p>
@@ -106,7 +106,7 @@ export const AlgorithmComparisonCard: React.FC = () => {
               gap: '0.5rem',
             }}
           >
-            {loading ? t('Benchmark Matrisi Çalıştırılıyor...', 'Running Benchmark Matrix...') : t('▶ Tüm Benchmark Paketini Çalıştır', '▶ Run Full Benchmark Suite')}
+            {loading ? t('Kıyaslama Matrisi Çalıştırılıyor...', 'Running Benchmark Matrix...') : t('▶ Tüm Kıyaslama Paketini Çalıştır', '▶ Run Full Benchmark Suite')}
           </button>
         </div>
       </div>
@@ -136,10 +136,10 @@ export const AlgorithmComparisonCard: React.FC = () => {
         color: '#1e40af',
         lineHeight: 1.5,
       }}>
-        <strong>⚖️ {t('Bilimsel Bütünlük & Benchmark Adilliği:', 'Scientific Integrity & Benchmark Fairness:')}</strong>
+        <strong>⚖️ {t('Bilimsel Bütünlük ve Kıyaslama Adilliği:', 'Scientific Integrity & Benchmark Fairness:')}</strong>
         <div style={{ marginTop: '0.25rem' }}>
           {t(
-            'Eksik yerleşimler (örn. FLP_INDUSTRIAL_10 üzerinde CORELAP) ve geometrik Hard Constraint ihlali içeren yerleşimler (örn. ALDEP Strip Sweep kaynaklı Pairwise Overlap) geçersiz karşılaştırmaları önlemek için MHC sıralamasından hariç tutulur (Excluded). CRAFT bir Improvement Heuristic olup yalnızca tam ve Feasible başlangıç yerleşimleri üzerinde çalışır.',
+            'Eksik yerleşimler (örn. FLP_INDUSTRIAL_10 üzerinde CORELAP) ve geometrik kesin kısıt ihlali içeren yerleşimler (örn. ALDEP şerit taraması kaynaklı ikili çakışma) geçersiz karşılaştırmaları önlemek için MHC sıralamasından hariç tutulur. CRAFT bir iyileştirme sezgisel algoritması olup yalnızca tam ve uygun başlangıç yerleşimleri üzerinde çalışır.',
             'Incomplete layouts (e.g. CORELAP on FLP_INDUSTRIAL_10) and layouts with geometric constraint violations (e.g. continuous bounding box overlaps from ALDEP strip sweep) are strictly excluded from objective ranking to avoid invalid comparisons. CRAFT is an improvement heuristic and operates exclusively on complete, feasible initial baselines.'
           )}
         </div>
@@ -159,15 +159,15 @@ export const AlgorithmComparisonCard: React.FC = () => {
             fontSize: '0.8rem',
             color: 'var(--text-secondary, #475569)',
           }}>
-            <div><strong>Run ID:</strong> <code>{benchmarkResult.run_id}</code></div>
+            <div><strong>{t('Çalıştırma No:', 'Run ID:')}</strong> <code>{benchmarkResult.run_id}</code></div>
             <div><strong>{t('Zaman Damgası:', 'Timestamp:')}</strong> {new Date(benchmarkResult.timestamp).toLocaleString()}</div>
             <div><strong>{t('Değerlendirilen Problemler:', 'Problems Evaluated:')}</strong> {benchmarkResult.config.problem_ids?.join(', ')}</div>
-            <div><strong>ALDEP Seeds:</strong> {benchmarkResult.config.aldep_seeds?.length} seeds ({benchmarkResult.config.aldep_candidates_per_seed} candidates/seed)</div>
+            <div><strong>{t('ALDEP Tohumları:', 'ALDEP Seeds:')}</strong> {benchmarkResult.config.aldep_seeds?.length} {t('tohum', 'seeds')} ({benchmarkResult.config.aldep_candidates_per_seed} {t('aday/tohum', 'candidates/seed')})</div>
           </div>
 
           {/* Primary Cross-Algorithm Comparison Table */}
           <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            {t('Algoritmalar Arası Performans Matrisi (Cross-Algorithm Matrix)', 'Cross-Algorithm Performance Matrix')}
+            {t('Algoritmalar Arası Performans Matrisi', 'Cross-Algorithm Performance Matrix')}
           </h3>
           <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
             <table style={{
@@ -179,13 +179,13 @@ export const AlgorithmComparisonCard: React.FC = () => {
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-secondary, #f1f5f9)', borderBottom: '2px solid var(--border-color, #cbd5e1)' }}>
                   <th style={{ padding: '0.6rem 0.75rem' }}>{t('Algoritma', 'Algorithm')}</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Problem</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Run / Baseline</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Complete</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Feasible</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Best MHC</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Runtime (s)</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Durum & Tanı (Diagnostics)', 'Status & Diagnostics')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Problem', 'Problem')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Çalıştırma / Temel', 'Run / Baseline')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Tamlık', 'Complete')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Uygunluk', 'Feasible')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('En İyi MHC', 'Best MHC')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('Süre (sn)', 'Runtime (s)')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Durum ve Tanılama', 'Status & Diagnostics')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,23 +210,23 @@ export const AlgorithmComparisonCard: React.FC = () => {
                       </td>
                       <td style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>
                         {row.complete ? (
-                          <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ Yes</span>
+                          <span style={{ color: '#16a34a', fontWeight: 600 }}>{t('✓ Evet', '✓ Yes')}</span>
                         ) : (
-                          <span style={{ color: '#dc2626', fontWeight: 600 }}>✗ Partial</span>
+                          <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('✗ Kısmi', '✗ Partial')}</span>
                         )}
                       </td>
                       <td style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>
                         {row.feasible ? (
-                          <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ Feasible</span>
+                          <span style={{ color: '#16a34a', fontWeight: 600 }}>{t('✓ Uygun', '✓ Feasible')}</span>
                         ) : (
-                          <span style={{ color: '#d97706', fontWeight: 600 }}>⚠ Excluded</span>
+                          <span style={{ color: '#d97706', fontWeight: 600 }}>{t('⚠ Hariç', '⚠ Excluded')}</span>
                         )}
                       </td>
                       <td style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontWeight: 600 }}>
                         {row.mhc !== null && row.mhc !== undefined ? (
                           row.mhc.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })
                         ) : (
-                          <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>N/A (Excluded)</span>
+                          <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>{t('Yok (Hariç)', 'N/A (Excluded)')}</span>
                         )}
                       </td>
                       <td style={{ padding: '0.6rem 0.75rem', textAlign: 'right', color: 'var(--text-secondary, #64748b)' }}>
@@ -258,16 +258,16 @@ export const AlgorithmComparisonCard: React.FC = () => {
             }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-secondary, #f1f5f9)', borderBottom: '2px solid var(--border-color, #cbd5e1)' }}>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Problem</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Trials</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Completion Rate</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Feasibility Rate</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>Unique / Duplicates</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Best MHC</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Median MHC</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Worst MHC</th>
-                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>Std Dev</th>
-                  <th style={{ padding: '0.6rem 0.75rem' }}>Sample Scope</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Problem', 'Problem')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Deneme', 'Trials')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Tamamlanma Oranı', 'Completion Rate')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Uygunluk Oranı', 'Feasibility Rate')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>{t('Benzersiz / Tekrar', 'Unique / Duplicates')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('En İyi MHC', 'Best MHC')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('Medyan MHC', 'Median MHC')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('En Kötü MHC', 'Worst MHC')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right' }}>{t('Std Sapma', 'Std Dev')}</th>
+                  <th style={{ padding: '0.6rem 0.75rem' }}>{t('Örneklem Kapsamı', 'Sample Scope')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -286,7 +286,7 @@ export const AlgorithmComparisonCard: React.FC = () => {
                       </span>
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>
-                      {summary.unique_layout_count} unique ({summary.duplicate_count} dups)
+                      {summary.unique_layout_count} {t('benzersiz', 'unique')} ({summary.duplicate_count} {t('tekrar', 'dups')})
                     </td>
                     <td style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontWeight: 600 }}>
                       {summary.best_mhc ? summary.best_mhc.toFixed(1) : '-'}
@@ -319,7 +319,7 @@ export const AlgorithmComparisonCard: React.FC = () => {
         }}>
           <p style={{ margin: 0, fontSize: '0.9rem' }}>
             {t(
-              'Henüz Benchmark çalıştırması yüklenmedi. CORELAP, ALDEP ve CRAFT algoritmalarını karşılaştırmak için yukarıdaki "Tüm Benchmark Paketini Çalıştır" butonuna tıklayın.',
+              'Henüz kıyaslama çalıştırması yüklenmedi. CORELAP, ALDEP ve CRAFT algoritmalarını karşılaştırmak için yukarıdaki "Tüm Kıyaslama Paketini Çalıştır" düğmesine tıklayın.',
               'No benchmark run has been loaded yet. Click Run Full Benchmark Suite above to evaluate CORELAP, ALDEP, and CRAFT.'
             )}
           </p>

@@ -249,7 +249,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w * 6}" height="${h * 6}">
   <rect width="100%" height="100%" fill="#0d1117" />
   <rect x="${pad}" y="${pad}" width="${facW}" height="${facH}" fill="#161b22" stroke="#30363d" stroke-width="2" />
-  <text x="${pad + 10}" y="${pad - 12}" fill="#8b949e" font-size="12" font-family="sans-serif">Facility Boundary: ${facW}m × ${facH}m &bull; ${layout.problem_id || 'FLODSS'}</text>
+  <text x="${pad + 10}" y="${pad - 12}" fill="#8b949e" font-size="12" font-family="sans-serif">${t('Tesis Sınırı:', 'Facility Boundary:')} ${facW}m × ${facH}m &bull; ${layout.problem_id || 'FLODSS'}</text>
   <g id="departments">
     ${rects}
   </g>
@@ -271,7 +271,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ fontSize: '1.4rem' }}>📦</span>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              {t('Akademik Dışa Aktarım Merkezi & Provenance', 'Phase 14 • Research Export Center & Provenance')}
+              {t('Akademik Dışa Aktarım Merkezi ve Köken Kaydı', 'Phase 14 • Research Export Center & Provenance')}
             </h2>
             <span style={{
               fontSize: '0.75rem',
@@ -282,7 +282,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
               border: '1px solid #10b98140',
               fontWeight: 600,
             }}>
-              Release Candidate {currentVersion}
+              {t('Sürüm Adayı', 'Release Candidate')} {currentVersion}
             </span>
           </div>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem', marginBottom: 0 }}>
@@ -320,7 +320,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
           <Database size={16} color="#60a5fa" />
           <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
-            {t('Akademik Tez Tekrarlanabilirlik (Reproducibility) Meta Verileri', 'Academic Thesis Reproducibility Metadata')}
+            {t('Akademik Tez Tekrarlanabilirlik Meta Verileri', 'Academic Thesis Reproducibility Metadata')}
           </h3>
         </div>
 
@@ -331,23 +331,23 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           fontSize: '0.825rem',
         }}>
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>FLODSS Version</span>
+            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('FLODSS Sürümü', 'FLODSS Version')}</span>
             <span style={{ fontWeight: 600, color: '#34d399' }}>{currentVersion}</span>
           </div>
 
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Problem Kimliği (Problem ID)', 'Problem Identifier')}</span>
+            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Problem Kimliği', 'Problem Identifier')}</span>
             <span style={{ fontWeight: 600 }}>{problem?.id || layout?.problem_id || 'FLP_INDUSTRIAL_10'}</span>
           </div>
 
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Layout SHA-256 Signature</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{t('Yerleşim SHA-256 İmzası', 'Layout SHA-256 Signature')}</span>
               <button
                 onClick={() => copyToClipboard(layoutSignature, 'sig')}
                 disabled={!layoutSignature}
                 style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: layoutSignature ? 'pointer' : 'not-allowed', padding: 0 }}
-                title="Copy signature"
+                title={t('İmzayı kopyala', 'Copy signature')}
               >
                 {copiedField === 'sig' ? <Check size={14} color="#34d399" /> : <Copy size={14} />}
               </button>
@@ -358,20 +358,20 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           </div>
 
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>Evaluation Config Hash</span>
+            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Değerlendirme Yapılandırma Özeti', 'Evaluation Config Hash')}</span>
             <span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
               {evaluation?.config_hash || evaluation?.metadata?.config_hash || 'canonical-evaluation-v1-default'}
             </span>
           </div>
 
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Kaynak Algoritma (Source Algorithm)', 'Source Algorithm')}</span>
+            <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Kaynak Algoritma', 'Source Algorithm')}</span>
             <span style={{ fontWeight: 600 }}>{executionInfo?.algorithm || layout?.metadata?.algorithm || 'Adaptive Strategy Engine'}</span>
           </div>
 
           <div style={{ padding: '0.6rem 0.8rem', borderRadius: '6px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
             <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem' }}>{t('Çalıştırma Parametreleri', 'Execution Parameters')}</span>
-            <span>Seed: {executionInfo?.seed ?? 42} &bull; {t('Süre:', 'Time:')} {executionInfo?.durationMs ? `${executionInfo.durationMs}ms` : t('Kayıtlı', 'Recorded')}</span>
+            <span>{t('Tohum', 'Seed')}: {executionInfo?.seed ?? 42} &bull; {t('Süre:', 'Time:')} {executionInfo?.durationMs ? `${executionInfo.durationMs}ms` : t('Kayıtlı', 'Recorded')}</span>
           </div>
         </div>
 
@@ -385,9 +385,9 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           color: 'var(--text-secondary)',
           lineHeight: 1.5,
         }}>
-          <strong>{t('Tez Atıf / Provenance Notu:', 'Thesis Citation / Provenance Note:')}</strong>{' '}
+          <strong>{t('Tez Atıf / Köken Notu:', 'Thesis Citation / Provenance Note:')}</strong>{' '}
           {t(
-            `"Tesis yerleşim optimizasyonu FLODSS ${currentVersion} üzerinden deterministik olarak yürütülmüştür. Amaç fonksiyonu değerlendirmeleri sürekli Kartezyen uzayda Rectilinear (Manhattan) Centroid mesafesini, sıfır ikili çakışmayı (Zero Pairwise Overlap) ve tam departman alanı korunumunu zorunlu kılar."`,
+            `"Tesis yerleşim optimizasyonu FLODSS ${currentVersion} üzerinden deterministik olarak yürütülmüştür. Amaç fonksiyonu değerlendirmeleri sürekli Kartezyen uzayda dikgen (Manhattan) ağırlık merkezi mesafesini, sıfır ikili çakışmayı ve tam bölüm alanı korunumunu zorunlu kılar."`,
             `"Layout optimization was executed deterministically via FLODSS ${currentVersion}. Objective evaluations enforce Rectilinear (Manhattan) centroid distance, zero pairwise overlap, and exact department area conservation in continuous Cartesian space."`
           )}
         </div>
@@ -415,11 +415,11 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <FileText size={18} color="#3b82f6" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>Layout Geometry JSON</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('Yerleşim Geometrisi (JSON)', 'Layout Geometry JSON')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'Continuous Kartezyen koordinatlar, departman boyutları ve SHA-256 yerleşim imzası.',
+                'Sürekli Kartezyen koordinatlar, bölüm boyutları ve SHA-256 yerleşim imzası.',
                 'Continuous Cartesian coordinates, department dimensions, and layout SHA-256 signature.'
               )}
             </p>
@@ -444,7 +444,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
               }}
             >
               <Download size={14} />
-              {t('Layout JSON İndir', 'Download Layout JSON')}
+              {t('Yerleşim JSON İndir', 'Download Layout JSON')}
             </button>
             <input
               type="file"
@@ -470,7 +470,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
                 cursor: 'pointer',
               }}
             >
-              📂 {t('Layout JSON İçe Aktar', 'Import Layout JSON')}
+              📂 {t('Yerleşim JSON İçe Aktar', 'Import Layout JSON')}
             </button>
           </div>
         </div>
@@ -488,11 +488,11 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <FileText size={18} color="#10b981" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>Experiment Config JSON</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('Deney Yapılandırması (JSON)', 'Experiment Config JSON')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'Tam problem tanımı, algoritma hiperparametreleri, Random Seed ve çalışma ortamı ayarları.',
+                'Tam problem tanımı, algoritma hiperparametreleri, rastgelelik tohumu ve çalışma ortamı ayarları.',
                 'Complete problem definition, algorithm hyperparameters, random seeds, and environment settings.'
               )}
             </p>
@@ -516,7 +516,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             }}
           >
             <Download size={14} />
-            {t('Config JSON İndir', 'Download Config JSON')}
+            {t('Yapılandırma JSON İndir', 'Download Config JSON')}
           </button>
         </div>
 
@@ -533,11 +533,11 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <Download size={18} color="#f59e0b" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>Evaluation Metrics CSV</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('Değerlendirme Metrikleri (CSV)', 'Evaluation Metrics CSV')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'Kanonik MHC, Flow-Distance, REL Satisfaction, Soft Penalty ve Feasibility bayrakları.',
+                'Kanonik MHC, Akış-Mesafe, REL Memnuniyeti, Esnek Ceza Puanı ve Uygunluk bayrakları.',
                 'Canonical MHC, Flow-Distance, REL score, soft penalties, and feasibility flags.'
               )}
             </p>
@@ -561,7 +561,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             }}
           >
             <Download size={14} />
-            {t('Metrics CSV İndir', 'Download Metrics CSV')}
+            {t('Metrik CSV İndir', 'Download Metrics CSV')}
           </button>
         </div>
 
@@ -578,11 +578,11 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <Layers size={18} color="#8b5cf6" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>Algorithm Comparison CSV</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('Algoritma Karşılaştırması (CSV)', 'Algorithm Comparison CSV')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'LaTeX, Excel veya R içine aktarılmaya hazır karşılaştırmalı Benchmark veri tablosu.',
+                'LaTeX, Excel veya R içine aktarılmaya hazır karşılaştırmalı kıyaslama (benchmark) veri tablosu.',
                 'Comparative benchmark data table ready for import into LaTeX / Excel / R.'
               )}
             </p>
@@ -606,7 +606,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             }}
           >
             <Download size={14} />
-            {t('Comparison CSV İndir', 'Download Comparison CSV')}
+            {t('Karşılaştırma CSV İndir', 'Download Comparison CSV')}
           </button>
         </div>
 
@@ -623,11 +623,11 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <FileText size={18} color="#ec4899" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>Pareto Portfolio JSON</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('Pareto Portföyü (JSON)', 'Pareto Portfolio JSON')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
-                'Non-Dominated yerleşim adayları, amaç vektörleri ve Pareto Frontier ödünleşim noktaları.',
+                'Baskılanmayan yerleşim adayları, amaç vektörleri ve Pareto sınırı ödünleşim noktaları.',
                 'Non-dominated layout candidates, objective vectors, and trade-off points.'
               )}
             </p>
@@ -668,7 +668,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <Download size={18} color="#06b6d4" />
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>2D Layout Floor Plan SVG</h4>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 600, margin: 0 }}>{t('2D Yerleşim Kat Planı (SVG)', '2D Layout Floor Plan SVG')}</h4>
             </div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
               {t(
@@ -696,7 +696,7 @@ export const ExportCenterCard: React.FC<ExportCenterCardProps> = ({
             }}
           >
             <Download size={14} />
-            {t('Layout SVG İndir', 'Download Layout SVG')}
+            {t('Yerleşim SVG İndir', 'Download Layout SVG')}
           </button>
         </div>
       </div>

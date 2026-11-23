@@ -38,7 +38,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, color: '#1e40af', fontSize: '0.875rem' }}>
             <HelpCircle size={16} />
-            <span>{t('2D Layout İnceleme Rehberi & Akademik Karar Notları', '2D Layout Inspection Guide & Academic Decision Notes')}</span>
+            <span>{t('2D Yerleşim İnceleme Rehberi ve Akademik Karar Notları', '2D Layout Inspection Guide & Academic Decision Notes')}</span>
           </div>
           <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}>
             <span>{isOpen ? t('Gizle', 'Hide') : t('Nasıl Okunur?', 'How to Read?')}</span>
@@ -55,7 +55,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
                 </div>
                 <div>
                   {t(
-                    'Tesis sınırları (facility envelope) içinde departmanların 1:1 sürekli Kartezyen yerleşimini ve centroid tabanlı malzeme akış çizgilerini görüyorsunuz.',
+                    'Tesis sınırları içinde bölümlerin 1:1 sürekli Kartezyen yerleşimini ve ağırlık merkezi tabanlı malzeme akış çizgilerini görüyorsunuz.',
                     'You are viewing the 1:1 continuous Cartesian spatial placement of departments within facility boundaries along with centroid-based material flow lines.'
                   )}
                 </div>
@@ -67,7 +67,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
                 </div>
                 <div>
                   {t(
-                    'Kırmızı çakışma (overlap) alanı olmamalıdır. Departmanların en-boy oranı (aspect ratio) kısıt sınırında (ör. ≤ 3.0) kalmalı ve yoğun akışlı departmanlar birbirine yakın olmalıdır.',
+                    'Kırmızı çakışma alanı olmamalıdır. Bölümlerin en-boy oranı kısıt sınırında (ör. ≤ 3.0) kalmalı ve yoğun akışlı bölümler birbirine yakın olmalıdır.',
                     'No red overlap areas should exist. Department aspect ratios must remain within constraints (e.g. ≤ 3.0), and high-traffic departments should be located close together.'
                   )}
                 </div>
@@ -75,11 +75,11 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
 
               <div style={{ backgroundColor: '#ffffff', padding: '0.75rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                 <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <DollarSign size={14} color="#d97706" /> {t('3. Akış Çizgileri & MHC Maliyeti', '3. Flow Lines & MHC Cost')}
+                  <DollarSign size={14} color="#d97706" /> {t('3. Akış Çizgileri ve MHC Maliyeti', '3. Flow Lines & MHC Cost')}
                 </div>
                 <div>
                   {t(
-                    'Yönlü oklar malzeme trafiğini gösterir. Turuncu oklar en yüksek taşıma maliyeti yaratan "İlk 5 Maliyet Sürücüsü"dür (Top 5 Cost Drivers). Bu departmanları yaklaştırmak MHC\'yi hızla düşürür.',
+                    'Yönlü oklar malzeme trafiğini gösterir. Turuncu oklar en yüksek taşıma maliyeti yaratan "İlk 5 Maliyet Unsuru"nu belirtir. Bu bölümleri yaklaştırmak MHC değerini hızla düşürür.',
                     'Directed arrows indicate material volume. Orange arrows mark the Top 5 Cost Drivers. Placing these departments closer reduces MHC dramatically.'
                   )}
                 </div>
@@ -87,11 +87,11 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
 
               <div style={{ backgroundColor: '#ffffff', padding: '0.75rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                 <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <ShieldCheck size={14} color="#6366f1" /> {t('4. Feasible = Optimal midir?', '4. Is Feasible = Optimal?')}
+                  <ShieldCheck size={14} color="#6366f1" /> {t('4. Uygun Çözüm = En İyi Çözüm müdür?', '4. Is Feasible = Optimal?')}
                 </div>
                 <div>
                   {t(
-                    'Hayır. Feasible olması yerleşimin fiziki kuralları ihlal etmediğini (çakışmasız, sınırlar içinde) kanıtlar; ancak en düşük maliyetli (optimal) çözüm olduğunu garanti etmez. Pareto sekmesinde ödünleşimleri kıyaslayın.',
+                    'Hayır. Çözümün uygun (feasible) olması fiziki kuralları ihlal etmediğini (çakışmasız ve sınırlar içinde olduğunu) kanıtlar; ancak en düşük maliyetli çözüm olduğunu garanti etmez. Pareto sekmesinde ödünleşimleri kıyaslayın.',
                     'No. Feasible guarantees physical constraint satisfaction (no overlap, within boundary), but does not mean it is globally optimal. Compare trade-offs in the Pareto tab.'
                   )}
                 </div>
@@ -103,7 +103,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
               <span>
                 <strong>{t('Sonraki Adım:', 'Next Step:')}</strong>{' '}
                 {t(
-                  'Bir departmana tıklayarak detaylı boyut/akış panelini açın veya üst menüden Pareto sekmesine geçerek alternatif adayları kıyaslayın.',
+                  'Bir bölüme tıklayarak ayrıntılı boyut ve akış panelini açın veya üst menüden Pareto sekmesine geçerek alternatif adayları kıyaslayın.',
                   'Click any department to inspect exact dimensions and flow traffic, or navigate to Pareto tab to compare alternative candidates.'
                 )}
               </span>
@@ -141,7 +141,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, color: '#1e40af', fontSize: '0.875rem' }}>
           <HelpCircle size={16} />
-          <span>{t('Pareto Karar Verme & Ödünleşim (Trade-Off) Rehberi', 'Pareto Decision Support & Trade-Off Guide')}</span>
+          <span>{t('Pareto Karar Verme ve Ödünleşim Rehberi', 'Pareto Decision Support & Trade-Off Guide')}</span>
         </div>
         <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}>
           <span>{isOpen ? t('Gizle', 'Hide') : t('Rehberi Göster', 'Show Guide')}</span>
@@ -170,7 +170,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
               </div>
               <div>
                 {t(
-                  'Grafiğin sol-üst bölgesi (Sol = Düşük MHC, Üst = Yüksek REL) ideal yöndür. Yeşil yıldızlı (Rank 1) noktalar Pareto Sınırı üzerindedir ve hiçbir çözüm tarafından domine edilmemiştir.',
+                  'Grafiğin sol-üst bölgesi (Sol = Düşük MHC, Üst = Yüksek REL) ideal yöndür. Yeşil yıldızlı (1. Sıra) noktalar Pareto Sınırı üzerindedir ve başka hiçbir çözüm tarafından baskılanmaz.',
                   'Top-left region (Left = Low MHC, Top = High REL) is mathematically ideal. Green star (Rank 1) solutions lie on the Pareto Frontier and are strictly non-dominated.'
                 )}
               </div>
@@ -182,7 +182,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
               </div>
               <div>
                 {t(
-                  'Düşük MHC, fabrikada malzeme taşıyan forklift, AGV veya personelin katettiği toplam ton-metre maliyetini doğrudan düşürür; operasyonel giderleri (OPEX) minimize eder.',
+                  'Düşük MHC, fabrikada malzeme taşıyan forklift, AGV veya personelin katettiği toplam ton-metre maliyetini doğrudan düşürür; işletme giderlerini (OPEX) en aza indirir.',
                   'Lower MHC directly slashes tone-distance traveled by forklifts, AGVs, or operators, minimizing recurring operational expenditure (OPEX).'
                 )}
               </div>
@@ -194,7 +194,7 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
               </div>
               <div>
                 {t(
-                  'Muther REL skoru, kritik departmanların (A-Kesinlikle Gerekli, E-Önemli) yakınlık memnuniyetini ölçer. Güvenlik, bilgi akışı, denetim ve ortak kaynak kullanımı kalitesini yansıtır.',
+                  'Muther REL skoru, kritik bölümlerin (A-Kesinlikle Gerekli, E-Önemli) yakınlık memnuniyetini ölçer. Güvenlik, bilgi akışı, denetim ve ortak kaynak kullanımı kalitesini yansıtır.',
                   'Muther REL score measures satisfaction of qualitative adjacency preferences (A-Absolute, E-Essential). It reflects safety, supervisor oversight, and workflow coherence.'
                 )}
               </div>
@@ -202,11 +202,11 @@ export const DecisionGuidanceBox: React.FC<DecisionGuidanceBoxProps> = ({ mode, 
 
             <div style={{ backgroundColor: '#ffffff', padding: '0.75rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ShieldCheck size={14} color="#7c3aed" /> {t('5. Non-Dominated vs Dominated', '5. Non-Dominated vs Dominated')}
+                <ShieldCheck size={14} color="#7c3aed" /> {t('5. Baskılanmayan vs Baskılanan', '5. Non-Dominated vs Dominated')}
               </div>
               <div>
                 {t(
-                  'Bir çözümün "Dominated" (Rank 2+) olması, başka bir adayın hem daha ucuz MHC hem de daha yüksek REL sağladığı anlamına gelir. Seçim yaparken mutlaka Rank 1 çözümleri tercih edin.',
+                  'Bir çözümün "Baskılanan" (2. Sıra ve üzeri) olması, başka bir adayın hem daha düşük MHC hem de daha yüksek REL sağladığı anlamına gelir. Seçim yaparken mutlaka 1. Sıra çözümleri tercih edin.',
                   'A solution is "Dominated" (Rank 2+) if another layout achieves both strictly lower MHC and higher REL. Always select from Rank 1 non-dominated candidates.'
                 )}
               </div>

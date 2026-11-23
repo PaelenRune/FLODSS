@@ -36,10 +36,28 @@ export function calculateFlowMetrics(problem: FacilityLayoutProblem, layout: Con
     handlingCost: euclidean ? euclideanCost : manhattanCost, missingFlows };
 }
 
-export function percentageDelta(value: number, baseline: number): string {
-  if (baseline === 0) return value === 0 ? '0%' : 'new (zero baseline)';
+export function percentageDelta(value: number, baseline: number, zeroLabel = 'new (zero baseline)'): string {
+  if (baseline === 0) return value === 0 ? '0%' : zeroLabel;
   const delta = (value - baseline) / Math.abs(baseline) * 100;
   return `${delta > 0 ? '+' : ''}${Number(delta.toFixed(1))}%`;
+}
+
+const REFERENCE_DEPT_TR: Record<string, string> = {
+  ST: 'Hammadde',
+  MC: 'Talaşlı İmalat',
+  AS: 'Montaj',
+  PK: 'Paketleme',
+  LG: 'Lojistik',
+};
+
+export function localizeCockpitDeptName(
+  dept: { id: string; name: string },
+  live: boolean,
+  t: (tr: string, en: string) => string
+): string {
+  if (live) return dept.name;
+  const trName = REFERENCE_DEPT_TR[dept.id];
+  return trName ? t(trName, dept.name) : dept.name;
 }
 
 export interface CockpitData {

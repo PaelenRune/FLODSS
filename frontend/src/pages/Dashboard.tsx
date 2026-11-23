@@ -195,7 +195,7 @@ export const Dashboard: React.FC = () => {
         }
       } catch (_) {}
     } catch (err: any) {
-      alert(`Failed to load benchmark problem '${problemId}': ${err?.message}`);
+      alert(t(`'${problemId}' kıyaslama problemi yüklenemedi: ${err?.message}`, `Failed to load benchmark problem '${problemId}': ${err?.message}`));
     }
   };
 
@@ -233,7 +233,7 @@ export const Dashboard: React.FC = () => {
     }
     if (metadata) {
       setExecutionInfo({
-        algorithm: metadata.algorithm || 'Custom Solver',
+        algorithm: metadata.algorithm || t('Özel Çözücü', 'Custom Solver'),
         seed: metadata.seed,
         durationMs: metadata.duration_ms,
         config: metadata,
@@ -290,13 +290,13 @@ export const Dashboard: React.FC = () => {
 
   const tabs: TabItem[] = [
     { id: 'problem', label: t('1. Problem Tanımı', '1. Problem Editor'), icon: <Sliders size={16} /> },
-    { id: 'matrices', label: t('2. Flow & REL Matrisleri', '2. Flow & REL'), icon: <Grid size={16} /> },
-    { id: 'constraints', label: t('3. Kısıtlar (Constraints)', '3. Constraints'), icon: <ShieldAlert size={16} /> },
+    { id: 'matrices', label: t('2. Akış ve REL Matrisleri', '2. Flow & REL'), icon: <Grid size={16} /> },
+    { id: 'constraints', label: t('3. Kısıtlar', '3. Constraints'), icon: <ShieldAlert size={16} /> },
     { id: 'solvers', label: t('4. Optimizasyon', '4. Optimization'), icon: <Play size={16} />, badge: t('6 Çözücü', '6 Solvers') },
-    { id: 'layout', label: t('5. 2D Layout Görünümü', '5. 2D Layout Viewer'), icon: <Maximize2 size={16} />, badge: layout ? t('Aktif', 'Active') : undefined },
-    { id: 'pareto', label: t('6. Pareto Front & Trade-offs', '6. Pareto & Trade-offs'), icon: <TrendingUp size={16} /> },
-    { id: 'decision', label: t('7. AI Karar Destek', '7. AI Decision Support'), icon: <Sparkles size={16} /> },
-    { id: 'export', label: t('8. Dışa Aktarım (Export)', '8. Export Center'), icon: <Package size={16} />, badge: 'v1.0' },
+    { id: 'layout', label: t('5. 2D Yerleşim Görünümü', '5. 2D Layout Viewer'), icon: <Maximize2 size={16} />, badge: layout ? t('Aktif', 'Active') : undefined },
+    { id: 'pareto', label: t('6. Pareto ve Ödünleşimler', '6. Pareto & Trade-offs'), icon: <TrendingUp size={16} /> },
+    { id: 'decision', label: t('7. Yapay Zekâ Karar Destek', '7. AI Decision Support'), icon: <Sparkles size={16} /> },
+    { id: 'export', label: t('8. Dışa Aktarım', '8. Export Center'), icon: <Package size={16} />, badge: 'v1.0' },
     { id: 'overview', label: t('Sistem Özeti', 'System Overview'), icon: <LayoutDashboard size={16} /> },
   ];
 
@@ -446,7 +446,7 @@ export const Dashboard: React.FC = () => {
               <span>
                 {viewMode === 'workspace'
                   ? t('Tüm Modülleri Göster', 'Show All Modules')
-                  : t('Sekmeli Görünüm (Workspace)', 'Tabbed Workspace')}
+                  : t('Sekmeli Görünüm', 'Tabbed Workspace')}
               </span>
             </button>
           </div>
@@ -512,11 +512,11 @@ export const Dashboard: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-                      {t('Etkileşimli 2D Facility Layout Görünümü', 'Interactive 2D Facility Layout Viewer')}
+                      {t('Etkileşimli 2D Tesis Yerleşimi Görünümü', 'Interactive 2D Facility Layout Viewer')}
                     </h2>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
                       {t(
-                        'Continuous 1:1 koordinat düzlemi • Gerçek zamanlı Zoom & Pan • Overlap & Fixed Position denetimi',
+                        'Sürekli 1:1 koordinat düzlemi • Gerçek zamanlı yakınlaştırma ve kaydırma • Çakışma ve sabit konum denetimi',
                         'Continuous 1:1 solver coordinates • Real-time zoom & pan • Overlap & fixed position detection'
                       )}
                     </p>
@@ -540,7 +540,7 @@ export const Dashboard: React.FC = () => {
                         }}
                       >
                         <Package size={14} />
-                        {t('Çözümü Dışa Aktar (Export)', 'Export Solution')}
+                        {t('Çözümü Dışa Aktar', 'Export Solution')}
                       </button>
                     </div>
                   )}
@@ -610,13 +610,13 @@ export const Dashboard: React.FC = () => {
                 <div style={{ marginBottom: '2rem' }}>
                   <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
                     {t(
-                      'Tesis Yerleşim Optimizasyon & Karar Destek Sistemi (FLODSS)',
+                      'Tesis Yerleşimi Optimizasyonu ve Karar Destek Sistemi (FLODSS)',
                       'Facility Layout Optimization & Decision Support System (FLODSS)'
                     )}
                   </h1>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '850px', lineHeight: 1.6 }}>
                     {t(
-                      'Modüler tesis yerleşim üretimi (FLP), çok ölçütlü algoritmik değerlendirme (MHC, TCR, Adjacency, Dead Space) ve açıklanabilir karar destek için geliştirilmiş ileri seviye Yöneylem Araştırması ve Endüstri Mühendisliği platformu.',
+                      'Modüler tesis yerleşimi üretimi (FLP), çok ölçütlü algoritmik değerlendirme (MHC, TCR, Komşuluk, Ölü Alan) ve açıklanabilir karar destek için geliştirilmiş ileri seviye Yöneylem Araştırması ve Endüstri Mühendisliği platformu.',
                       'An advanced Operations Research and Industrial Engineering platform for modular facility layout generation, multi-criteria algorithmic evaluation, and explainable decision support.'
                     )}
                   </p>
@@ -721,9 +721,9 @@ export const Dashboard: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <strong>FLODSS v1.0.0-rc.1</strong>
           <span>&bull;</span>
-          <span>{t('Özel Araştırma & Tez Pilot Sürümü', 'Confidential Private Research Release Candidate')}</span>
+          <span>{t('Özel Araştırma ve Tez Pilot Sürümü', 'Confidential Private Research Release Candidate')}</span>
           <span>&bull;</span>
-          <span style={{ color: '#34d399' }}>Local-First Execution</span>
+          <span style={{ color: '#34d399' }}>{t('Yerel Öncelikli Çalışma', 'Local-First Execution')}</span>
         </div>
         <div>
           Python 3.12+ (FastAPI / Pydantic / NumPy / SciPy) &bull; React 18 / TypeScript / Vite

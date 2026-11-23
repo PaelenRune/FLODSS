@@ -10,12 +10,14 @@ import {
   createInvitationApi,
   getInvitationsApi,
 } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface UserManagementModalProps {
   onClose: () => void;
 }
 
 export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClose }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'users' | 'invitations' | 'create_invite'>('users');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [invitations, setInvitations] = useState<InvitationResponse[]>([]);
@@ -38,7 +40,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
       setUsers(uList);
       setInvitations(iList);
     } catch (e: any) {
-      setErrorMsg(e.message || 'Failed to load user and invitation records.');
+      setErrorMsg(e.message || t('Kullanıcı ve davet kayıtları yüklenemedi.', 'Failed to load user and invitation records.'));
     } finally {
       setLoading(false);
     }
@@ -52,9 +54,14 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
     try {
       const updated = await updateUserStatusApi(user.id, { is_active: !user.is_active });
       setUsers((prev) => prev.map((u) => (u.id === user.id ? updated : u)));
-      setSuccessMsg(`User ${user.email} is now ${updated.is_active ? 'ACTIVE' : 'DISABLED'}.`);
+      setSuccessMsg(
+        t(
+          `${user.email} kullanıcısı artık ${updated.is_active ? 'AKTİF' : 'DEVRE DIŞI'}.`,
+          `User ${user.email} is now ${updated.is_active ? 'ACTIVE' : 'DISABLED'}.`
+        )
+      );
     } catch (e: any) {
-      setErrorMsg(e.message || 'Failed to update user status.');
+      setErrorMsg(e.message || t('Kullanıcı durumu güncellenemedi.', 'Failed to update user status.'));
     }
   };
 
@@ -62,9 +69,14 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
     try {
       const updated = await updateUserStatusApi(user.id, { allow_gemini: !user.allow_gemini });
       setUsers((prev) => prev.map((u) => (u.id === user.id ? updated : u)));
-      setSuccessMsg(`Gemini AI privilege for ${user.email} is now ${updated.allow_gemini ? 'ENABLED' : 'DISABLED'}.`);
+      setSuccessMsg(
+        t(
+          `${user.email} için Gemini AI yetkisi artık ${updated.allow_gemini ? 'ETKİN' : 'DEVRE DIŞI'}.`,
+          `Gemini AI privilege for ${user.email} is now ${updated.allow_gemini ? 'ENABLED' : 'DISABLED'}.`
+        )
+      );
     } catch (e: any) {
-      setErrorMsg(e.message || 'Failed to update AI privilege.');
+      setErrorMsg(e.message || t('Yapay zekâ yetkisi güncellenemedi.', 'Failed to update AI privilege.'));
     }
   };
 
@@ -80,12 +92,12 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
         full_name: inviteName.trim() || undefined,
       });
       setGeneratedInvite(inv);
-      setSuccessMsg(`Invitation successfully generated for ${inv.email}.`);
+      setSuccessMsg(t(`${inv.email} için davet başarıyla oluşturuldu.`, `Invitation successfully generated for ${inv.email}.`));
       setInviteEmail('');
       setInviteName('');
       loadData();
     } catch (e: any) {
-      setErrorMsg(e.message || 'Failed to generate invitation.');
+      setErrorMsg(e.message || t('Davet oluşturulamadı.', 'Failed to generate invitation.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -123,10 +135,13 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '0 0 0.25rem 0' }}>
-              User & Access Governance
+              {t('Kullanıcı ve Erişim Yönetimi', 'User & Access Governance')}
             </h2>
             <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0 }}>
-              Lead Research Administrator Control Panel &bull; Role Authorization & Pilot Access
+              {t(
+                'Baş Araştırma Yöneticisi Kontrol Paneli • Rol Yetkilendirme ve Pilot Erişim',
+                'Lead Research Administrator Control Panel • Role Authorization & Pilot Access'
+              )}
             </p>
           </div>
           <button
@@ -141,7 +156,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               fontWeight: 600,
             }}
           >
-            ✕ Close
+            ✕ {t('Kapat', 'Close')}
           </button>
         </div>
 
@@ -160,7 +175,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               cursor: 'pointer',
             }}
           >
-            Registered Users ({users.length})
+            {t('Kayıtlı Kullanıcılar', 'Registered Users')} ({users.length})
           </button>
           <button
             onClick={() => setActiveTab('create_invite')}
@@ -175,7 +190,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               cursor: 'pointer',
             }}
           >
-            + Issue New Invitation
+            + {t('Yeni Davet Oluştur', 'Issue New Invitation')}
           </button>
           <button
             onClick={() => setActiveTab('invitations')}
@@ -190,7 +205,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               cursor: 'pointer',
             }}
           >
-            Invitation Log ({invitations.length})
+            {t('Davet Günlüğü', 'Invitation Log')} ({invitations.length})
           </button>
         </div>
 
@@ -211,16 +226,16 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
           {activeTab === 'users' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>Loading user profiles...</div>
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>{t('Kullanıcı profilleri yükleniyor...', 'Loading user profiles...')}</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #374151', color: '#9ca3af', textAlign: 'left' }}>
-                      <th style={{ padding: '0.6rem' }}>User / Email</th>
-                      <th style={{ padding: '0.6rem' }}>Role</th>
-                      <th style={{ padding: '0.6rem' }}>Account Status</th>
+                      <th style={{ padding: '0.6rem' }}>{t('Kullanıcı / E-posta', 'User / Email')}</th>
+                      <th style={{ padding: '0.6rem' }}>{t('Rol', 'Role')}</th>
+                      <th style={{ padding: '0.6rem' }}>{t('Hesap Durumu', 'Account Status')}</th>
                       <th style={{ padding: '0.6rem' }}>Gemini AI</th>
-                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>{t('İşlemler', 'Actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -246,12 +261,12 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                         </td>
                         <td style={{ padding: '0.6rem' }}>
                           <span style={{ color: u.is_active ? '#34d399' : '#f87171', fontWeight: 600 }}>
-                            {u.is_active ? '● Active' : '○ Disabled'}
+                            {u.is_active ? t('● Aktif', '● Active') : t('○ Devre Dışı', '○ Disabled')}
                           </span>
                         </td>
                         <td style={{ padding: '0.6rem' }}>
                           <span style={{ color: u.allow_gemini ? '#a78bfa' : '#6b7280', fontWeight: 600 }}>
-                            {u.allow_gemini ? 'Allowed' : 'Off'}
+                            {u.allow_gemini ? t('İzinli', 'Allowed') : t('Kapalı', 'Off')}
                           </span>
                         </td>
                         <td style={{ padding: '0.6rem', textAlign: 'right' }}>
@@ -270,7 +285,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                                   cursor: 'pointer',
                                 }}
                               >
-                                {u.is_active ? 'Disable' : 'Enable'}
+                                {u.is_active ? t('Devre Dışı Bırak', 'Disable') : t('Etkinleştir', 'Enable')}
                               </button>
                               <button
                                 onClick={() => handleToggleGemini(u)}
@@ -285,7 +300,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                                   cursor: 'pointer',
                                 }}
                               >
-                                {u.allow_gemini ? 'Revoke AI' : 'Grant AI'}
+                                {u.allow_gemini ? t('AI İznini Kaldır', 'Revoke AI') : t('AI İzni Ver', 'Grant AI')}
                               </button>
                             </div>
                           )}
@@ -304,13 +319,13 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               <form onSubmit={handleCreateInvite} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                    Candidate / Reviewer Email Address
+                    {t('Aday / İncelemeci E-posta Adresi', 'Candidate / Reviewer Email Address')}
                   </label>
                   <input
                     type="email"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="advisor@university.edu"
+                    placeholder={t('danisman@universite.edu.tr', 'advisor@university.edu')}
                     required
                     style={{
                       width: '100%',
@@ -328,7 +343,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                    Assigned Authorization Role
+                    {t('Atanan Yetki Rolü', 'Assigned Authorization Role')}
                   </label>
                   <select
                     value={inviteRole}
@@ -345,20 +360,20 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                       boxSizing: 'border-box',
                     }}
                   >
-                    <option value="RESEARCHER">RESEARCHER — Can create problems, run optimizers & save experiments</option>
-                    <option value="VIEWER">VIEWER — Read-only access to assigned projects and benchmark comparisons</option>
+                    <option value="RESEARCHER">{t('ARAŞTIRMACI — Problem oluşturabilir, çözücü çalıştırabilir ve deneyleri kaydedebilir', 'RESEARCHER — Can create problems, run optimizers & save experiments')}</option>
+                    <option value="VIEWER">{t('İZLEYİCİ — Atanan projelere ve kıyaslama karşılaştırmalarına salt okunur erişim', 'VIEWER — Read-only access to assigned projects and benchmark comparisons')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#d1d5db', marginBottom: '0.35rem' }}>
-                    Candidate Full Name (Optional)
+                    {t('Aday Adı Soyadı (İsteğe Bağlı)', 'Candidate Full Name (Optional)')}
                   </label>
                   <input
                     type="text"
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
-                    placeholder="Prof. John Smith"
+                    placeholder={t('Prof. Dr. Ahmet Yılmaz', 'Prof. John Smith')}
                     style={{
                       width: '100%',
                       padding: '0.7rem 0.9rem',
@@ -387,17 +402,17 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                     cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {isSubmitting ? 'Issuing Token...' : 'Generate 48h Invitation Token'}
+                  {isSubmitting ? t('Jeton Oluşturuluyor...', 'Issuing Token...') : t('48 Saatlik Davet Jetonu Oluştur', 'Generate 48h Invitation Token')}
                 </button>
               </form>
 
               {generatedInvite && (
                 <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#1e293b', borderRadius: '10px', border: '1px solid #334155' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.5rem' }}>
-                    ✅ Single-Use Invitation Generated
+                    ✅ {t('Tek Kullanımlık Davet Oluşturuldu', 'Single-Use Invitation Generated')}
                   </div>
                   <div style={{ fontSize: '0.775rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
-                    Share this secret token with the researcher. It expires in 48 hours.
+                    {t('Bu gizli jetonu araştırmacıyla paylaşın. 48 saat içinde geçerliliğini yitirir.', 'Share this secret token with the researcher. It expires in 48 hours.')}
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <input
@@ -428,7 +443,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                         fontWeight: 600,
                       }}
                     >
-                      Copy Token
+                      {t('Jetonu Kopyala', 'Copy Token')}
                     </button>
                   </div>
                 </div>
@@ -442,18 +457,18 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #374151', color: '#9ca3af', textAlign: 'left' }}>
-                    <th style={{ padding: '0.6rem' }}>Invited Email</th>
-                    <th style={{ padding: '0.6rem' }}>Role</th>
-                    <th style={{ padding: '0.6rem' }}>Status</th>
-                    <th style={{ padding: '0.6rem' }}>Expires</th>
-                    <th style={{ padding: '0.6rem' }}>Token</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Davet Edilen E-posta', 'Invited Email')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Rol', 'Role')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Durum', 'Status')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Son Geçerlilik', 'Expires')}</th>
+                    <th style={{ padding: '0.6rem' }}>{t('Jeton', 'Token')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invitations.map((inv) => {
                     const isUsed = !!inv.used_at;
                     const isExpired = new Date(inv.expires_at) < new Date();
-                    const statusText = isUsed ? 'Used' : isExpired ? 'Expired' : 'Active';
+                    const statusText = isUsed ? t('Kullanıldı', 'Used') : isExpired ? t('Süresi Doldu', 'Expired') : t('Aktif', 'Active');
                     const statusColor = isUsed ? '#9ca3af' : isExpired ? '#f87171' : '#34d399';
 
                     return (

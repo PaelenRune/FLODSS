@@ -46,14 +46,14 @@ interface AlgorithmInfo {
 const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   adaptive: {
     name: 'Adaptive Strategy Engine v1',
-    categoryTr: 'Autonomous Multi-Method Pipeline (Otonom Çoklu Yöntem)',
+    categoryTr: 'Otonom Çoklu Yöntem Hattı',
     categoryEn: 'Autonomous Multi-Method Pipeline',
-    descriptionTr: 'Problem parmak izini (Area Utilization, Aspect Ratio, Hard/Soft Constraints) analiz ederek en uygun birincil ve yedek (Fallback) çözücü hattını çalıştırır.',
+    descriptionTr: 'Problem parmak izini (Alan Kullanımı, En-Boy Oranı, Kesin/Esnek Kısıtlar) analiz ederek en uygun birincil ve yedek çözücü hattını çalıştırır.',
     descriptionEn: 'Analyzes structural problem fingerprint (density, aspect ratios, constraints) and executes tailored primary and fallback pipelines.',
     supportedConditionsTr: [
-      'Tüm tesis doluluk rejimlerini destekler (düşük, orta, yüksek >=80% Utilization).',
-      'Fixed Position, Reserved Exclusion Zone ve sıkı Aspect Ratio sınırlarını destekler.',
-      'Constructive arama tıkanıklık yaşadığında otomatik olarak Metaheuristic (GA) moduna geçer.',
+      'Tüm tesis doluluk rejimlerini destekler (düşük, orta, yüksek >=%80 kullanım).',
+      'Sabit Konum, Ayrılmış Yasaklı Bölge ve sıkı En-Boy Oranı sınırlarını destekler.',
+      'Kurucu arama tıkanıklık yaşadığında otomatik olarak Metasezgisel (GA) moduna geçer.',
     ],
     supportedConditionsEn: [
       'Handles all facility density regimes (low, moderate, high >=80%).',
@@ -61,8 +61,8 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
       'Automatic fallback to metaheuristic when constructive search encounters dead-ends.',
     ],
     assumptionsAndLimitationsTr: [
-      'Zaman bütçesi (Time Budget) dahilinde birden fazla algoritma çalıştırır.',
-      'Aday portföyü oluşturur ve çok amaçlı Pareto Dominance (Non-Dominated) sıralaması hesaplar.',
+      'Zaman bütçesi dahilinde birden fazla algoritma çalıştırır.',
+      'Aday portföyü oluşturur ve çok amaçlı Pareto Baskınlık (Non-Dominated) sıralaması hesaplar.',
     ],
     assumptionsAndLimitationsEn: [
       'Executes multiple algorithm evaluations within time budget.',
@@ -71,14 +71,14 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   },
   ga: {
     name: 'Genetic Algorithm v1 (Slicing Tree)',
-    categoryTr: 'Stochastic Population-Based Metaheuristic',
+    categoryTr: 'Stokastik Popülasyon Tabanlı Metasezgisel',
     categoryEn: 'Stochastic Population-Based Metaheuristic',
-    descriptionTr: 'Slicing Tree kromozom temsili, alan koruyucu Bay Decoding, Order Crossover (OX) ve çoklu mutasyon operatörleri.',
+    descriptionTr: 'Dilimleme Ağacı (Slicing Tree) kromozom temsili, alan koruyucu Hol Çözümleme, Sıra Çaprazlama (OX) ve çoklu mutasyon operatörleri.',
     descriptionEn: 'Slicing-tree chromosome representation with area-preserving bay decoding, order crossover, and multi-operator mutation.',
     supportedConditionsTr: [
-      'Continuous 2D dikdörtgensel yerleşim temsili.',
-      'Sıfır çakışma (Zero Pairwise Overlap) ve tam alan korunumu garantisi.',
-      'Soft Constraint Penalty rehberliği ile Material Handling Cost (MHC) minimizasyonu.',
+      'Sürekli 2D dikdörtgensel yerleşim temsili.',
+      'Sıfır ikili çakışma ve tam alan korunumu garantisi.',
+      'Esnek Kısıt Cezası rehberliği ile Malzeme Taşıma Maliyeti (MHC) minimizasyonu.',
     ],
     supportedConditionsEn: [
       'Continuous 2D rectangular layout representation.',
@@ -86,8 +86,8 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
       'Minimizes Material Handling Cost (MHC) with soft penalty guidance.',
     ],
     assumptionsAndLimitationsTr: [
-      'Global matematiksel optimalliği garanti etmez (Facility Layout Problem güçlü NP-Hard sınıfındadır).',
-      'Değerlendirme bütçesi Population Size × Generations ile doğrusal ölçeklenir.',
+      'Küresel matematiksel optimalliği garanti etmez (Tesis Yerleşimi Problemi güçlü NP-Zor sınıfındadır).',
+      'Değerlendirme bütçesi Popülasyon Boyutu × Nesil Sayısı ile doğrusal ölçeklenir.',
     ],
     assumptionsAndLimitationsEn: [
       'Does not guarantee global mathematical optimality (Facility Layout is strongly NP-hard).',
@@ -96,21 +96,21 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   },
   feasible_generator: {
     name: 'Feasible Rectangular Generator (Guillotine)',
-    categoryTr: 'Deterministic Constructive Packing',
+    categoryTr: 'Deterministik Kurucu Paketleme',
     categoryEn: 'Deterministic Constructive Packing',
-    descriptionTr: 'Guillotine Row Packing ve MaxRects yaklaşımlarıyla ham problem girdilerinden çakışmasız (Feasible) dikdörtgen başlangıç yerleşimi üretir.',
+    descriptionTr: 'Giyotin Sıra Paketleme ve MaxRects yaklaşımlarıyla ham problem girdilerinden çakışmasız (uygun) dikdörtgen başlangıç yerleşimi üretir.',
     descriptionEn: 'Guillotine Row Packing constructive search establishing non-overlapping rectangular baselines from raw problem inputs.',
     supportedConditionsTr: [
-      'Çok hızlı (<150 ms) deterministik Feasible Baseline üretimi.',
-      'Esnek Aspect Ratio sınırlarına sahip orta-yüksek yoğunluklu tesislerde idealdir.',
+      'Çok hızlı (<150 ms) deterministik uygun başlangıç yerleşimi üretimi.',
+      'Esnek En-Boy Oranı sınırlarına sahip orta-yüksek yoğunluklu tesislerde idealdir.',
     ],
     supportedConditionsEn: [
       'Blazingly fast (<150 ms) deterministic baseline construction.',
       'Works best on moderate-to-high density facilities with flexible aspect ratios.',
     ],
     assumptionsAndLimitationsTr: [
-      'Tek geçişli Constructive Packing; geri izleme (Backtracking) içermez.',
-      'Aşırı yüksek dolulukta (>=90%) veya Reserved Exclusion Zone ile bölünmüş tesislerde başarısız olabilir.',
+      'Tek geçişli kurucu paketleme; geri izleme içermez.',
+      'Aşırı yüksek dolulukta (>=%90) veya ayrılmış yasaklı bölgelerle bölünmüş tesislerde başarısız olabilir.',
     ],
     assumptionsAndLimitationsEn: [
       'Single-pass constructive search without recursive backtracking.',
@@ -119,21 +119,21 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   },
   craft: {
     name: 'CRAFT (Centroid Swapping Heuristic)',
-    categoryTr: 'Steepest-Descent Improvement Heuristic',
+    categoryTr: 'En Dik İniş İyileştirme Sezgisel Algoritması',
     categoryEn: 'Steepest-Descent Improvement Heuristic',
-    descriptionTr: 'Departman ağırlık merkezlerinin (Centroid) ikili değişimi (Pairwise Exchange) ile Material Handling Cost (MHC) düşüşünü değerlendirir.',
+    descriptionTr: 'Bölüm ağırlık merkezlerinin ikili değişimi ile Malzeme Taşıma Maliyeti (MHC) düşüşünü değerlendirir.',
     descriptionEn: 'Pairwise department centroid exchange evaluating material handling cost deltas.',
     supportedConditionsTr: [
-      'Geçerli (Feasible) bir başlangıç yerleşimi (Initial Baseline Layout) gerektirir.',
-      'Flow-Distance maliyetini azaltmak için ikili koordinat takaslarını değerlendirir.',
+      'Mevcut ve uygun bir başlangıç yerleşimi gerektirir.',
+      'Akış-Mesafe maliyetini azaltmak için ikili koordinat takaslarını değerlendirir.',
     ],
     supportedConditionsEn: [
       'Requires an existing feasible starting baseline layout.',
       'Evaluates pairwise coordinate exchanges to reduce flow-distance costs.',
     ],
     assumptionsAndLimitationsTr: [
-      'Yerel optimumlara (Local Optima) takılmaya açıktır.',
-      'Farklı alana sahip departmanların takası kesikli ızgaralarda düzensiz şekiller üretebilir.',
+      'Yerel optimumlara takılmaya açıktır.',
+      'Farklı alana sahip bölümlerin takası kesikli ızgaralarda düzensiz şekiller üretebilir.',
     ],
     assumptionsAndLimitationsEn: [
       'Susceptible to local optima entrapment.',
@@ -142,21 +142,21 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   },
   corelap: {
     name: 'CORELAP (Total Closeness Rating)',
-    categoryTr: 'Greedy Constructive Heuristic',
+    categoryTr: 'Açgözlü Kurucu Sezgisel',
     categoryEn: 'Greedy Constructive Heuristic',
-    descriptionTr: 'SLP REL Matrix üzerinden hesaplanan Total Closeness Rating (TCR) puanlarına göre departmanları sırayla yerleştiren kurucu sezgisel.',
+    descriptionTr: 'SLP REL Matrisi üzerinden hesaplanan Toplam Yakınlık Puanlarına (TCR) göre bölümleri sırayla yerleştiren kurucu sezgisel.',
     descriptionEn: 'Constructive algorithm placing departments sequentially based on Total Closeness Rating (TCR) computed from the REL matrix.',
     supportedConditionsTr: [
-      'Niteliksel Systematic Layout Planning (SLP — A, E, I, O, U, X) odaklıdır.',
-      'En yüksek TCR puanına sahip departmanı tesis merkezine ilk olarak yerleştirir.',
+      'Niteliksel Sistematik Yerleşim Planlaması (SLP — A, E, I, O, U, X) odaklıdır.',
+      'En yüksek TCR puanına sahip bölümü tesis merkezine ilk olarak yerleştirir.',
     ],
     supportedConditionsEn: [
       'Qualitative Systematic Layout Planning (SLP) driven.',
       'Places highest TCR department first at layout center.',
     ],
     assumptionsAndLimitationsTr: [
-      'Eşitlik bozma (Tie-Breaking) sırasına duyarlıdır.',
-      'Doğrudan niceliksel Flow-Distance (MHC) maliyetini minimize etmez.',
+      'Eşitlik bozma sırasına duyarlıdır.',
+      'Doğrudan niceliksel Akış-Mesafe (MHC) maliyetini en küçüklemez.',
     ],
     assumptionsAndLimitationsEn: [
       'Sensitive to placement tie-breaking order.',
@@ -165,18 +165,18 @@ const ALGORITHM_DETAILS: Record<AlgorithmType, AlgorithmInfo> = {
   },
   aldep: {
     name: 'ALDEP (Automated Layout Design Program)',
-    categoryTr: 'Stochastic Strip-Sweep Constructive Heuristic',
+    categoryTr: 'Stokastik Şerit Tarama Kurucu Sezgiseli',
     categoryEn: 'Stochastic Strip-Sweep Constructive Heuristic',
-    descriptionTr: 'Yakınlık eşik değerine (Cut-off Threshold) göre rastgele departman seçimi ve dikey şerit tarama (Snake-like Strip Sweep) yerleşimi.',
+    descriptionTr: 'Yakınlık eşik değerine göre rastgele bölüm seçimi ve dikey şerit tarama (yılankavi şerit) yerleşimi.',
     descriptionEn: 'Randomized department selection and continuous snake-like strip sweep placement based on relationship cutoff threshold.',
     supportedConditionsTr: [
-      'Stokastik çoklu deneme (Multi-Trial Sweep) ile çeşitli alternatif yerleşimler üretir.',
+      'Stokastik çoklu deneme ile çeşitli alternatif yerleşimler üretir.',
     ],
     supportedConditionsEn: [
       'Generates diverse candidate alternatives via stochastic multi-trial sweep.',
     ],
     assumptionsAndLimitationsTr: [
-      'Sabit şerit genişliği (Sweep Width) kesikli ızgaralarda ince uzun veya düzensiz şekiller oluşturabilir.',
+      'Sabit şerit genişliği kesikli ızgaralarda ince uzun veya düzensiz şekiller oluşturabilir.',
     ],
     assumptionsAndLimitationsEn: [
       'Fixed sweep width can produce elongated or irregular shapes in discrete grids.',
@@ -200,7 +200,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
 
   const [solving, setSolving] = useState<boolean>(false);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
-  const [executionStatus, setExecutionStatus] = useState<string>('Ready');
+  const [executionStatus, setExecutionStatus] = useState<string>(() => t('Hazır', 'Ready'));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [failureNotice, setFailureNotice] = useState<{ reason: string; partial: boolean; fallback: string } | null>(null);
   const [lastResultMetrics, setLastResultMetrics] = useState<any | null>(null);
@@ -399,7 +399,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             partial: res.trace?.placed_count > 0,
             fallback: t('Garantili Feasible yerleşim için Feasible Generator, Genetic Algorithm veya Adaptive Mode kullanın.', 'Use Feasible Generator, Genetic Algorithm, or Adaptive Mode for guaranteed feasibility.'),
           });
-          setExecutionStatus('CORELAP Infeasible Baseline');
+          setExecutionStatus(t('CORELAP: Uygun Olmayan Temel Yerleşim', 'CORELAP Infeasible Baseline'));
         } else {
           setExecutionStatus(t('Başarılı: CORELAP Yerleştirildi', 'Success: CORELAP Placed'));
         }
@@ -443,7 +443,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
           algorithm: 'ALDEP',
           duration_ms: t1 - t0,
         });
-        setExecutionStatus(isFeas ? t('Başarılı: ALDEP Tamamlandı', 'Success: ALDEP Completed') : 'ALDEP Completed (Infeasible)');
+        setExecutionStatus(isFeas ? t('Başarılı: ALDEP Tamamlandı', 'Success: ALDEP Completed') : t('ALDEP Tamamlandı (Uygun Değil)', 'ALDEP Completed (Infeasible)'));
       }
     } catch (err: any) {
       const t1 = performance.now();
@@ -567,7 +567,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
       }}>
         <div>
           <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
-            Random Seed:
+            {t('Rastgelelik Tohumu (Seed):', 'Random Seed:')}
           </label>
           <input
             type="number"
@@ -595,7 +595,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
           <>
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
-                Population Size:
+                {t('Popülasyon Boyutu:', 'Population Size:')}
               </label>
               <input
                 type="number"
@@ -608,7 +608,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
             </div>
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
-                Generations:
+                {t('Nesil Sayısı:', 'Generations:')}
               </label>
               <input
                 type="number"
@@ -650,7 +650,7 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
           </div>
           {elapsedMs !== null && (
             <div>
-              <span style={{ color: 'var(--text-muted)' }}>Wall-clock: </span>
+              <span style={{ color: 'var(--text-muted)' }}>{t('Çalışma Süresi: ', 'Wall-clock: ')}</span>
               <span style={{ fontWeight: 600, color: '#34d399' }}>{elapsedMs.toLocaleString()} ms</span>
             </div>
           )}
@@ -697,13 +697,13 @@ export const OptimizationWorkspaceCard: React.FC<OptimizationWorkspaceCardProps>
                 </strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>REL Satisfaction: </span>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{t('REL Memnuniyeti: ', 'REL Satisfaction: ')}</span>
                 <strong style={{ fontSize: '0.95rem', color: '#10b981' }}>
                   {lastResultMetrics.rel ? `${Number(lastResultMetrics.rel).toFixed(2)}%` : 'N/A'}
                 </strong>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Soft Penalty: </span>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{t('Esnek Ceza Puanı: ', 'Soft Penalty: ')}</span>
                 <strong style={{ fontSize: '0.95rem' }}>
                   {lastResultMetrics.soft_penalty !== undefined ? formatCost(Number(lastResultMetrics.soft_penalty), problem?.metadata?.currency) : formatCost(0, problem?.metadata?.currency)}
                 </strong>
