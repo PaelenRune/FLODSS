@@ -75,7 +75,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
   const [aldepStripWidth, setAldepStripWidth] = useState<number>(2);
   const [aldepSweepDirection, setAldepSweepDirection] = useState<'VERTICAL' | 'HORIZONTAL'>('VERTICAL');
   const [aldepThreshold, setAldepThreshold] = useState<number>(8.0);
-  const [aldepAllowSplitting, setAldepAllowSplitting] = useState<boolean>(true);
+  const [aldepAllowSplitting, setAldepAllowSplitting] = useState<boolean | null>(null);
   const [aldepTieBreaker, setAldepTieBreaker] = useState<'RANDOM_AMONG_MAX' | 'RANDOM_AMONG_THRESHOLD'>('RANDOM_AMONG_MAX');
   const [aldepTraceLevel, setAldepTraceLevel] = useState<'SUMMARY' | 'DETAILED'>('SUMMARY');
   const [aldepRunning, setAldepRunning] = useState<boolean>(false);
@@ -1709,8 +1709,10 @@ export const AlgorithmRunnerCard: React.FC = () => {
                 {t('Şerit Bölme Modu:', 'Strip Splitting Mode:')}
               </label>
               <select
-                value={aldepAllowSplitting ? 'true' : 'false'}
-                onChange={(e) => setAldepAllowSplitting(e.target.value === 'true')}
+                value={aldepAllowSplitting === null ? 'auto' : aldepAllowSplitting ? 'true' : 'false'}
+                onChange={(e) =>
+                  setAldepAllowSplitting(e.target.value === 'auto' ? null : e.target.value === 'true')
+                }
                 disabled={aldepRunning}
                 style={{
                   width: '100%',
@@ -1722,6 +1724,7 @@ export const AlgorithmRunnerCard: React.FC = () => {
                   fontSize: '0.85rem',
                 }}
               >
+                <option value="auto">{t('Otomatik (Önce Dikdörtgensel, Sığmazsa Klasik - Varsayılan)', 'Auto (Rectangular First, Classical Fallback - Default)')}</option>
                 <option value="true">{t('Klasik ALDEP (Sürekli Yılankavi Sarma)', 'Classical ALDEP (Continuous Serpentine Wraps)')}</option>
                 <option value="false">{t('FLODSS Uyarlaması (Şerit Bölmesiz - Dikdörtgensel)', 'FLODSS Adaptation (No Strip Splitting - Rectangular)')}</option>
               </select>

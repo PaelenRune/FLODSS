@@ -468,7 +468,7 @@ export interface ALDEPConfig {
   sweep_direction?: 'VERTICAL' | 'HORIZONTAL';
   selection_threshold?: number;
   tie_breaker?: 'RANDOM_AMONG_MAX' | 'RANDOM_AMONG_THRESHOLD';
-  allow_strip_splitting?: boolean;
+  allow_strip_splitting?: boolean | null;
   serpentine_sweep?: boolean;
   trace_level?: 'SUMMARY' | 'DETAILED';
 }

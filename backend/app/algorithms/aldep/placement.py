@@ -107,10 +107,27 @@ def create_strip_sweep_layout(
     
     Returns:
         Tuple of (GridLayout, ContinuousLayout, shape_diagnostics_dict, unplaced_department_ids).
+
+    When ``config.allow_strip_splitting`` is None (AUTO), the overlap-free rectangular adaptation is
+    tried first; classical strip splitting is used only if it places strictly more departments.
     """
+    if config.allow_strip_splitting is None:
+        rect = create_strip_sweep_layout(
+            problem, department_order, config.model_copy(update={"allow_strip_splitting": False})
+        )
+        if not rect[3]:
+            return rect
+        split = create_strip_sweep_layout(
+            problem, department_order, config.model_copy(update={"allow_strip_splitting": True})
+        )
+        return split if len(split[3]) < len(rect[3]) else rect
+
     cell_size = config.cell_size
-    cols = max(1, int(round(problem.facility.width / cell_size)))
-    rows = max(1, int(round(problem.facility.height / cell_size)))
+    # Floor (not round): a partially covered trailing cell would extend the grid past the
+    # facility boundary (e.g. 48 m / 5 m -> round = 10 cells = 50 m). The epsilon keeps exact
+    # multiples (50 m / 5 m) from losing a cell to floating-point error.
+    cols = max(1, int(math.floor(problem.facility.width / cell_size + 1e-9)))
+    rows = max(1, int(math.floor(problem.facility.height / cell_size + 1e-9)))
 
     reserved_cells = _mark_reserved_cells(problem, cell_size, rows, cols)
     preoccupied_cells: Set[Tuple[int, int]] = set()

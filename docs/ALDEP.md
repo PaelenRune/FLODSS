@@ -85,10 +85,14 @@ FLODSS explicitly distinguishes between classical textbook ALDEP and our geometr
    - Departments that exceed the remaining strip length wrap into the adjacent strip, creating serpentine or L-shaped department blocks.
    - In discrete `GridLayout`, cell occupancy has **strictly zero overlap**.
    - Continuous conversion computes the enclosing bounding box, documenting non-rectangularity and aspect ratio in `ALDEPDepartmentShapeDiagnostic`.
+   - **Caveat:** enclosing bounding boxes of wrapped or partially filled blocks can overlap neighbouring departments in `ContinuousLayout`, so these candidates are typically reported as `COMPLETE_WITH_GEOMETRIC_WARNINGS`. Opt-in only.
 2. **FLODSS Rectangular Adaptation (`allow_strip_splitting = False`):**
    - If a department cannot fit within the remaining length of the current strip, placement advances to the next strip.
    - Departments occupy complete slices of rows within a single strip.
    - Guarantees **strictly rectangular placements** that achieve 100% geometric feasibility and zero bounding box overlap in `ContinuousLayout`.
+   - Space left at the end of a strip is skipped, so at high area utilization some departments may stay unplaced.
+3. **Auto (`allow_strip_splitting = null`, default):**
+   - Each candidate is swept with the rectangular adaptation first; only if it leaves departments unplaced is the classical splitting sweep used, and only when it places more departments.
 
 ### Reserved Zones and Fixed Departments
 - Grid cells intersecting pre-existing fixed departments or `ReservedZone` structures are flagged prior to sweep.
@@ -167,7 +171,7 @@ The ALDEP implementation has been verified on three benchmark problems with 23 t
     "strip_width_cells": 2,
     "sweep_direction": "VERTICAL",
     "selection_threshold": 8.0,
-    "allow_strip_splitting": true,
+    "allow_strip_splitting": null,
     "tie_breaker": "RANDOM_AMONG_MAX",
     "trace_level": "SUMMARY"
   }

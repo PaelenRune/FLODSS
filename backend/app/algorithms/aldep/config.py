@@ -58,10 +58,14 @@ class ALDEPConfig(BaseModel):
         default=SelectionTieBreak.RANDOM_AMONG_MAX,
         description="Rule for breaking ties when multiple unplaced departments qualify",
     )
-    allow_strip_splitting: bool = Field(
-        default=True,
-        description="True for classical ALDEP (departments wrap across strips into serpentine shapes); "
-                    "False for FLODSS rectangular adaptation (keeps departments within single strips)",
+    allow_strip_splitting: Optional[bool] = Field(
+        default=None,
+        description="True for classical ALDEP (departments wrap across strips into serpentine shapes; their "
+                    "continuous bounding boxes can overlap, so such layouts are flagged with geometric warnings); "
+                    "False for FLODSS rectangular adaptation (keeps departments within single strips, producing "
+                    "overlap-free rectangular placements, but may leave departments unplaced at high utilization); "
+                    "None (default, AUTO) tries the rectangular adaptation first and falls back to classical "
+                    "splitting for a candidate only when the rectangular sweep cannot place every department",
     )
     serpentine_sweep: bool = Field(
         default=True,

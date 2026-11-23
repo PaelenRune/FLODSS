@@ -189,6 +189,7 @@ class CRAFTAlgorithm(BaseImprovementAlgorithm):
         termination_reason = CRAFTTerminationReason.NO_IMPROVING_SWAP.value
 
         iteration = 0
+        converged = False  # True only when the loop stops by its own convergence criteria
 
         # Step 1: Main Optimization Loop
         while iteration < config.max_iterations:
@@ -203,6 +204,7 @@ class CRAFTAlgorithm(BaseImprovementAlgorithm):
                     if not accepted_swaps
                     else CRAFTTerminationReason.NO_IMPROVING_SWAP.value
                 )
+                converged = True
                 break
 
             best_candidate: Optional[Tuple[str, str, bool, ContinuousLayout, float, float]] = None
@@ -278,6 +280,7 @@ class CRAFTAlgorithm(BaseImprovementAlgorithm):
                         candidate_evaluations=candidate_evals if config.trace_level == "DETAILED" else None,
                     )
                 )
+                converged = True
                 break
 
             # Accept the best candidate exchange
@@ -319,7 +322,8 @@ class CRAFTAlgorithm(BaseImprovementAlgorithm):
             current_layout = next_layout
             current_mhc = next_mhc
 
-        if iteration >= config.max_iterations and termination_reason != CRAFTTerminationReason.NO_IMPROVING_SWAP.value:
+        # The loop exhausted its iteration budget without proving a local optimum.
+        if not converged:
             termination_reason = CRAFTTerminationReason.MAX_ITERATIONS_REACHED.value
 
         exec_time = round(time.time() - start_time, 4)
@@ -328,7 +332,7 @@ class CRAFTAlgorithm(BaseImprovementAlgorithm):
         percentage_imp = round((absolute_imp / initial_mhc * 100.0), 2) if initial_mhc > 0 else 0.0
         final_signature = generate_layout_signature(current_layout)
 
-        trace = CRARAFT_trace = CRAFTExecutionTrace(
+        trace = CRAFTExecutionTrace(
             algorithm_name=self.name,
             algorithm_version=self.version,
             initial_mhc=initial_mhc,
