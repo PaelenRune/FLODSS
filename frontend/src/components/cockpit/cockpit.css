@@ -53,6 +53,7 @@
 .sbs-head strong{font-size:11px;color:#e8f3ff}
 .side-by-side-card.optimized .sbs-head strong{color:#34e4f0}
 .sbs-head span{font-size:10px;color:#93a6be}
+.sbs-head .sbs-infeasible{font-style:normal;color:#ff8a8a}
 .sbs-svg{width:100%;height:auto;display:block;max-height:310px}
 .matrix-filter-btn{border:1px solid #24354c;background:#0d1524;color:#94a7be;border-radius:5px;padding:4px 9px;font-size:10px;font-weight:500;white-space:nowrap}
 .matrix-filter-btn:hover{border-color:#00d8ec;color:#e6f6ff}

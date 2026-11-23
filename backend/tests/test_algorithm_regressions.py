@@ -3,6 +3,8 @@
 1. CRAFT reported NO_IMPROVING_SWAP when it actually stopped because max_iterations ran out.
 2. ALDEP rounded the grid size up, so the grid (and placements) could extend past the facility.
 3. ALDEP's default strip-splitting mode produced overlapping continuous bounding boxes.
+4. ALDEP's rectangular mode consumed the strip cursor on a misfit, leaving later departments unplaced,
+   and ignored department shape limits when choosing the block span.
 """
 
 import pytest
@@ -117,15 +119,42 @@ def test_aldep_default_auto_mode_prefers_rectangular_and_overlap_free():
     assert not best.unplaced_departments
 
 
-def test_aldep_auto_mode_falls_back_to_splitting_when_rectangular_cannot_fit():
-    # 4 x 600 m² in a 60 x 40 m plant = 100% utilization; rectangular strips waste space and leave
-    # departments unplaced, so AUTO must fall back to classical splitting and place everything.
+def test_aldep_rectangular_mode_packs_full_utilization_without_overlap():
+    # 4 x 600 m² in a 60 x 40 m plant = 100% utilization. The old strip cursor wasted space and left
+    # departments unplaced; multi-strip first-fit blocks now place all four as clean rectangles.
     problem = _problem(60.0, 40.0, 600.0)
-    rect = create_strip_sweep_layout(problem, DEPT_IDS, ALDEPConfig(allow_strip_splitting=False))
-    auto = create_strip_sweep_layout(problem, DEPT_IDS, ALDEPConfig())
-    assert rect[3], "precondition: rectangular mode should leave departments unplaced here"
-    assert auto[3] == []
-    assert len(auto[1].placements) == 4
+    _, layout, _, unplaced = create_strip_sweep_layout(
+        problem, DEPT_IDS, ALDEPConfig(allow_strip_splitting=False)
+    )
+    assert unplaced == []
+    assert len(layout.placements) == 4
+    validation = LayoutValidator.validate(problem, layout)
+    assert validation.is_valid, validation.errors
+
+
+def test_aldep_rectangular_mode_does_not_skip_later_departments_after_a_misfit():
+    # One department is too big for the plant: it must be reported unplaced, but the cursor must not
+    # be consumed, so every department after it is still placed.
+    problem = _problem(60.0, 40.0, 300.0)
+    problem.departments[1].required_area = 5000.0  # DEP_B cannot fit anywhere
+    _, layout, _, unplaced = create_strip_sweep_layout(
+        problem, DEPT_IDS, ALDEPConfig(allow_strip_splitting=False)
+    )
+    assert unplaced == ["DEP_B"]
+    assert set(layout.placements) == {"DEP_A", "DEP_C", "DEP_D"}
+
+
+def test_aldep_rectangular_blocks_prefer_spans_that_respect_shape_limits():
+    # A 600 m² department limited to aspect ratio 2 must not become a 1-strip ribbon (60 x 10 m).
+    problem = _problem(60.0, 40.0, 300.0)
+    problem.departments[0].required_area = 600.0
+    problem.departments[0].max_aspect_ratio = 2.0
+    _, layout, _, unplaced = create_strip_sweep_layout(
+        problem, DEPT_IDS, ALDEPConfig(allow_strip_splitting=False)
+    )
+    assert unplaced == []
+    p = layout.placements["DEP_A"]
+    assert max(p.width, p.height) / min(p.width, p.height) <= 2.0 + 1e-6
 
 
 def test_aldep_classical_mode_still_available_and_flagged():

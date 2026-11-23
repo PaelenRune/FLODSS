@@ -1,6 +1,7 @@
 """Genetic Algorithm Solver implementation for Facility Layout Optimization."""
 
 import logging
+import math
 import random
 import time
 from typing import Any, Dict, List, Optional, Set
@@ -265,8 +266,18 @@ class GeneticLayoutAlgorithm(BaseLayoutAlgorithm):
         eval_engine = EvaluationEngine()
         eval_report = eval_engine.evaluate(problem, best_layout)
 
-        impr_mhc = initial_mhc - best_ind.raw_mhc
-        impr_pct = (impr_mhc / initial_mhc * 100.0) if initial_mhc > 0 else 0.0
+        # Undecodable individuals carry raw_mhc = inf; never let inf/nan reach the JSON response.
+        best_mhc_finite = math.isfinite(best_ind.raw_mhc)
+        if not math.isfinite(initial_mhc):
+            initial_mhc = best_ind.raw_mhc if best_mhc_finite else 0.0
+        if best_mhc_finite and initial_mhc > 0:
+            impr_mhc = initial_mhc - best_ind.raw_mhc
+            impr_pct = impr_mhc / initial_mhc * 100.0
+        else:
+            impr_mhc, impr_pct = 0.0, 0.0
+
+        def _finite(v: float) -> float:
+            return round(v, 2) if math.isfinite(v) else 0.0
 
         layout_solution = LayoutSolution(
             problem_id=problem.id,
@@ -281,9 +292,9 @@ class GeneticLayoutAlgorithm(BaseLayoutAlgorithm):
             total_department_count=len(problem.departments),
             feasibility_status=best_ind.is_feasible,
             objective_values={
-                "material_handling_cost": round(best_ind.raw_mhc, 2),
-                "soft_penalty": round(best_ind.soft_penalty, 2),
-                "combined_fitness": round(best_ind.fitness, 2),
+                "material_handling_cost": _finite(best_ind.raw_mhc),
+                "soft_penalty": _finite(best_ind.soft_penalty),
+                "combined_fitness": _finite(best_ind.fitness),
                 "initial_mhc": round(initial_mhc, 2),
                 "improvement_mhc": round(impr_mhc, 2),
                 "improvement_percentage": round(impr_pct, 2),

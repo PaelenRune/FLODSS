@@ -235,7 +235,11 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
                       `Karşılaştırılamaz · İlk plan kısmi (${baselinePlacedCount}/${departments.length} bölüm)`,
                       `Not comparable · Baseline partial (${baselinePlacedCount}/${departments.length} depts)`
                     )
-                  : t('Uygun değil · Kısıt veya çakışma ihlali var', 'Infeasible · Constraint or overlap violation')}
+                  : !baseFeasible && !optFeasible
+                    ? t('Karşılaştırılamaz · İki plan da uygun değil (kısıt veya çakışma ihlali)', 'Not comparable · Both plans are infeasible (constraint or overlap violation)')
+                    : !baseFeasible
+                      ? t('Karşılaştırılamaz · İlk yerleşim uygun değil (kısıt veya çakışma ihlali); optimize edilmiş plan uygun', 'Not comparable · Baseline is infeasible (constraint or overlap violation); optimized plan is feasible')
+                      : t('Karşılaştırılamaz · Optimize edilmiş plan uygun değil (kısıt veya çakışma ihlali)', 'Not comparable · Optimized plan is infeasible (constraint or overlap violation)')}
             </span>
           </div>
         ) : (
@@ -268,12 +272,12 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
     {isSideBySide && baselineScenario && optimizedScenario && problem ? (
       <div className="side-by-side-grid">
         {[
-          { label: t('İlk yerleşim', 'Baseline layout'), scen: baselineScenario, stats: baselineStats },
-          { label: t('Optimize edilmiş', 'Optimized'), scen: optimizedScenario, stats: optimizedStats },
-        ].map(({ label, scen, stats }, idx) => (
+          { label: t('İlk yerleşim', 'Baseline layout'), scen: baselineScenario, stats: baselineStats, feasible: baseFeasible },
+          { label: t('Optimize edilmiş', 'Optimized'), scen: optimizedScenario, stats: optimizedStats, feasible: optFeasible },
+        ].map(({ label, scen, stats, feasible }, idx) => (
           <div key={scen.id} className={`side-by-side-card ${idx === 1 ? 'optimized' : ''}`}>
             <div className="sbs-head">
-              <strong>{label}</strong>
+              <strong>{label}{!feasible && <em className="sbs-infeasible"> · {t('Uygun değil', 'Infeasible')}</em>}</strong>
               {stats && (
                 <span>
                   MHC: {stats.handlingCost.toLocaleString(undefined, { maximumFractionDigits: 0 })} · {t('Mesafe', 'Dist')}: {stats.flowDistance.toLocaleString(undefined, { maximumFractionDigits: 0 })}

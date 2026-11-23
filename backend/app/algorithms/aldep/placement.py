@@ -93,6 +93,117 @@ def _build_serpentine_cell_sequence(
     return sequence
 
 
+def _place_rectangular_blocks(
+    rows: int,
+    cols: int,
+    config: ALDEPConfig,
+    blocked: Set[Tuple[int, int]],
+    department_order: List[str],
+    dept_map: Dict,
+    occupancy_matrix: List[List[Optional[str]]],
+    placed_blocks: Dict[str, GridDepartmentBlock],
+) -> List[str]:
+    """FLODSS rectangular adaptation: place each department as a solid block inside the strip grid.
+
+    Each department receives a rectangular block spanning ``k`` adjacent strips (``k`` as small as
+    possible, so normally a single strip) placed first-fit along the sweep direction of its first
+    strip. The whole block is reserved, so continuous bounding boxes can never overlap.
+
+    Search starts at the strip of the previously placed department (preserving the ALDEP sweep
+    locality) and then wraps around to reuse leftover space. A department that fits nowhere is
+    reported as unplaced without consuming the sweep cursor, so later departments still get a
+    chance to be placed.
+
+    Returns:
+        List of unplaced department IDs.
+    """
+    vertical = config.sweep_direction == SweepDirection.VERTICAL
+    lanes_total = cols if vertical else rows      # axis across strips
+    along_total = rows if vertical else cols      # axis along a strip
+    strip_width = config.strip_width_cells
+    num_strips = int(math.ceil(lanes_total / strip_width))
+    cell_size = config.cell_size
+
+    def cell(lane: int, along: int) -> Tuple[int, int]:
+        return (along, lane) if vertical else (lane, along)
+
+    used: Set[Tuple[int, int]] = set(blocked)
+    current_strip = 0
+    unplaced: List[str] = []
+
+    for dept_id in department_order:
+        dept = dept_map.get(dept_id)
+        if not dept:
+            continue
+        req_cells = max(1, int(round(dept.required_area / (cell_size ** 2))))
+
+        def shape_ok(lanes: int, length: int) -> bool:
+            """True when a lanes x length block meets the department's dimension / aspect limits."""
+            across_m, along_m = lanes * cell_size, length * cell_size
+            w, h = (across_m, along_m) if vertical else (along_m, across_m)
+            tol = 1e-6
+            if dept.min_width is not None and w < dept.min_width - tol:
+                return False
+            if dept.max_width is not None and w > dept.max_width + tol:
+                return False
+            if dept.min_height is not None and h < dept.min_height - tol:
+                return False
+            if dept.max_height is not None and h > dept.max_height + tol:
+                return False
+            if dept.max_aspect_ratio is not None and max(w, h) / max(min(w, h), tol) > dept.max_aspect_ratio + 1e-3:
+                return False
+            return True
+
+        def try_place(s: int, k: int) -> bool:
+            lane_start = s * strip_width
+            lane_end = min((s + k) * strip_width, lanes_total)
+            width = lane_end - lane_start
+            length = int(math.ceil(req_cells / width))
+            if length > along_total:
+                return False
+            reverse = config.serpentine_sweep and s % 2 == 1  # odd strips sweep the other way
+            starts = range(along_total - length, -1, -1) if reverse else range(0, along_total - length + 1)
+            for a0 in starts:
+                along_seq = range(a0 + length - 1, a0 - 1, -1) if reverse else range(a0, a0 + length)
+                block = [cell(lane, a) for a in along_seq for lane in range(lane_start, lane_end)]
+                if any(c in used for c in block):
+                    continue
+                dept_cells = block[:req_cells]
+                used.update(block)  # reserve the full rectangle, including a partial last row
+                for r, c in dept_cells:
+                    occupancy_matrix[r][c] = dept_id
+                placed_blocks[dept_id] = GridDepartmentBlock(department_id=dept_id, cells=dept_cells)
+                return True
+            return False
+
+        def span_shape_ok(s: int, k: int) -> bool:
+            width = min((s + k) * strip_width, lanes_total) - s * strip_width
+            return shape_ok(width, int(math.ceil(req_cells / width)))
+
+        # Pass 1: only spans whose block respects the department's shape limits.
+        # Pass 2 (fallback): any span that fits, so the department is still placed if possible.
+        strip_order = list(range(current_strip, num_strips)) + list(range(0, current_strip))
+        placed = False
+        for require_shape in (True, False):
+            for s in strip_order:
+                for k in range(1, num_strips - s + 1):
+                    if require_shape and not span_shape_ok(s, k):
+                        continue
+                    if try_place(s, k):
+                        current_strip = s
+                        placed = True
+                        break
+                if placed:
+                    break
+            if placed:
+                break
+
+        if not placed:
+            unplaced.append(dept_id)
+
+    return unplaced
+
+
 def create_strip_sweep_layout(
     problem: FacilityLayoutProblem,
     department_order: List[str],
@@ -196,134 +307,18 @@ def create_strip_sweep_layout(
 
     else:
         # Rectangular strip adaptation (no splitting across strips)
-        blocked = reserved_cells | preoccupied_cells
-        strip_width = config.strip_width_cells
-
-        if config.sweep_direction == SweepDirection.VERTICAL:
-            num_strips = int(math.ceil(cols / strip_width))
-            current_strip = 0
-            current_row = 0
-
-            for dept_id in department_order:
-                if dept_id in placed_blocks:
-                    continue
-                dept = dept_map.get(dept_id)
-                if not dept:
-                    continue
-
-                req_cells = max(1, int(round(dept.required_area / (cell_size ** 2))))
-
-                # Check if department fits in current strip
-                placed = False
-                while current_strip < num_strips:
-                    actual_strip_width = min(strip_width, cols - current_strip * strip_width)
-                    if actual_strip_width <= 0:
-                        break
-                    rows_needed = int(math.ceil(req_cells / actual_strip_width))
-
-                    if current_row + rows_needed <= rows:
-                        # Allocate cells
-                        c_start = current_strip * strip_width
-                        c_end = min(c_start + strip_width, cols)
-                        d_cells = []
-                        cells_count = 0
-
-                        # Determine row sweep direction for strip
-                        if config.serpentine_sweep and (current_strip % 2 == 1):
-                            # Top to bottom in strip
-                            r_start = (rows - 1) - current_row
-                            r_end = r_start - rows_needed
-                            row_indices = range(r_start, r_end, -1)
-                        else:
-                            # Bottom to top
-                            r_start = current_row
-                            r_end = current_row + rows_needed
-                            row_indices = range(r_start, r_end)
-
-                        for r in row_indices:
-                            for c in range(c_start, c_end):
-                                if (r, c) not in blocked and cells_count < req_cells:
-                                    d_cells.append((r, c))
-                                    occupancy_matrix[r][c] = dept_id
-                                    cells_count += 1
-
-                        if cells_count == req_cells:
-                            placed_blocks[dept_id] = GridDepartmentBlock(department_id=dept_id, cells=d_cells)
-                            current_row += rows_needed
-                            placed = True
-                            break
-                        else:
-                            # Revert any partial cells if blocked
-                            for r, c in d_cells:
-                                occupancy_matrix[r][c] = None
-                            current_strip += 1
-                            current_row = 0
-                    else:
-                        current_strip += 1
-                        current_row = 0
-
-                if not placed:
-                    unplaced_departments.append(dept_id)
-
-        else:  # Horizontal strips adaptation
-            num_strips = int(math.ceil(rows / strip_width))
-            current_strip = 0
-            current_col = 0
-
-            for dept_id in department_order:
-                if dept_id in placed_blocks:
-                    continue
-                dept = dept_map.get(dept_id)
-                if not dept:
-                    continue
-
-                req_cells = max(1, int(round(dept.required_area / (cell_size ** 2))))
-
-                placed = False
-                while current_strip < num_strips:
-                    actual_strip_height = min(strip_width, rows - current_strip * strip_width)
-                    if actual_strip_height <= 0:
-                        break
-                    cols_needed = int(math.ceil(req_cells / actual_strip_height))
-
-                    if current_col + cols_needed <= cols:
-                        r_start = current_strip * strip_width
-                        r_end = min(r_start + strip_width, rows)
-                        d_cells = []
-                        cells_count = 0
-
-                        if config.serpentine_sweep and (current_strip % 2 == 1):
-                            c_start = (cols - 1) - current_col
-                            c_end = c_start - cols_needed
-                            col_indices = range(c_start, c_end, -1)
-                        else:
-                            c_start = current_col
-                            c_end = current_col + cols_needed
-                            col_indices = range(c_start, c_end)
-
-                        for c in col_indices:
-                            for r in range(r_start, r_end):
-                                if (r, c) not in blocked and cells_count < req_cells:
-                                    d_cells.append((r, c))
-                                    occupancy_matrix[r][c] = dept_id
-                                    cells_count += 1
-
-                        if cells_count == req_cells:
-                            placed_blocks[dept_id] = GridDepartmentBlock(department_id=dept_id, cells=d_cells)
-                            current_col += cols_needed
-                            placed = True
-                            break
-                        else:
-                            for r, c in d_cells:
-                                occupancy_matrix[r][c] = None
-                            current_strip += 1
-                            current_col = 0
-                    else:
-                        current_strip += 1
-                        current_col = 0
-
-                if not placed:
-                    unplaced_departments.append(dept_id)
+        unplaced_departments.extend(
+            _place_rectangular_blocks(
+                rows=rows,
+                cols=cols,
+                config=config,
+                blocked=reserved_cells | preoccupied_cells,
+                department_order=[d for d in department_order if d not in placed_blocks],
+                dept_map=dept_map,
+                occupancy_matrix=occupancy_matrix,
+                placed_blocks=placed_blocks,
+            )
+        )
 
     # 3. Construct ContinuousLayout and calculate shape diagnostics
     placements: Dict[str, ContinuousPlacement] = {}
