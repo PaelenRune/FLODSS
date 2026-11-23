@@ -4,10 +4,14 @@ import { useLanguage } from '../../context/LanguageContext';
 
 export function KpiMetricsCard({ scenario }: { scenario: number }) {
   const { t } = useLanguage();
-  const { live, departments, evaluation, metrics, baselineMetrics } = useCockpitData();
-  const format = (value: number | undefined) => (value ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
-  const distance = evaluation?.flow_distance ?? metrics?.flowDistance ?? 0;
-  const cost = evaluation?.material_handling_cost ?? metrics?.handlingCost ?? 0;
+  const { live, layout, departments, evaluation, metrics, baselineMetrics } = useCockpitData();
+  const format = (value: number | undefined, fixedDecimals = false) =>
+    (value ?? 0).toLocaleString(
+      undefined,
+      fixedDecimals ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 2 }
+    );
+  const distance = evaluation?.flow_distance ?? evaluation?.objective_values?.flow_distance ?? metrics?.flowDistance ?? 0;
+  const cost = evaluation?.material_handling_cost ?? evaluation?.objective_values?.material_handling_cost ?? metrics?.handlingCost ?? 0;
   const metricLabel = metrics?.metric === 'euclidean'
     ? t('Öklid', 'euclidean')
     : metrics?.metric === 'manhattan' || !metrics?.metric
@@ -15,12 +19,46 @@ export function KpiMetricsCard({ scenario }: { scenario: number }) {
       : metrics.metric;
   const source = `${evaluation ? t('Değerlendirildi', 'Evaluated') : t('İstemci tahmini', 'Client estimate')} · ${metricLabel}${metrics?.missingFlows ? t(` · kısmi: ${metrics.missingFlows} yerleşmemiş akış hariç`, ` · partial: ${metrics.missingFlows} unplaced flows excluded`) : ''}`;
   const zeroLabel = t('yeni (sıfır taban)', 'new (zero baseline)');
-  const vsBaseline = t('Temel Yerleşime göre', 'vs Baseline');
+  const vsBaseline = t('İlk yerleşime göre', 'vs Baseline');
+  const waitingSub = t('Yerleşim oluşturulunca hesaplanır', 'Calculated once layout is generated');
+  const hasLiveLayout = live && Boolean(layout);
+  const placedCount = layout ? Object.keys(layout.placements).length : 0;
+  const comparableMetrics = Boolean(
+    hasLiveLayout &&
+    !metrics?.missingFlows &&
+    placedCount >= departments.length &&
+    (!evaluation || evaluation.is_feasible) &&
+    !baselineMetrics?.missingFlows
+  );
   const cards = live ? [
-    { title: t('Yerleşim uygunluğu', 'Layout feasibility'), value: evaluation ? (evaluation.is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')) : t('Bekliyor', 'Pending'), sub: t('Sunucu değerlendirmesi', 'Backend evaluation'), color: '#00f0ff', icon: TrendingUp },
-    { title: t('Alan kullanımı', 'Area utilization'), value: `${format(departments.reduce((sum, d) => sum + d.share, 0))}%`, sub: t('Tahsis edilen / tesis alanı (brüt)', 'Allocated / facility area (gross)'), color: '#8b5cf6', icon: Scan },
-    { title: t('Akış ağırlıklı mesafe', 'Flow-weighted distance'), value: format(distance), sub: `${percentageDelta(metrics?.flowDistance ?? 0, baselineMetrics?.flowDistance ?? 0, zeroLabel)} ${vsBaseline} · ${source}`, color: '#10b981', icon: Route },
-    { title: t('Taşıma maliyeti', 'Handling cost'), value: format(cost), sub: `${percentageDelta(metrics?.handlingCost ?? 0, baselineMetrics?.handlingCost ?? 0, zeroLabel)} ${vsBaseline} · ${source}`, color: '#f59e0b', icon: Wallet },
+    {
+      title: t('Yerleşim uygunluğu', 'Layout feasibility'),
+      value: !hasLiveLayout ? t('Bekliyor', 'Pending') : evaluation ? (evaluation.is_feasible ? t('Uygun', 'Feasible') : t('Uygun Değil', 'Infeasible')) : t('Bekliyor', 'Pending'),
+      sub: !hasLiveLayout ? waitingSub : t('Sunucu değerlendirmesi', 'Backend evaluation'),
+      color: '#00f0ff',
+      icon: TrendingUp,
+    },
+    {
+      title: t('Alan kullanımı', 'Area utilization'),
+      value: !hasLiveLayout ? '—' : `${format(departments.reduce((sum, d) => sum + d.share, 0))}%`,
+      sub: !hasLiveLayout ? waitingSub : t('Tahsis edilen / tesis alanı (brüt)', 'Allocated / facility area (gross)'),
+      color: '#8b5cf6',
+      icon: Scan,
+    },
+    {
+      title: t('Akış ağırlıklı mesafe', 'Flow-weighted distance'),
+      value: !hasLiveLayout ? '—' : format(distance),
+      sub: !hasLiveLayout ? waitingSub : comparableMetrics ? `${percentageDelta(metrics?.flowDistance ?? 0, baselineMetrics?.flowDistance ?? 0, zeroLabel)} ${vsBaseline} · ${source}` : source,
+      color: '#10b981',
+      icon: Route,
+    },
+    {
+      title: t('Taşıma maliyeti', 'Handling cost'),
+      value: !hasLiveLayout ? '—' : format(cost, true),
+      sub: !hasLiveLayout ? waitingSub : comparableMetrics ? `${percentageDelta(metrics?.handlingCost ?? 0, baselineMetrics?.handlingCost ?? 0, zeroLabel)} ${vsBaseline} · ${source}` : source,
+      color: '#f59e0b',
+      icon: Wallet,
+    },
   ] : [
     { title: t('Akış verimliliği', 'Flow efficiency'), value: ['0%', '+42%', '+27%'][scenario], sub: vsBaseline, color: '#00f0ff', icon: TrendingUp },
     { title: t('Alan kullanımı', 'Area utilization'), value: ['0%', '+28%', '+18%'][scenario], sub: scenario === 1 ? t('%94 dolu', '94% occupied') : t('Referans karşılaştırma', 'Reference comparison'), color: '#8b5cf6', icon: Scan },

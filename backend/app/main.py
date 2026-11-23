@@ -118,8 +118,14 @@ def serve_spa_or_static(full_path: str, request: Request):
     if full_path.startswith("api") or full_path in ("docs", "redoc", "openapi.json"):
         raise HTTPException(status_code=404, detail="Not Found")
 
-    target_file = FRONTEND_DIST / full_path
-    if target_file.is_file() and not full_path.startswith(".."):
+    # Resolve the requested path and refuse anything that escapes the frontend build
+    # directory (e.g. "x/../../../data/flodss_research.db" or encoded/backslash variants).
+    dist_root = FRONTEND_DIST.resolve()
+    try:
+        target_file = (dist_root / full_path).resolve()
+    except (OSError, ValueError):
+        raise HTTPException(status_code=404, detail="Not Found")
+    if target_file.is_relative_to(dist_root) and target_file.is_file():
         return FileResponse(str(target_file))
 
     index_file = FRONTEND_DIST / "index.html"

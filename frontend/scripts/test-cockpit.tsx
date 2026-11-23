@@ -4,9 +4,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { buildCockpitData, calculateFlowMetrics, percentageDelta } from '../src/components/cockpit/CockpitDataContext';
 import { swapDepartments } from '../src/components/cockpit/liveScenarios';
-import { CockpitOverview } from '../src/components/cockpit/CockpitOverview';
+import { buildQuickSvgDocument, CockpitOverview } from '../src/components/cockpit/CockpitOverview';
 import { LanguageProvider } from '../src/context/LanguageContext';
-import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../src/types/api';
+import { summarizeSolverError } from '../src/utils/explainInfeasibility';
+import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem, LayoutValidationResult } from '../src/types/api';
 
 const problem: FacilityLayoutProblem = {
   id: 'live-test', name: 'Live integration fixture',
@@ -70,9 +71,86 @@ assert.match(render(null), /Awaiting layout/);
 const trMarkup = render(layout, 'tr');
 assert.match(trMarkup, /Tesis Yerleşim/);
 assert.match(trMarkup, /Gerçek çözücü geometrisi/);
-assert.match(trMarkup, /Temel Yerleşim/);
+assert.match(trMarkup, /İlk yerleşim/);
+assert.match(trMarkup, /2B Üstten/);
 assert.doesNotMatch(trMarkup, /NaN|Infinity/);
-assert.match(render(null, 'tr'), /Yerleşim bekleniyor/);
+const emptyTrMarkup = render(null, 'tr');
+assert.match(emptyTrMarkup, /Yerleşim bekleniyor/);
+assert.match(emptyTrMarkup, /Başlangıç planını oluştur/);
+assert.match(emptyTrMarkup, /Yerleşim oluşturulunca hesaplanır/);
+const commandBarMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="tr">
+    <CockpitOverview
+      problem={problem}
+      layout={layout}
+      evaluation={null}
+      onQuickSolve={() => {}}
+      onOpenWorkspace={() => {}}
+    />
+  </LanguageProvider>
+);
+assert.match(commandBarMarkup, /Yerleşimi iyileştir/);
+assert.match(commandBarMarkup, /İyileştirilmiş planı üretip iki sonucu karşılaştırabilirsiniz/);
+assert.match(commandBarMarkup, /2B planı indir \(SVG · İlk yerleşim\)/);
+assert.match(commandBarMarkup, /akış çizildi \(tümü maliyette\)/);
+const partialLayout: ContinuousLayout = {
+  ...layout,
+  placements: { A: layout.placements.A },
+};
+const partialMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="tr">
+    <CockpitOverview problem={problem} layout={partialLayout} evaluation={null} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
+assert.match(partialMarkup, /<strong>Kısmi<\/strong>/);
+assert.match(partialMarkup, /Eksik yerleşim — gerçek çözüm değildir/);
+assert.match(partialMarkup, /yanıltıcıdır/);
+assert.match(partialMarkup, /akış hesap dışı/);
+assert.doesNotMatch(partialMarkup, /<strong>-\d+%/);
+assert.doesNotMatch(partialMarkup, /İlk yerleşime göre/);
+const badValidation: LayoutValidationResult = {
+  is_valid: false,
+  errors: [
+    "Overlap detected between department 'A' and 'B'.",
+    "Department 'A' aspect ratio (10.00) exceeds max_aspect_ratio (2.00).",
+  ],
+  warnings: [],
+  total_overlap_area: 25,
+  checked_departments: ['A', 'B'],
+  metrics: { occupied_area: 300, free_area: 4700, utilization_ratio: 0.06, total_overlap_area: 25, bounding_envelope_area: 300, compactness: 1 },
+  signature: 'bad-sig',
+};
+const infeasibleMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="tr">
+    <CockpitOverview problem={problem} layout={{ ...layout, layout_signature: 'bad-sig' }} evaluation={null} validation={badValidation} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
+assert.match(infeasibleMarkup, /Geçersiz çözüm — gerçekte uygulanamaz/);
+assert.match(infeasibleMarkup, /yanıltıcıdır/);
+assert.match(infeasibleMarkup, /bölüm çakışması/);
+assert.match(infeasibleMarkup, /en-boy oranı kısıtı/);
+assert.match(summarizeSolverError('Overlap detected between DEP_A and DEP_B', (tr, _en) => tr), /çakışan bölümler/);
+const adaptiveLayout: ContinuousLayout = {
+  ...layout,
+  name: 'Adaptive Strategy Engine',
+  layout_signature: 'adaptive-sig',
+};
+const adaptiveEval = {
+  problem_id: problem.id,
+  layout_signature: 'adaptive-sig',
+  algorithm_name: 'Adaptive Strategy Engine',
+  is_feasible: true,
+  objective_values: { material_handling_cost: 104255.72, flow_distance: 91616.4 },
+} as unknown as EvaluationReport;
+const adaptiveMarkup = renderToStaticMarkup(
+  <LanguageProvider initialLang="tr">
+    <CockpitOverview problem={problem} layout={adaptiveLayout} evaluation={adaptiveEval} onOpenWorkspace={() => {}}/>
+  </LanguageProvider>
+);
+assert.match(adaptiveMarkup, /Adaptive Strategy Engine · 2\/2 bölüm · Uygun/);
+assert.match(adaptiveMarkup, /104[.,]255[.,]72/);
+const svgOutput = buildQuickSvgDocument(problem, layout, problem.departments, (tr, _en) => tr);
+assert.ok(svgOutput.startsWith('<?xml version="1.0"') && svgOutput.includes('<svg') && svgOutput.includes('</svg>') && svgOutput.length > 300);
 const benchmarkSample: FacilityLayoutProblem = {
   ...problem,
   id: 'FLP_INDUSTRIAL_10',

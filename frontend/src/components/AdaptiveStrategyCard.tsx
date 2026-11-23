@@ -50,11 +50,16 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
   useEffect(() => {
     if (problem?.id) {
       setSelectedProblemId(problem.id);
+      setResult(null);
+      setSelectedCandidateSig(null);
+      setError(null);
     }
   }, [problem?.id]);
 
   // Auto-analyze on problem switch
   useEffect(() => {
+    setResult(null);
+    setSelectedCandidateSig(null);
     handleAnalyze();
   }, [selectedProblemId]);
 
@@ -139,18 +144,13 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.5rem', borderRadius: '4px', backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {t('Faz 11', 'Phase 11')}
-            </span>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              {t('Uyarlanabilir Strateji Motoru v1', 'Adaptive Strategy Engine v1')}
-            </h2>
-          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.25rem 0' }}>
+            {t('Hangi kısıtlar sonucu etkiledi?', 'Which constraints affected the result?')}
+          </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
             {t(
-              'Otomatik problem parmak izi çıkarımı, kural tabanlı algoritma seçimi, yedek çözücü dayanıklılığı ve paylaşımlı aday portföyü.',
-              'Automated fingerprint extraction, rule-based algorithm selection, fallback resilience, and shared candidate portfolio.'
+              'Tesis yoğunluğu, kısıtlar ve akış yapısının yerleşim sonucunu nasıl etkilediğini inceleyin.',
+              'Examine how facility density, constraints, and flow structure shaped the layout result.'
             )}
           </p>
         </div>
@@ -163,7 +163,7 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             disabled={analyzing || solving}
             style={{ fontSize: '0.85rem' }}
           >
-            {analyzing ? t('Analiz Ediliyor...', 'Analyzing...') : t('Fingerprint Yeniden Analiz Et', 'Re-Analyze Fingerprint')}
+            {analyzing ? t('Analiz Ediliyor...', 'Analyzing...') : t('Kısıt Analizini Yenile', 'Refresh Analysis')}
           </button>
           <button
             className="btn btn-primary"
@@ -171,88 +171,8 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
             disabled={solving}
             style={{ fontSize: '0.85rem', fontWeight: 600, backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
           >
-            {solving ? t('Uyarlanabilir Çözüm Üretiliyor...', 'Solving Adaptively...') : t('Uyarlanabilir Optimizasyonu Başlat', 'Launch Adaptive Optimization')}
+            {solving ? t('Hesaplanıyor...', 'Calculating...') : t('Kısıt ve Strateji Analizini Çalıştır', 'Run Constraint & Strategy Analysis')}
           </button>
-        </div>
-      </div>
-
-      {/* Control Configuration Bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('PROBLEM ÖRNEĞİ', 'PROBLEM INSTANCE')}
-          </label>
-          <select
-            value={selectedProblemId}
-            onChange={(e) => setSelectedProblemId(e.target.value)}
-            disabled={solving}
-            style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-          >
-            {BENCHMARK_PROBLEMS.map((bp) => (
-              <option key={bp.id} value={bp.id}>
-                {t(bp.nameTr, bp.nameEn)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('ZAMAN BÜTÇESİ (SN)', 'TIME BUDGET (SECONDS)')}
-          </label>
-          <input
-            type="number"
-            min="1.0"
-            max="120.0"
-            step="1.0"
-            value={budgetSeconds}
-            onChange={(e) => setBudgetSeconds(parseFloat(e.target.value) || 15.0)}
-            disabled={solving}
-            style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('MAKS ALGORİTMA ÇAĞRISI', 'MAX ALGORITHM CALLS')}
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="15"
-            value={maxCalls}
-            onChange={(e) => setMaxCalls(parseInt(e.target.value) || 5)}
-            disabled={solving}
-            style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-            {t('RASTGELELİK TOHUMU (SEED)', 'RANDOM SEED')}
-          </label>
-          <input
-            type="number"
-            value={randomSeed}
-            onChange={(e) => setRandomSeed(parseInt(e.target.value) || 42)}
-            disabled={solving}
-            style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={fallbackEnabled}
-              onChange={(e) => setFallbackEnabled(e.target.checked)}
-              disabled={solving}
-            />
-            <span style={{ fontWeight: 600 }}>{t('Uyarlanabilir Yedek Çözücü Etkin', 'Enable Adaptive Fallback')}</span>
-          </label>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-            {t('Birincil sezgisel başarısız olursa otomatik ikincil çözücüye geç', 'Auto-switch to secondary solver if primary heuristic fails')}
-          </span>
         </div>
       </div>
 
@@ -262,85 +182,181 @@ export const AdaptiveStrategyCard: React.FC<AdaptiveStrategyCardProps> = ({
         </div>
       )}
 
-      {/* Section 1: Structural Problem Fingerprint & Strategy Recommendation */}
+      {/* Primary Summary: Why these constraints shaped the layout strategy */}
       {analysis && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-          {/* Fingerprint Card */}
-          <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '0 0 0.75rem 0', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-              {t('Deterministik Problem Parmak İzi', 'Deterministic Problem Fingerprint')}
+        <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+              {t('Kısıtların ve Tesis Yapısının Özeti', 'Constraint & Facility Structure Summary')}
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.8rem' }}>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Bölümler:', 'Departments:')}</span> <strong>{analysis.fingerprint.department_count}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Alan Kullanımı:', 'Area Utilization:')}</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Tesis Boyutu:', 'Plant Footprint:')}</span> <strong>{analysis.fingerprint.facility_width} × {analysis.fingerprint.facility_height} m</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Alan Değişkenliği:', 'Area Variation:')}</span> <strong>{analysis.fingerprint.area_variation}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Akış Yoğunluğu:', 'Flow Density:')}</span> <strong>{(analysis.fingerprint.flow_density * 100).toFixed(1)}%</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('REL Yoğunluğu:', 'REL Density:')}</span> <strong>{(analysis.fingerprint.rel_density ? (analysis.fingerprint.rel_density * 100).toFixed(1) : 0)}%</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('En-Boy Oranı Sınırları:', 'Aspect Ratio Bounds:')}</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} ${t('Bölüm', 'Depts')}` : t('Yok', 'None')}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Ayrılmış Bölgeler:', 'Reserved Zones:')}</span> <strong>{analysis.fingerprint.reserved_zone_count ? `${analysis.fingerprint.reserved_zone_count} (${(analysis.fingerprint.reserved_zone_ratio! * 100).toFixed(1)}%)` : t('Yok', 'None')}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Kesin Kısıtlar:', 'Hard Constraints:')}</span> <strong>{analysis.fingerprint.hard_constraints_count}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-muted)' }}>{t('Esnek Kısıtlar:', 'Soft Constraints:')}</span> <strong>{analysis.fingerprint.soft_constraints_count}</strong>
-              </div>
-            </div>
-            {analysis.fingerprint.unavailable_features && analysis.fingerprint.unavailable_features.length > 0 && (
-              <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                <em>{t('Modellenmeyen özellikler:', 'Unavailable features (not modeled):')}</em> {analysis.fingerprint.unavailable_features.join(', ')}
-              </div>
-            )}
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              {analysis.fingerprint.department_count} {t('bölüm', 'depts')} · {(analysis.fingerprint.area_utilization * 100).toFixed(1)}% {t('alan kullanımı', 'utilization')} · {analysis.fingerprint.hard_constraints_count} {t('kesin', 'hard')} / {analysis.fingerprint.soft_constraints_count} {t('esnek kısıt', 'soft constraints')}
+            </span>
           </div>
-
-          {/* Strategy Recommendation Card */}
-          <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-                {t('Önerilen Strateji Hattı (Recommended Pipeline)', 'Recommended Strategy Pipeline')}
-              </h4>
-              <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '4px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 600 }}>
-                {analysis.selected_strategy.rule_id}
+          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#60a5fa', marginBottom: '0.35rem' }}>
+            {analysis.selected_strategy.name}
+          </div>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0 0 0.6rem 0' }}>
+            {analysis.selected_strategy.rationale}
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.75rem' }}>
+            <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+              <strong>{t('Birincil Yaklaşım:', 'Primary Approach:')}</strong> {analysis.selected_strategy.primary_algorithm}
+            </span>
+            <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+              <strong>{t('İyileştirme Adımı:', 'Improvement Step:')}</strong> {analysis.selected_strategy.improvement_algorithms.join(', ') || t('Yok', 'None')}
+            </span>
+            {analysis.selected_strategy.fallback_algorithm && (
+              <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)', color: '#f59e0b' }}>
+                <strong>{t('Yedek Çözücü:', 'Fallback:')}</strong> {analysis.selected_strategy.fallback_algorithm}
               </span>
-            </div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#3b82f6', marginBottom: '0.4rem' }}>
-              {analysis.selected_strategy.name}
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4, margin: '0 0 0.5rem 0' }}>
-              {analysis.selected_strategy.rationale}
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                <strong>{t('Birincil:', 'Primary:')}</strong> {analysis.selected_strategy.primary_algorithm}
-              </span>
-              <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                <strong>{t('İyileştirme:', 'Improvement:')}</strong> {analysis.selected_strategy.improvement_algorithms.join(', ') || t('Yok', 'None')}
-              </span>
-              {analysis.selected_strategy.fallback_algorithm && (
-                <span style={{ padding: '0.2rem 0.5rem', backgroundColor: 'var(--bg-primary)', borderRadius: '4px', border: '1px solid var(--border-color)', color: '#f59e0b' }}>
-                  <strong>{t('Yedek Çözücü:', 'Fallback:')}</strong> {analysis.selected_strategy.fallback_algorithm}
-                </span>
-              )}
-            </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* Collapsible Technical Diagnostics: Problem Fingerprint & Solver Hyperparameters */}
+      <details className="tech-details-box" style={{ marginBottom: '1.25rem' }}>
+        <summary>
+          {t('Teknik tanılar: Problem parmak izi ve çözücü ayarları', 'Technical diagnostics: Problem fingerprint & solver settings')}
+        </summary>
+        <div style={{ marginTop: '0.9rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Control Configuration Bar */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                {t('PROBLEM ÖRNEĞİ', 'PROBLEM INSTANCE')}
+              </label>
+              <select
+                value={selectedProblemId}
+                onChange={(e) => setSelectedProblemId(e.target.value)}
+                disabled={solving}
+                style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+              >
+                {problem?.id && !BENCHMARK_PROBLEMS.some((bp) => bp.id === problem.id) && (
+                  <option value={problem.id}>
+                    {problem.id} ({problem.departments?.length || 0} {t('Bölüm', 'Depts')} · {problem.name})
+                  </option>
+                )}
+                {BENCHMARK_PROBLEMS.map((bp) => (
+                  <option key={bp.id} value={bp.id}>
+                    {t(bp.nameTr, bp.nameEn)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                {t('ZAMAN BÜTÇESİ (SN)', 'TIME BUDGET (SECONDS)')}
+              </label>
+              <input
+                type="number"
+                min="1.0"
+                max="120.0"
+                step="1.0"
+                value={budgetSeconds}
+                onChange={(e) => setBudgetSeconds(parseFloat(e.target.value) || 15.0)}
+                disabled={solving}
+                style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                {t('MAKS ALGORİTMA ÇAĞRISI', 'MAX ALGORITHM CALLS')}
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="15"
+                value={maxCalls}
+                onChange={(e) => setMaxCalls(parseInt(e.target.value) || 5)}
+                disabled={solving}
+                style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                {t('RASTGELELİK TOHUMU (SEED)', 'RANDOM SEED')}
+              </label>
+              <input
+                type="number"
+                value={randomSeed}
+                onChange={(e) => setRandomSeed(parseInt(e.target.value) || 42)}
+                disabled={solving}
+                style={{ width: '100%', padding: '0.45rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={fallbackEnabled}
+                  onChange={(e) => setFallbackEnabled(e.target.checked)}
+                  disabled={solving}
+                />
+                <span style={{ fontWeight: 600 }}>{t('Uyarlanabilir Yedek Çözücü Etkin', 'Enable Adaptive Fallback')}</span>
+              </label>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                {t('Birincil sezgisel başarısız olursa otomatik ikincil çözücüye geç', 'Auto-switch to secondary solver if primary heuristic fails')}
+              </span>
+            </div>
+          </div>
+
+          {analysis && (
+            <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--bg-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
+                  {t('Deterministik Problem Parmak İzi', 'Deterministic Problem Fingerprint')}
+                </h4>
+                <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '4px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 600 }}>
+                  {t('Faz 11 · Kural', 'Phase 11 · Rule')} {analysis.selected_strategy.rule_id}
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', fontSize: '0.8rem' }}>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Bölümler:', 'Departments:')}</span> <strong>{analysis.fingerprint.department_count}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Alan Kullanımı:', 'Area Utilization:')}</span> <strong>{(analysis.fingerprint.area_utilization * 100).toFixed(1)}%</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Tesis Boyutu:', 'Plant Footprint:')}</span> <strong>{analysis.fingerprint.facility_width} × {analysis.fingerprint.facility_height} m</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Alan Değişkenliği:', 'Area Variation:')}</span> <strong>{analysis.fingerprint.area_variation}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Akış Yoğunluğu:', 'Flow Density:')}</span> <strong>{(analysis.fingerprint.flow_density * 100).toFixed(1)}%</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('REL Yoğunluğu:', 'REL Density:')}</span> <strong>{(analysis.fingerprint.rel_density ? (analysis.fingerprint.rel_density * 100).toFixed(1) : 0)}%</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('En-Boy Oranı Sınırları:', 'Aspect Ratio Bounds:')}</span> <strong>{analysis.fingerprint.has_aspect_ratio_constraints ? `${analysis.fingerprint.aspect_ratio_constrained_count} ${t('Bölüm', 'Depts')}` : t('Yok', 'None')}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Ayrılmış Bölgeler:', 'Reserved Zones:')}</span> <strong>{analysis.fingerprint.reserved_zone_count ? `${analysis.fingerprint.reserved_zone_count} (${(analysis.fingerprint.reserved_zone_ratio! * 100).toFixed(1)}%)` : t('Yok', 'None')}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Kesin Kısıtlar:', 'Hard Constraints:')}</span> <strong>{analysis.fingerprint.hard_constraints_count}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('Esnek Kısıtlar:', 'Soft Constraints:')}</span> <strong>{analysis.fingerprint.soft_constraints_count}</strong>
+                </div>
+              </div>
+              {analysis.fingerprint.unavailable_features && analysis.fingerprint.unavailable_features.length > 0 && (
+                <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <em>{t('Modellenmeyen özellikler:', 'Unavailable features (not modeled):')}</em> {analysis.fingerprint.unavailable_features.join(', ')}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </details>
 
       {/* Section 2: Results & Explainable Execution Trace */}
       {result && (

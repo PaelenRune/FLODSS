@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Factory, LayoutDashboard, PanelsTopLeft, Grid2X2, Workflow, Play, BarChart3, FileText, Settings, PanelLeftClose, PanelLeftOpen, Sliders, ShieldCheck, Sparkles, LogIn, Globe } from 'lucide-react';
+import { Factory, LayoutDashboard, PanelsTopLeft, Grid2X2, Workflow, Play, BarChart3, FileText, Settings, PanelLeftClose, PanelLeftOpen, Sliders, ShieldCheck, Sparkles, LogIn, Globe, Plus } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
-export function CockpitSidebar({ active, onNavigate, onLogin, online }: { active: string; onNavigate: (id: string) => void; onLogin: () => void; online: boolean }) {
+export function CockpitSidebar({ active, onNavigate, onNewProject, onLogin, online }: { active: string; onNavigate: (id: string) => void; onNewProject?: () => void; onLogin: () => void; online: boolean }) {
   const [collapsed, setCollapsed] = useState(false);
   const { lang, toggleLang, t } = useLanguage();
   const items = [
     { id: 'cockpit', label: t('Kontrol Paneli', 'Dashboard'), icon: LayoutDashboard },
-    { id: 'layout', label: t('Yerleşim Düzenleyici', 'Layout editor'), icon: PanelsTopLeft },
+    { id: 'layout', label: t('Yerleşimi Düzenle', 'Edit layout'), icon: PanelsTopLeft },
     { id: 'matrices', label: t('Akış Matrisi', 'Flow matrix'), icon: Grid2X2 },
     { id: 'solvers', label: t('Optimizasyon', 'Optimization'), icon: Workflow },
     { id: 'decision', label: t('Simülasyon ve Karar Destek', 'Simulation & guidance'), icon: Play },
@@ -28,6 +28,16 @@ export function CockpitSidebar({ active, onNavigate, onLogin, online }: { active
       {collapsed ? <PanelLeftOpen size={16}/> : <PanelLeftClose size={16}/>}
     </button>
     <nav aria-label={t('Ana gezinme', 'Main navigation')}>
+      {onNewProject && (
+        <button
+          type="button"
+          className="sidebar-new-project-btn"
+          title={t('Yeni Proje Oluştur', 'Create New Project')}
+          onClick={onNewProject}
+        >
+          <Plus size={18}/>{!collapsed && <span>{t('Yeni Proje Oluştur', 'New Project')}</span>}
+        </button>
+      )}
       {items.map(({ id, label, icon: Icon }) => (
         <button key={id} title={label} aria-current={active === id ? 'page' : undefined} onClick={() => onNavigate(id)}>
           <Icon size={18}/>{!collapsed && <span>{label}</span>}{active === id && <i/>}

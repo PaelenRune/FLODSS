@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
-import { Layers, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
-import { localizeBenchmarkText, localizeCockpitDeptName, useCockpitData } from './CockpitDataContext';
+import { AlertTriangle, Columns2, Download, Layers, Maximize, Pencil, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
+import { calculateFlowMetrics, getShortDepartmentLabel, localizeBenchmarkText, localizeCockpitDeptName, useCockpitData } from './CockpitDataContext';
+import { summarizeLayoutInfeasibility } from '../../utils/explainInfeasibility';
 import { useLanguage } from '../../context/LanguageContext';
 
 type Point = [number, number];
@@ -17,9 +18,10 @@ function equipmentFor(id: string, name: string): Equipment {
 }
 
 export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | null; onSelect: (id: string) => void }) {
-  const { t } = useLanguage();
-  const { departments, flows, problem, layout, swap } = useCockpitData();
+  const { lang, t } = useLanguage();
+  const { departments, flows, problem, layout, evaluation, validation, metrics, swap, scenarios = [], selectedScenario = 0, selectScenario, metricConfig, onCreateSampleLayout, onEditPlan, onDownloadPlanSvg } = useCockpitData();
   const [swapMode, setSwapMode] = useState(false);
+  const [compareSideBySide, setCompareSideBySide] = useState(false);
   const selectDepartment = (id: string) => {
     if (swapMode && selected && selected !== id) {
       swap?.(selected, id);
@@ -132,8 +134,189 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
     return { dept, index, name, position };
   });
 
+  const baselineScenario = scenarios[0] ?? null;
+  const optimizedScenario = scenarios.length > 1 ? scenarios[scenarios.length - 1] : null;
+  const activeScenario = scenarios.find(s => s.id === selectedScenario) ?? optimizedScenario ?? baselineScenario;
+  const isViewingOptimized = Boolean(optimizedScenario && activeScenario && activeScenario.id !== baselineScenario?.id);
+  const isSideBySide = compareSideBySide && Boolean(baselineScenario && optimizedScenario && problem);
+
+  const baselineStats = problem && baselineScenario ? calculateFlowMetrics(problem, baselineScenario.layout, metricConfig) : null;
+  const optimizedStats = problem && optimizedScenario ? calculateFlowMetrics(problem, optimizedScenario.layout, metricConfig) : null;
+  const baselinePlacedCount = baselineScenario ? Object.keys(baselineScenario.layout.placements).length : 0;
+  const optPlacedCount = optimizedScenario ? Object.keys(optimizedScenario.layout.placements).length : 0;
+  const baselineComplete = Boolean(baselineStats && baselineStats.missingFlows === 0 && baselinePlacedCount >= departments.length);
+  const optComplete = Boolean(optimizedStats && optimizedStats.missingFlows === 0 && optPlacedCount >= departments.length);
+  const baseFeasible = baselineScenario?.evaluation ? baselineScenario.evaluation.is_feasible : true;
+  const optFeasible = optimizedScenario?.evaluation ? optimizedScenario.evaluation.is_feasible : true;
+  const bothComparable = baselineComplete && optComplete && baseFeasible && optFeasible;
+  const costDeltaPct = bothComparable && baselineStats && optimizedStats && baselineStats.handlingCost > 0
+    ? ((optimizedStats.handlingCost - baselineStats.handlingCost) / baselineStats.handlingCost) * 100
+    : null;
+  const distDeltaPct = bothComparable && baselineStats && optimizedStats && baselineStats.flowDistance > 0
+    ? ((optimizedStats.flowDistance - baselineStats.flowDistance) / baselineStats.flowDistance) * 100
+    : null;
+  const formatChangePhrase = (metricLabel: string, pct: number) => {
+    const absStr = Math.abs(pct).toLocaleString(lang === 'tr' ? 'tr-TR' : 'en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    if (pct < -0.05) return t(`${metricLabel} %${absStr} azaldı`, `${metricLabel} -${absStr}%`);
+    if (pct > 0.05) return t(`${metricLabel} %${absStr} arttı`, `${metricLabel} +${absStr}%`);
+    return t(`${metricLabel} değişmedi`, `${metricLabel} unchanged`);
+  };
+
+  const infeasibility = summarizeLayoutInfeasibility(
+    problem ?? null,
+    layout ?? null,
+    validation,
+    evaluation,
+    metrics?.missingFlows ?? 0,
+    t
+  );
+
+  const rawScenName = activeScenario?.name ?? '';
+  const activePlanTitle = !rawScenName || rawScenName === 'Baseline Layout'
+    ? t('İlk yerleşim', 'Baseline layout')
+    : rawScenName.startsWith('Solver Layout · ')
+      ? rawScenName.slice('Solver Layout · '.length).trim()
+      : rawScenName.startsWith('Solver Layout #')
+        ? `${t('Optimize edilmiş', 'Optimized')} #${rawScenName.slice('Solver Layout #'.length)}`
+        : rawScenName.startsWith('What-If')
+          ? t('Senaryo denemesi', 'What-If scenario')
+          : rawScenName;
+  const feasTag = infeasibility.status === 'partial'
+    ? t('Kısmi', 'Partial')
+    : infeasibility.status === 'infeasible'
+      ? t('Uygun değil', 'Infeasible')
+      : t('Uygun', 'Feasible');
+
   return <section className="cockpit-panel factory-panel live-factory-panel">
-    <div className="factory-heading"><div><h2>{t('Fabrika yerleşimi', 'Factory layout')} <span>{t('Gerçek çözücü geometrisi', 'Actual solver geometry')}</span></h2><p>{localizeBenchmarkText(problem?.facility.name, t)} <span className="status-pill">{layout ? t('Güncel yerleşim', 'Current layout') : t('Yerleşim bekleniyor', 'Awaiting layout')}</span></p></div><div className="canvas-modes"><button aria-pressed={!flat} onClick={() => setFlat(false)}>{t('3D İzometrik', '3D Isometric')}</button><button aria-pressed={flat} onClick={() => setFlat(true)}>{t('2D Ortografik', '2D Orthographic')}</button></div></div>
+    <div className="factory-heading"><div><h2>{t('Fabrika yerleşimi', 'Factory layout')} <span>{t('Gerçek çözücü geometrisi', 'Actual solver geometry')}</span></h2><p>{localizeBenchmarkText(problem?.facility.name, t)} <span className="status-pill">{!layout ? t('Yerleşim bekleniyor', 'Awaiting layout') : `${activePlanTitle} · ${placed.length}/${departments.length} ${t('bölüm', 'depts')} · ${feasTag}`}</span></p></div><div className="canvas-modes"><button aria-pressed={!flat} onClick={() => setFlat(false)}>{t('3B İzometrik', '3D Isometric')}</button><button aria-pressed={flat} onClick={() => setFlat(true)}>{t('2B Üstten', '2D Top-Down')}</button></div></div>
+    {baselineScenario && (
+      <div className="plan-compare-bar">
+        <div className="compare-switch" role="group" aria-label={t('Görünüm seçimi', 'Plan comparison switch')}>
+          <button
+            type="button"
+            aria-pressed={!isSideBySide && !isViewingOptimized}
+            onClick={() => { setCompareSideBySide(false); selectScenario?.(baselineScenario.id); }}
+          >
+            {t('İlk yerleşim', 'Baseline layout')}
+          </button>
+          <button
+            type="button"
+            disabled={!optimizedScenario}
+            aria-pressed={!isSideBySide && isViewingOptimized}
+            onClick={() => { if (optimizedScenario) { setCompareSideBySide(false); selectScenario?.(optimizedScenario.id); } }}
+          >
+            {t('Optimize edilmiş', 'Optimized')}
+          </button>
+          <button
+            type="button"
+            disabled={!optimizedScenario}
+            aria-pressed={isSideBySide}
+            onClick={() => optimizedScenario && setCompareSideBySide(v => !v)}
+          >
+            <Columns2 size={12}/> {t('Yan yana', 'Side by side')}
+          </button>
+        </div>
+        {bothComparable && costDeltaPct !== null && distDeltaPct !== null ? (
+          <div className={`improvement-pill ${costDeltaPct <= 0 ? 'improved' : 'worsened'}`}>
+            <span>{formatChangePhrase(t('Taşıma maliyeti', 'Handling cost'), costDeltaPct)}</span>
+            <b>·</b>
+            <span>{formatChangePhrase(t('Mesafe', 'Distance'), distDeltaPct)}</span>
+          </div>
+        ) : optimizedScenario ? (
+          <div className="improvement-pill infeasible">
+            <span>
+              {!optComplete
+                ? t(
+                    `Karşılaştırılamaz · ${optPlacedCount}/${departments.length} bölüm · ${optimizedStats?.missingFlows ?? 0} akış hesap dışı`,
+                    `Not comparable · ${optPlacedCount}/${departments.length} depts · ${optimizedStats?.missingFlows ?? 0} flows excluded`
+                  )
+                : !baselineComplete
+                  ? t(
+                      `Karşılaştırılamaz · İlk plan kısmi (${baselinePlacedCount}/${departments.length} bölüm)`,
+                      `Not comparable · Baseline partial (${baselinePlacedCount}/${departments.length} depts)`
+                    )
+                  : t('Uygun değil · Kısıt veya çakışma ihlali var', 'Infeasible · Constraint or overlap violation')}
+            </span>
+          </div>
+        ) : (
+          <span className="next-step-hint">
+            {t('İyileştirilmiş planı üretip iki sonucu karşılaştırabilirsiniz ("Yerleşimi iyileştir").', 'Run "Improve layout" to generate an optimized plan and compare both results.')}
+          </span>
+        )}
+      </div>
+    )}
+    {layout && infeasibility.status !== 'feasible' && (
+      <div className={`infeasible-warning-banner ${infeasibility.status}`} role="alert">
+        <div className="iwb-head">
+          <AlertTriangle size={16}/>
+          <strong>{infeasibility.headline}</strong>
+        </div>
+        <p className="iwb-note">{infeasibility.misleadingCostNote}</p>
+        {infeasibility.reasons.length > 0 && (
+          <ul className="iwb-reasons">
+            {infeasibility.reasons.map((r, i) => <li key={i}>{r}</li>)}
+          </ul>
+        )}
+        {infeasibility.technicalDetails && (
+          <details className="iwb-details">
+            <summary>{t('Teknik ihlal ayrıntıları', 'Technical violation details')}</summary>
+            <pre>{infeasibility.technicalDetails}</pre>
+          </details>
+        )}
+      </div>
+    )}
+    {isSideBySide && baselineScenario && optimizedScenario && problem ? (
+      <div className="side-by-side-grid">
+        {[
+          { label: t('İlk yerleşim', 'Baseline layout'), scen: baselineScenario, stats: baselineStats },
+          { label: t('Optimize edilmiş', 'Optimized'), scen: optimizedScenario, stats: optimizedStats },
+        ].map(({ label, scen, stats }, idx) => (
+          <div key={scen.id} className={`side-by-side-card ${idx === 1 ? 'optimized' : ''}`}>
+            <div className="sbs-head">
+              <strong>{label}</strong>
+              {stats && (
+                <span>
+                  MHC: {stats.handlingCost.toLocaleString(undefined, { maximumFractionDigits: 0 })} · {t('Mesafe', 'Dist')}: {stats.flowDistance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              )}
+            </div>
+            <svg viewBox={`0 0 ${problem.facility.width} ${problem.facility.height}`} className="sbs-svg" role="img" aria-label={label}>
+              <rect x="0" y="0" width={problem.facility.width} height={problem.facility.height} fill="#0b1220" stroke="#334155" strokeWidth="1"/>
+              {departments.map(d => {
+                const pl = scen.layout.placements[d.id];
+                if (!pl) return null;
+                const ry = problem.facility.height - pl.y - pl.height;
+                const fullName = localizeCockpitDeptName(d, true, t);
+                const shortName = getShortDepartmentLabel(d, t);
+                return (
+                  <g key={d.id} onClick={() => selectDepartment(d.id)} style={{ cursor: 'pointer' }}>
+                    <title>{`${fullName}: ${pl.width.toFixed(1)}×${pl.height.toFixed(1)} m (${(pl.width * pl.height).toFixed(0)} m²)`}</title>
+                    <rect x={pl.x} y={ry} width={pl.width} height={pl.height} fill={d.dark} stroke={selected === d.id ? '#ffffff' : d.color} strokeWidth={selected === d.id ? 1.5 : 0.9} fillOpacity="0.88"/>
+                    <text x={pl.x + pl.width / 2} y={ry + pl.height / 2} textAnchor="middle" dominantBaseline="middle" fill="#f8fafc" fontSize={Math.max(3.2, Math.min(5.2, pl.height * 0.22))}>
+                      {shortName}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+            <div className="sbs-actions">
+              {onEditPlan && (
+                <button type="button" className="sbs-action-btn" onClick={() => onEditPlan(scen.id)}>
+                  <Pencil size={12}/>
+                  {t('Bu planı düzenle', 'Edit this plan')}
+                </button>
+              )}
+              {onDownloadPlanSvg && (
+                <button type="button" className="sbs-action-btn secondary" onClick={() => onDownloadPlanSvg(scen.id)}>
+                  <Download size={12}/>
+                  {t('2B planı indir (SVG)', 'Download 2D (SVG)')}
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
     <div className="factory-stage"><svg viewBox="0 0 820 485" role="img" aria-label={t(`Etkileşimli 3B fabrika: ${localizeBenchmarkText(problem?.name, t)}, ${placed.length} yerleştirilmiş bölüm, yükleme rampaları ve malzeme akışları. Ekipman ve kamyonlar temsilidir.`, `Interactive 3D factory: ${problem?.name}, ${placed.length} placed departments, loading docks and material flows. Equipment and trucks are illustrative.`)} onPointerDown={event => {
       if ((event.target as Element).closest('[data-department]')) return;
       drag.current = { x: event.clientX, y: event.clientY, px: pan.x, py: pan.y }; event.currentTarget.setPointerCapture(event.pointerId);
@@ -224,10 +407,21 @@ export function LiveFactoryCanvas({ selected, onSelect }: { selected: string | n
         </g>
         <text x="410" y="38" textAnchor="middle" fill="#8da7b9" fontSize="9">{problem?.facility.width} × {problem?.facility.height} m · {((problem?.facility.width ?? 0) * (problem?.facility.height ?? 0)).toLocaleString()} m²</text>
       </g>
-      {!layout && <text x="410" y="455" textAnchor="middle" fill="#a6bacb" fontSize="12">{t('Başlamak için bir çözücü çalıştırın veya uyumlu bir yerleşim içe aktarın', 'Run a solver or import a matching layout')}</text>}
-    </svg><div className="canvas-toolbar"><button className="icon-button" aria-label={t('Yakınlaştır', 'Zoom in')} onClick={() => setZoom(z => Math.min(3, z + .15))}><ZoomIn size={17}/></button><button className="icon-button" aria-label={t('Uzaklaştır', 'Zoom out')} onClick={() => setZoom(z => Math.max(.5, z - .15))}><ZoomOut size={17}/></button><button className="icon-button" aria-label={t('Görünümü sıfırla', 'Reset view')} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}><Maximize size={17}/></button><span>{Math.round(zoom * 100)}%</span></div></div>
+      {!layout && <text x="410" y="455" textAnchor="middle" fill="#64748b" fontSize="10">{t('Yerleşim oluşturulduğunda 3B plan ve metrikler otomatik hesaplanır', '3D plan and metrics are computed automatically once a layout exists')}</text>}
+    </svg>
+    {!layout && (
+      <div className="empty-canvas-cta">
+        <p>{t('Bu problem için henüz yerleşim oluşturulmadı.', 'No layout has been generated for this problem yet.')}</p>
+        <button type="button" className="cockpit-btn-primary" onClick={() => onCreateSampleLayout?.()}>
+          <Sparkles size={14}/>
+          {t('Başlangıç planını oluştur', 'Create baseline layout')}
+        </button>
+      </div>
+    )}
+    <div className="canvas-toolbar"><button className="icon-button" aria-label={t('Yakınlaştır', 'Zoom in')} onClick={() => setZoom(z => Math.min(3, z + .15))}><ZoomIn size={17}/></button><button className="icon-button" aria-label={t('Uzaklaştır', 'Zoom out')} onClick={() => setZoom(z => Math.max(.5, z - .15))}><ZoomOut size={17}/></button><button className="icon-button" aria-label={t('Görünümü sıfırla', 'Reset view')} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}><Maximize size={17}/></button><span>{Math.round(zoom * 100)}%</span></div></div>
+    )}
     <div className="live-factory-legend" aria-label={t('Bölüm seçimi ve tahsis edilen alanlar', 'Department selection and allocated areas')}>{placed.map(d => <button key={d.id} aria-pressed={selected === d.id} onClick={() => selectDepartment(d.id)} title={`${displayDeptName(d)}: ${d.area.toFixed(1)} / ${d.required} m²`}><i style={{ background: d.color }}>{departments.indexOf(d) + 1}</i><span>{displayDeptName(d)}</span><small>{d.area.toLocaleString(undefined, { maximumFractionDigits: 0 })} m²</small></button>)}</div>
     {active && swap && <div className="factory-bottom"><button className={`flow-toggle ${swapMode ? 'enabled' : ''}`} aria-pressed={swapMode} disabled={placed.length < 2} onClick={() => setSwapMode(value => !value)}>{swapMode ? t('Değişimi iptal et', 'Cancel swap') : t('Yer değiştir…', 'Swap with…')}</button><span className="factory-inspection" role="status">{swapMode ? t(`Ağırlık merkezlerini ${displayDeptName(active)} ile değiştirmek için başka bir bölüm seçin.`, `Choose another department to swap centroids with ${displayDeptName(active)}.`) : t('Senaryo denemesi: boyutlar korunur; uygunluk henüz doğrulanmadı.', 'What-If: dimensions preserved; feasibility not yet validated.')}</span></div>}
-    <div className="factory-bottom"><button className={`flow-toggle ${showFlows ? 'enabled' : ''}`} aria-pressed={showFlows} onClick={() => setShowFlows(value => !value)}><Layers size={14}/>{t('Akış vektörleri', 'Flow vectors')}<i/></button><span className="factory-inspection">{active ? `${displayDeptName(active)}: ${active.area.toFixed(1)} / ${active.required} m²` : t(`${placed.length}/${departments.length} yerleştirildi · ${edges.length}/${allEdges.length} akış · temsili ekipman`, `${placed.length}/${departments.length} placed · ${edges.length}/${allEdges.length} flows · illustrative equipment`)}</span></div>
+    <div className="factory-bottom"><button className={`flow-toggle ${showFlows ? 'enabled' : ''}`} aria-pressed={showFlows} onClick={() => setShowFlows(value => !value)}><Layers size={14}/>{t('Akış vektörleri', 'Flow vectors')}<i/></button><span className="factory-inspection">{active ? `${displayDeptName(active)}: ${active.area.toFixed(1)} / ${active.required} m²` : metrics && metrics.missingFlows > 0 ? t(`${placed.length}/${departments.length} yerleştirildi · ${metrics.missingFlows} akış hesap dışı · ${edges.length} çizildi`, `${placed.length}/${departments.length} placed · ${metrics.missingFlows} flows excluded · ${edges.length} drawn`) : t(`${placed.length}/${departments.length} yerleştirildi · ${edges.length}/${allEdges.length} akış çizildi (tümü maliyette) · temsili ekipman`, `${placed.length}/${departments.length} placed · ${edges.length}/${allEdges.length} flows drawn (all in cost) · illustrative equipment`)}</span></div>
   </section>;
 }

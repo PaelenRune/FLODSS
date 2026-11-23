@@ -27,7 +27,6 @@ import { LayoutViewerCard } from '../components/LayoutViewerCard';
 import { ParetoAnalysisCard } from '../components/ParetoAnalysisCard';
 import { AlgorithmComparisonCard } from '../components/AlgorithmComparisonCard';
 import { AdaptiveStrategyCard } from '../components/AdaptiveStrategyCard';
-import { AIExplanationCard } from '../components/AIExplanationCard';
 import { ExportCenterCard } from '../components/ExportCenterCard';
 import { AlgorithmRunnerCard } from '../components/AlgorithmRunnerCard';
 import { LayoutEvaluationCard } from '../components/LayoutEvaluationCard';
@@ -37,6 +36,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { LoginModal } from '../components/LoginModal';
 import { InvitationAcceptModal } from '../components/InvitationAcceptModal';
 import { UserManagementModal } from '../components/UserManagementModal';
+import { NewProjectWizardModal } from '../components/NewProjectWizardModal';
 import { ProjectManagerCard } from '../components/ProjectManagerCard';
 import { CockpitOverview, type QuickSolverId } from '../components/cockpit/CockpitOverview';
 import { useCockpitScenarios } from '../components/cockpit/liveScenarios';
@@ -95,11 +95,20 @@ export const Dashboard: React.FC = () => {
 
   // Shared Core State
   const [availableProblems, setAvailableProblems] = useState<ProblemSummary[]>([]);
+  const [customProblems, setCustomProblems] = useState<Record<string, FacilityLayoutProblem>>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('flodss_custom_projects_v1') : null;
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  });
   const [problem, setProblem] = useState<FacilityLayoutProblem | null>(null);
   const [layout, setLayout] = useState<ContinuousLayout | null>(null);
   const [validation, setValidation] = useState<LayoutValidationResult | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationReport | null>(null);
-  const cockpitScenarios = useCockpitScenarios(problem, layout, evaluation);
   const [selectedDeptId, setSelectedDeptId] = useState<string | null>(null);
   const [executionInfo, setExecutionInfo] = useState<{
     algorithm: string;
@@ -107,6 +116,7 @@ export const Dashboard: React.FC = () => {
     durationMs?: number;
     config?: Record<string, any>;
   } | null>(null);
+  const cockpitScenarios = useCockpitScenarios(problem, layout, evaluation, executionInfo?.algorithm, validation);
 
   const problemVersionRef = React.useRef<number>(0);
 
@@ -115,6 +125,38 @@ export const Dashboard: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showUserMgmtModal, setShowUserMgmtModal] = useState<boolean>(false);
+  const [showNewProjectModal, setShowNewProjectModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('flodss_custom_projects_v1', JSON.stringify(customProblems));
+      }
+    } catch (err) {
+      console.warn('Failed to persist custom projects:', err);
+    }
+  }, [customProblems]);
+
+  const combinedProblems: ProblemSummary[] = React.useMemo(() => {
+    const customSummaries: ProblemSummary[] = Object.values(customProblems).map((cp) => {
+      const facArea = (cp.facility?.width || 0) * (cp.facility?.height || 0);
+      const totalReq = cp.departments.reduce((s, d) => s + (d.required_area || 0), 0);
+      return {
+        id: cp.id,
+        name: `${t('[Özel]', '[Custom]')} ${cp.name}`,
+        facility_width: cp.facility?.width || 0,
+        facility_height: cp.facility?.height || 0,
+        facility_area: facArea,
+        department_count: cp.departments.length,
+        total_required_area: totalReq,
+        area_utilization: facArea > 0 ? totalReq / facArea : 0,
+        flow_count: cp.flows?.length || 0,
+        relationship_count: cp.relationships?.length || 0,
+        constraint_count: cp.constraints?.length || 0,
+      };
+    });
+    return [...customSummaries, ...availableProblems];
+  }, [customProblems, availableProblems, t]);
 
   // Initial Load: Problem catalog & default Industrial 10 benchmark when authenticated
   useEffect(() => {
@@ -175,7 +217,7 @@ export const Dashboard: React.FC = () => {
     initPlatform();
   }, [user]);
 
-  // Handle benchmark example loading
+  // Handle benchmark or custom project loading
   const handleLoadExample = async (problemId: string) => {
     problemVersionRef.current += 1;
     const currentVersion = problemVersionRef.current;
@@ -183,6 +225,12 @@ export const Dashboard: React.FC = () => {
     setValidation(null);
     setEvaluation(null);
     setExecutionInfo(null);
+    setQuickStatus(null);
+    const custom = customProblems[problemId];
+    if (custom) {
+      setProblem(custom);
+      return;
+    }
     try {
       const prob = await fetchExampleProblem(problemId);
       if (problemVersionRef.current !== currentVersion) return;
@@ -209,6 +257,11 @@ export const Dashboard: React.FC = () => {
 
   const handleUpdateProblem = (updatedProblem: FacilityLayoutProblem) => {
     setProblem(updatedProblem);
+    setCustomProblems((prev) => (
+      prev[updatedProblem.id]
+        ? { ...prev, [updatedProblem.id]: updatedProblem }
+        : prev
+    ));
     if (layout) {
       validateLayout(updatedProblem.id, layout, updatedProblem)
         .then(setValidation)
@@ -224,20 +277,22 @@ export const Dashboard: React.FC = () => {
     newLayout: ContinuousLayout,
     newValidation?: LayoutValidationResult | null,
     newEvaluation?: EvaluationReport | null,
-    metadata?: Record<string, any> | null
+    metadata?: Record<string, any> | null,
+    problemOverride?: FacilityLayoutProblem
   ) => {
+    const targetProblem = problemOverride ?? problem;
     setLayout(newLayout);
     setEvaluation(null);
     setValidation(null);
     if (newValidation) {
       setValidation(newValidation);
-    } else if (problem) {
-      validateLayout(problem.id, newLayout, problem).then(setValidation).catch(() => {});
+    } else if (targetProblem) {
+      validateLayout(targetProblem.id, newLayout, targetProblem).then(setValidation).catch(() => {});
     }
     if (newEvaluation) {
       setEvaluation(newEvaluation);
-    } else if (problem) {
-      evaluateLayout(problem.id, newLayout, undefined, problem).then(setEvaluation).catch(() => {});
+    } else if (targetProblem) {
+      evaluateLayout(targetProblem.id, newLayout, undefined, targetProblem).then(setEvaluation).catch(() => {});
     }
     if (metadata) {
       setExecutionInfo({
@@ -296,16 +351,17 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleQuickSolve = async (algo: QuickSolverId) => {
-    if (!problem || quickSolving) return;
+  const handleQuickSolve = async (algo: QuickSolverId, problemOverride?: FacilityLayoutProblem) => {
+    const targetProblem = problemOverride ?? problem;
+    if (!targetProblem || quickSolving) return;
     setQuickSolving(true);
     setQuickStatus(t('Çözücü çalışıyor...', 'Running solver...'));
     const t0 = performance.now();
     try {
       if (algo === 'ga') {
         const res = await solveGeneticAlgorithm({
-          problem_id: problem.id,
-          problem,
+          problem_id: targetProblem.id,
+          problem: targetProblem,
           config: { population_size: 30, generations: 25, random_seed: 42, max_runtime_seconds: 15.0 },
         });
         const t1 = performance.now();
@@ -314,7 +370,7 @@ export const Dashboard: React.FC = () => {
             algorithm: 'Genetic Algorithm v1',
             seed: 42,
             duration_ms: t1 - t0,
-          });
+          }, targetProblem);
           setQuickStatus(
             res.validation?.is_valid
               ? t(`GA tamamlandı (${Math.round(t1 - t0)} ms)`, `GA finished (${Math.round(t1 - t0)} ms)`)
@@ -325,8 +381,8 @@ export const Dashboard: React.FC = () => {
         }
       } else if (algo === 'feasible_generator') {
         const res = await solveFeasibleGenerator({
-          problem_id: problem.id,
-          problem,
+          problem_id: targetProblem.id,
+          problem: targetProblem,
           config: { random_seed: 42, max_runtime_seconds: 10.0 },
         });
         const t1 = performance.now();
@@ -336,7 +392,7 @@ export const Dashboard: React.FC = () => {
             algorithm: 'Feasible Rectangular Generator (Guillotine)',
             seed: 42,
             duration_ms: t1 - t0,
-          });
+          }, targetProblem);
           setQuickStatus(
             res.result?.feasible
               ? t(`Uygun yerleşim üretildi (${Math.round(t1 - t0)} ms)`, `Feasible layout generated (${Math.round(t1 - t0)} ms)`)
@@ -346,11 +402,14 @@ export const Dashboard: React.FC = () => {
           setQuickStatus(t('Uygun yerleşim üretilemedi', 'Could not generate feasible layout'));
         }
       } else if (algo === 'craft') {
+        const matchingLayout = !problemOverride && layout && (!layout.problem_id || layout.problem_id === targetProblem.id)
+          ? layout
+          : null;
         const res = await solveCRAFT({
-          problem_id: problem.id,
-          problem,
-          initial_layout: layout
-            ? { placements: layout.placements, facility_width: layout.facility_width, facility_height: layout.facility_height }
+          problem_id: targetProblem.id,
+          problem: targetProblem,
+          initial_layout: matchingLayout
+            ? { placements: matchingLayout.placements, facility_width: matchingLayout.facility_width, facility_height: matchingLayout.facility_height }
             : undefined,
           config: { max_iterations: 25 },
         });
@@ -358,27 +417,27 @@ export const Dashboard: React.FC = () => {
         handleSolutionGenerated(res.continuous_layout, null, res.final_evaluation, {
           algorithm: 'CRAFT',
           duration_ms: t1 - t0,
-        });
+        }, targetProblem);
         setQuickStatus(t(`CRAFT tamamlandı (${Math.round(t1 - t0)} ms)`, `CRAFT finished (${Math.round(t1 - t0)} ms)`));
       } else if (algo === 'corelap') {
-        const res = await solveCORELAP({ problem_id: problem.id, problem });
+        const res = await solveCORELAP({ problem_id: targetProblem.id, problem: targetProblem });
         const t1 = performance.now();
         handleSolutionGenerated(res.continuous_layout, res.validation, res.evaluation, {
           algorithm: 'CORELAP',
           duration_ms: t1 - t0,
-        });
+        }, targetProblem);
         setQuickStatus(
           res.validation?.is_valid
             ? t(`CORELAP tamamlandı (${Math.round(t1 - t0)} ms)`, `CORELAP finished (${Math.round(t1 - t0)} ms)`)
             : t('CORELAP tamamlandı (çakışma uyarısı)', 'CORELAP finished (infeasible)')
         );
       } else if (algo === 'aldep') {
-        const res = await solveALDEP({ problem_id: problem.id, problem });
+        const res = await solveALDEP({ problem_id: targetProblem.id, problem: targetProblem });
         const t1 = performance.now();
         handleSolutionGenerated(res.continuous_layout, res.validation, res.evaluation, {
           algorithm: 'ALDEP',
           duration_ms: t1 - t0,
-        });
+        }, targetProblem);
         setQuickStatus(
           res.validation?.is_valid
             ? t(`ALDEP tamamlandı (${Math.round(t1 - t0)} ms)`, `ALDEP finished (${Math.round(t1 - t0)} ms)`)
@@ -392,14 +451,73 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const handleCreateCustomProject = async (newProblem: FacilityLayoutProblem, autoOptimize: boolean) => {
+    problemVersionRef.current += 1;
+    setCustomProblems((prev) => ({ ...prev, [newProblem.id]: newProblem }));
+    setProblem(newProblem);
+    setLayout(null);
+    setValidation(null);
+    setEvaluation(null);
+    setExecutionInfo(null);
+    setSelectedDeptId(null);
+    setActiveTab('cockpit');
+    setViewMode('workspace');
+    setQuickStatus(t('Yeni özel proje oluşturuldu', 'Custom project created'));
+    if (autoOptimize) {
+      await handleQuickSolve('ga', newProblem);
+    }
+  };
+
+  const handleCreateSampleLayout = async () => {
+    if (!problem || quickSolving) return;
+    try {
+      const exampleLayouts = await fetchExampleLayouts();
+      const matching = exampleLayouts.find((l) => l.problem_id === problem.id);
+      if (matching) {
+        const loadedLayout = await fetchExampleLayout(matching.id);
+        handleSolutionGenerated(loadedLayout, null, null, { algorithm: t('Örnek Başlangıç Yerleşimi', 'Sample Reference Layout') });
+        setQuickStatus(t('Örnek yerleşim yüklendi', 'Sample layout loaded'));
+        return;
+      }
+    } catch (_) {}
+    await handleQuickSolve('ga');
+  };
+
+  const activeScenario = cockpitScenarios.scenarios.find((s) => s.id === cockpitScenarios.selected) ?? null;
+  const activeEditorLayout = activeScenario?.layout ?? layout;
+  const activePlanLabel = !activeEditorLayout
+    ? null
+    : activeScenario?.name?.startsWith('Solver Layout · ')
+      ? activeScenario.name.slice('Solver Layout · '.length).trim()
+      : activeScenario?.name === 'Baseline Layout'
+        ? t('İlk yerleşim', 'Baseline layout')
+        : activeScenario?.id === 0
+          ? t('İlk yerleşim', 'Baseline layout')
+          : activeScenario && activeScenario.name.startsWith('What-If')
+            ? t('Senaryo denemesi', 'What-If scenario')
+            : activeScenario && activeScenario.id > 0
+              ? t('Optimize edilmiş', 'Optimized')
+              : t('Aktif yerleşim', 'Active layout');
+
+  const handleEditScenarioPlan = (scenarioId: number) => {
+    cockpitScenarios.select(scenarioId);
+    setActiveTab('layout');
+    setViewMode('workspace');
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        document.querySelector('.cockpit-workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  };
+
   const tabs: TabItem[] = [
     { id: 'problem', label: t('1. Problem Tanımı', '1. Problem Editor'), icon: <Sliders size={16} /> },
     { id: 'matrices', label: t('2. Akış ve REL Matrisleri', '2. Flow & REL'), icon: <Grid size={16} /> },
     { id: 'constraints', label: t('3. Kısıtlar', '3. Constraints'), icon: <ShieldAlert size={16} /> },
     { id: 'solvers', label: t('4. Optimizasyon', '4. Optimization'), icon: <Play size={16} />, badge: t('6 Çözücü', '6 Solvers') },
-    { id: 'layout', label: t('5. 2D Yerleşim Görünümü', '5. 2D Layout Viewer'), icon: <Maximize2 size={16} />, badge: layout ? t('Aktif', 'Active') : undefined },
+    { id: 'layout', label: t('5. Yerleşimi Düzenle', '5. Edit Layout'), icon: <Maximize2 size={16} />, badge: layout ? t('Aktif', 'Active') : undefined },
     { id: 'pareto', label: t('6. Pareto ve Ödünleşimler', '6. Pareto & Trade-offs'), icon: <TrendingUp size={16} /> },
-    { id: 'decision', label: t('7. Yapay Zekâ Karar Destek', '7. AI Decision Support'), icon: <Sparkles size={16} /> },
+    { id: 'decision', label: t('7. Strateji ve Kısıt Analizi', '7. Strategy & Constraints'), icon: <Sparkles size={16} /> },
     { id: 'export', label: t('8. Dışa Aktarım', '8. Export Center'), icon: <Package size={16} />, badge: 'v1.0' },
     { id: 'overview', label: t('Sistem Özeti', 'System Overview'), icon: <LayoutDashboard size={16} /> },
   ];
@@ -413,7 +531,7 @@ export const Dashboard: React.FC = () => {
           problem={problem}
           onUpdateProblem={handleUpdateProblem}
           onLoadExample={handleLoadExample}
-          availableExamples={availableProblems}
+          availableExamples={combinedProblems}
         />
       );
     }
@@ -440,6 +558,11 @@ export const Dashboard: React.FC = () => {
           currentLayout={layout}
           onSolutionGenerated={handleSolutionGenerated}
           onNavigateToViewer={() => setActiveTab('layout')}
+          onPreviewOnCockpit={!classicMode ? () => {
+            if (typeof document !== 'undefined') {
+              document.querySelector('.live-factory-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          } : undefined}
           onNavigateToPareto={() => setActiveTab('pareto')}
         />
       );
@@ -455,9 +578,16 @@ export const Dashboard: React.FC = () => {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-                {t('Etkileşimli 2D Tesis Yerleşimi Görünümü', 'Interactive 2D Facility Layout Viewer')}
-              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
+                  {t('Etkileşimli 2D Tesis Yerleşimi Görünümü', 'Interactive 2D Facility Layout Viewer')}
+                </h2>
+                {activePlanLabel && (
+                  <span className="editing-plan-pill">
+                    {t('Düzenlenen plan', 'Editing plan')} · {activePlanLabel}
+                  </span>
+                )}
+              </div>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
                 {t(
                   'Sürekli 1:1 koordinat düzlemi • Gerçek zamanlı yakınlaştırma ve kaydırma • Çakışma ve sabit konum denetimi',
@@ -465,7 +595,7 @@ export const Dashboard: React.FC = () => {
                 )}
               </p>
             </div>
-            {layout && (
+            {activeEditorLayout && (
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
                   onClick={() => setActiveTab('export')}
@@ -493,7 +623,7 @@ export const Dashboard: React.FC = () => {
           <DecisionGuidanceBox mode="layout" defaultOpen={false} />
 
           <LayoutCanvas
-            layout={layout}
+            layout={activeEditorLayout}
             problem={problem}
             validation={validation}
             selectedDeptId={selectedDeptId}
@@ -519,18 +649,11 @@ export const Dashboard: React.FC = () => {
     if (tab === 'decision') {
       return (
         <div>
-          <AIExplanationCard
+          <AdaptiveStrategyCard
             problem={problem}
-            currentLayout={layout}
+            currentLayout={activeEditorLayout}
             evaluation={evaluation}
           />
-          <div style={{ marginTop: '2rem' }}>
-            <AdaptiveStrategyCard
-              problem={problem}
-              currentLayout={layout}
-              evaluation={evaluation}
-            />
-          </div>
         </div>
       );
     }
@@ -625,6 +748,7 @@ export const Dashboard: React.FC = () => {
           if (next === 'cockpit') setClassicMode(false);
           setViewMode('workspace');
         }}
+        onNewProject={() => setShowNewProjectModal(true)}
         onLogin={() => setShowLoginModal(true)}
         online={!!status && !healthError}
       />
@@ -655,6 +779,12 @@ export const Dashboard: React.FC = () => {
         <UserManagementModal onClose={() => setShowUserMgmtModal(false)} />
       )}
 
+      <NewProjectWizardModal
+        isOpen={showNewProjectModal}
+        onClose={() => setShowNewProjectModal(false)}
+        onCreateProject={handleCreateCustomProject}
+      />
+
       {/* Main Workspace */}
       <main className="industrial-main" style={{
         maxWidth: '1440px',
@@ -668,10 +798,14 @@ export const Dashboard: React.FC = () => {
             problem={problem}
             layout={layout}
             evaluation={evaluation}
+            validation={validation}
             liveScenarios={cockpitScenarios}
-            availableProblems={availableProblems}
+            availableProblems={combinedProblems}
             onLoadExample={handleLoadExample}
             onQuickSolve={handleQuickSolve}
+            onCreateSampleLayout={handleCreateSampleLayout}
+            onOpenNewProject={() => setShowNewProjectModal(true)}
+            onEditPlan={handleEditScenarioPlan}
             quickSolving={quickSolving}
             quickStatus={quickStatus}
             activePanel={activeTab}
@@ -824,7 +958,7 @@ export const Dashboard: React.FC = () => {
               problem={problem}
               onUpdateProblem={handleUpdateProblem}
               onLoadExample={handleLoadExample}
-              availableExamples={availableProblems}
+              availableExamples={combinedProblems}
             />
             <MatrixEditorCard problem={problem} onUpdateProblem={handleUpdateProblem} />
             <ConstraintEditorCard problem={problem} onUpdateProblem={handleUpdateProblem} />
@@ -851,11 +985,6 @@ export const Dashboard: React.FC = () => {
             />
             <AlgorithmComparisonCard />
             <AdaptiveStrategyCard
-              problem={problem}
-              currentLayout={layout}
-              evaluation={evaluation}
-            />
-            <AIExplanationCard
               problem={problem}
               currentLayout={layout}
               evaluation={evaluation}

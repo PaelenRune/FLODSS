@@ -29,45 +29,45 @@ const BENCHMARK_PROBLEMS = [
 
 const PRESET_QUESTIONS: { type: PresetQuestionType; labelTr: string; labelEn: string; textTr: string; textEn: string }[] = [
   {
-    type: 'why_strategy_selected',
-    labelTr: 'Algoritma Seçimi',
-    labelEn: 'Algorithm Selection',
-    textTr: 'FLODSS neden bu algoritmayı seçti?',
-    textEn: 'Why did FLODSS select this algorithm?',
-  },
-  {
     type: 'why_feasible',
-    labelTr: 'Feasibility Gerekçesi',
-    labelEn: 'Feasibility Rationale',
-    textTr: 'Bu fabrika yerleşimi neden Feasible?',
-    textEn: 'Why is this factory layout feasible?',
+    labelTr: 'Bu yerleşim neden uygun?',
+    labelEn: 'Why is this layout feasible?',
+    textTr: 'Bu fabrika yerleşimi neden tüm kısıtları sağlıyor?',
+    textEn: 'Why does this factory layout satisfy all constraints?',
   },
   {
-    type: 'pareto_comparison',
-    labelTr: 'Pareto Trade-Off Analizi',
-    labelEn: 'Pareto Trade-Offs',
-    textTr: 'İki Pareto Frontier alternatifi arasındaki fark nedir?',
-    textEn: 'What is the difference between these two Pareto alternatives?',
+    type: 'why_strategy_selected',
+    labelTr: 'Hangi algoritma neden seçildi?',
+    labelEn: 'Which algorithm was selected & why?',
+    textTr: 'FLODSS neden bu optimizasyon algoritmasını seçti?',
+    textEn: 'Why did FLODSS select this optimization algorithm?',
   },
   {
     type: 'soft_penalty_explanation',
-    labelTr: 'Soft Penalty Etkisi',
-    labelEn: 'Soft Penalty Impact',
-    textTr: 'Soft Constraint Penalty değeri ne anlama geliyor?',
-    textEn: 'What does the soft constraint penalty mean?',
+    labelTr: 'Kısıt cezaları sonucu nasıl etkiledi?',
+    labelEn: 'How did constraint penalties affect result?',
+    textTr: 'Esnek kısıt cezaları toplam yerleşim puanını nasıl etkiledi?',
+    textEn: 'How did soft constraint penalties affect the layout score?',
+  },
+  {
+    type: 'pareto_comparison',
+    labelTr: 'Pareto alternatifleri arasındaki fark',
+    labelEn: 'Difference between Pareto alternatives',
+    textTr: 'İki Pareto alternatifi arasındaki temel ödünleşim nedir?',
+    textEn: 'What is the trade-off between these two Pareto alternatives?',
   },
   {
     type: 'fallback_reason',
-    labelTr: 'Fallback Mekanizması',
-    labelEn: 'Fallback Mechanism',
-    textTr: 'Yedek (Fallback) algoritma neden çalıştı?',
-    textEn: 'Why did the fallback algorithm run?',
+    labelTr: 'Yedek algoritma neden devreye girdi?',
+    labelEn: 'Why did fallback solver run?',
+    textTr: 'Birincil çözücü yerine yedek algoritma neden çalıştı?',
+    textEn: 'Why did the fallback algorithm run instead of primary?',
   },
   {
     type: 'global_optimality_query',
-    labelTr: 'Global Optimality Sınırları',
-    labelEn: 'Optimality Boundaries',
-    textTr: 'Bu sonucun Global Optimal olduğu garanti edilir mi?',
+    labelTr: 'Sonucun optimallik sınırları',
+    labelEn: 'Optimality bounds of this result',
+    textTr: 'Bu sonucun en iyi çözüm olduğu garanti edilir mi?',
     textEn: 'Is this result guaranteed to be globally optimal?',
   },
 ];
@@ -195,47 +195,16 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
       boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-              {t('Gemini AI Karar Açıklama & Mühendislik Denetimi (XAI)', 'Phase 12: Gemini AI Decision Explanation & Engineering Audit')}
-            </h2>
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: '999px',
-              backgroundColor: '#e0e7ff',
-              color: '#3730a3',
-            }}>
-              {t('GİZLİLİK GARANTİLİ', 'CONFIDENTIALITY GUARANTEED')}
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '850px' }}>
-            {t(
-              'Algoritma seçimleri, geometrik kısıtlar (Hard/Soft Constraints) ve çok amaçlı Pareto Frontier ödünleşimleri için kanıta dayalı açıklamalar sunar. Gemini yalnızca yorumlayıcı asistandır; asla koordinat değiştirmez veya hesaplanan metrikleri ezmez.',
-              'Provides grounded, explainable rationales for algorithm choices, geometric constraints, and multi-objective Pareto trade-offs. Gemini acts strictly as an interpretation assistant—it never optimizes, moves coordinates, or overrides computed metrics.'
-            )}
-          </p>
-        </div>
-
-        {/* Confidentiality Privacy Tag */}
-        <div style={{
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '0.5rem 0.85rem',
-          fontSize: '0.75rem',
-          color: '#475569',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '2px',
-        }}>
-          <div><strong>{t('Aktarım Politikası:', 'Transmission Policy:')}</strong> {t('Yalnızca İzin Listesi', 'Whitelist Only')}</div>
-          <div>{t('Hariç Tutulan: Koordinatlar, Akış Matrisi, Kaynak Kod, İsimler', 'Excluded: Coordinates, Raw Flows, Source Code, Names')}</div>
-        </div>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.25rem 0', color: 'var(--text-primary)' }}>
+          {t('Bu yerleşim neden daha iyi?', 'Why is this layout better?')}
+        </h2>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '850px' }}>
+          {t(
+            'Yerleşim kararının gerekçelerini, algoritma seçimini ve kısıt etkilerini sade dille inceleyin.',
+            'Review layout rationales, algorithm choices, and constraint impacts in plain language.'
+          )}
+        </p>
       </div>
 
       {/* Mode Switcher */}
@@ -739,7 +708,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             {/* Main Reasons */}
             {result.explanation.main_reasons.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '0.4rem' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#93c5fd', marginBottom: '0.4rem' }}>
                   {t('Temel Mühendislik Gerekçeleri', 'Primary Engineering Reasons')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
@@ -753,7 +722,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             {/* Strengths */}
             {result.explanation.strengths.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#065f46', marginBottom: '0.4rem' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#6ee7b7', marginBottom: '0.4rem' }}>
                   {t('Yerleşim & Algoritma Güçlü Yönleri', 'Layout & Algorithmic Strengths')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
@@ -767,7 +736,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             {/* Operational Risks */}
             {result.explanation.risks.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#92400e', marginBottom: '0.4rem' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fcd34d', marginBottom: '0.4rem' }}>
                   {t('Olası Operasyonel Riskler', 'Potential Operational Risks')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
@@ -781,7 +750,7 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             {/* Trade-offs & Compromises */}
             {result.explanation.trade_offs.length > 0 && (
               <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '6px' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#4338ca', marginBottom: '0.4rem' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#a5b4fc', marginBottom: '0.4rem' }}>
                   {t('Çok Amaçlı Ödünleşimler (Multi-Objective Trade-Offs)', 'Multi-Objective Trade-Offs')}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
@@ -793,44 +762,65 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({
             )}
           </div>
 
-          {/* Evidence references chips */}
-          {result.explanation.evidence_references.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                {t('Atıf Yapılan Kanonik Metrikler:', 'Cited Canonical Metrics:')}
-              </span>
-              {result.explanation.evidence_references.map((ev, i) => (
-                <span
-                  key={i}
-                  style={{
-                    fontSize: '0.7rem',
-                    fontFamily: 'monospace',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    backgroundColor: '#e2e8f0',
-                    color: '#334155',
-                  }}
-                >
-                  {ev}
-                </span>
-              ))}
+          <details className="tech-details-box">
+            <summary>
+              {t('Teknik ayrıntılar ve gizlilik denetimi (XAI)', 'Technical details & privacy audit (XAI)')}
+            </summary>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+              {result.explanation.evidence_references.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    {t('Atıf Yapılan Kanonik Metrikler:', 'Cited Canonical Metrics:')}
+                  </span>
+                  {result.explanation.evidence_references.map((ev, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        fontSize: '0.7rem',
+                        fontFamily: 'monospace',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: '#1e293b',
+                        color: '#cbd5e1',
+                      }}
+                    >
+                      {ev}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                <strong>{t('Gizlilik Garantili Aktarım Politikası:', 'Privacy-Guaranteed Transmission Policy:')}</strong>{' '}
+                {t('Yalnızca İzin Listesi · Hariç Tutulan: Koordinatlar, Akış Matrisi, Kaynak Kod, İsimler.', 'Whitelist Only · Excluded: Coordinates, Raw Flows, Source Code, Names.')}
+              </div>
+              <div style={{
+                fontSize: '0.75rem',
+                lineHeight: 1.5,
+                color: '#94a3b8',
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '0.65rem',
+                fontStyle: 'italic',
+              }}>
+                <strong>{t('Mühendislik Sorumluluk Notu:', 'Engineering Disclaimer:')}</strong> {result.explanation.global_optimality_disclaimer}
+              </div>
             </div>
-          )}
-
-          {/* Mandatory Global Optimality Disclaimer */}
-          <div style={{
-            fontSize: '0.75rem',
-            lineHeight: 1.5,
-            color: '#64748b',
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '6px',
-            padding: '0.75rem',
-            fontStyle: 'italic',
-          }}>
-            <strong>{t('Mühendislik Sorumluluk Notu:', 'Engineering Disclaimer:')}</strong> {result.explanation.global_optimality_disclaimer}
-          </div>
+          </details>
         </div>
+      )}
+
+      {!result && (
+        <details className="tech-details-box" style={{ marginTop: '0.75rem' }}>
+          <summary>
+            {t('Teknik ayrıntılar ve gizlilik denetimi (XAI)', 'Technical details & privacy audit (XAI)')}
+          </summary>
+          <div style={{ marginTop: '0.65rem', fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+            <div><strong>{t('Modül:', 'Module:')}</strong> Gemini AI Karar Açıklama & Mühendislik Denetimi (XAI) — {t('GİZLİLİK GARANTİLİ', 'CONFIDENTIALITY GUARANTEED')}</div>
+            <div><strong>{t('Aktarım Politikası:', 'Transmission Policy:')}</strong> {t('Yalnızca İzin Listesi (Koordinatlar, ham akış matrisi, kaynak kod ve isimler hariç tutulur)', 'Whitelist Only (Coordinates, raw flow matrices, source code, and names excluded)')}</div>
+            <div>{t('Gemini yalnızca yorumlayıcı asistandır; koordinatları değiştirmez veya hesaplanan metrikleri ezmez.', 'Gemini acts strictly as an interpretation assistant and never moves coordinates or overrides computed metrics.')}</div>
+          </div>
+        </details>
       )}
     </div>
   );

@@ -159,3 +159,36 @@ export function localizeBenchmarkText(
   const trText = BENCHMARK_TEXT_TR[trimmed];
   return trText ? t(trText, text) : text;
 }
+
+const SHORT_DEPT_LABEL_TR: Record<string, [string, string]> = {
+  DEP_RAW_MATERIAL: ['Hammadde', 'Raw Mat.'],
+  DEP_CUTTING: ['Kesim', 'Cutting'],
+  DEP_MACHINING: ['CNC', 'CNC'],
+  DEP_WELDING: ['Kaynak', 'Welding'],
+  DEP_SURFACE_TREAT: ['Boya', 'Coating'],
+  DEP_ASSEMBLY: ['Montaj', 'Assembly'],
+  DEP_QUALITY: ['Kalite', 'Quality'],
+  DEP_FINISHED_GOODS: ['Mamul', 'Finished'],
+  DEP_MAINTENANCE: ['Bakım', 'Maint.'],
+  DEP_SHIPPING: ['Sevkiyat', 'Shipping'],
+  ST: ['Hammadde', 'Storage'],
+  MC: ['İmalat', 'Machining'],
+  AS: ['Montaj', 'Assembly'],
+  PK: ['Paketleme', 'Packing'],
+  LG: ['Sevkiyat', 'Logistics'],
+};
+
+export function getShortDepartmentLabel(
+  dept: { id: string; name: string },
+  t: TranslateFn
+): string {
+  const mapped = SHORT_DEPT_LABEL_TR[dept.id];
+  if (mapped) return t(mapped[0], mapped[1]);
+  const full = localizeDepartmentName(dept.name, t).trim();
+  if (!full) return dept.id.replace(/^DEP_/, '');
+  const words = full.replace(/&/g, ' ').trim().split(/\s+/);
+  if (words.length >= 2 && words[0].length <= 3) {
+    return `${words[0]} ${words[1]}`.slice(0, 12);
+  }
+  return words[0].slice(0, 11);
+}

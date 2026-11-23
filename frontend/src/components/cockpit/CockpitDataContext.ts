@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
-import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem } from '../../types/api';
-import { localizeBenchmarkText, localizeDepartmentName } from '../../utils/localizeDomain';
+import type { ContinuousLayout, EvaluationReport, FacilityLayoutProblem, LayoutValidationResult } from '../../types/api';
+import { getShortDepartmentLabel, localizeBenchmarkText, localizeDepartmentName } from '../../utils/localizeDomain';
 import { departments, flows } from './data';
 import type { LiveScenario } from './liveScenarios';
 
-export { localizeBenchmarkText, localizeDepartmentName };
+export { getShortDepartmentLabel, localizeBenchmarkText, localizeDepartmentName };
 
 export interface FlowMetrics {
   euclideanDistance: number;
@@ -72,6 +72,7 @@ export interface CockpitData {
   problem?: FacilityLayoutProblem;
   layout?: ContinuousLayout | null;
   evaluation?: EvaluationReport | null;
+  validation?: LayoutValidationResult | null;
   metrics?: FlowMetrics;
   baselineMetrics?: FlowMetrics;
   metricConfig?: Record<string, unknown>;
@@ -79,6 +80,9 @@ export interface CockpitData {
   selectedScenario?: number;
   selectScenario?: (id: number) => void;
   swap?: (first: string, second: string) => void;
+  onCreateSampleLayout?: () => void;
+  onEditPlan?: (scenarioId: number) => void;
+  onDownloadPlanSvg?: (scenarioId?: number) => void;
 }
 
 export const referenceData: CockpitData = { departments, flows, live: false };
@@ -86,7 +90,12 @@ export const CockpitDataContext = createContext<CockpitData>(referenceData);
 export const useCockpitData = () => useContext(CockpitDataContext);
 
 /** Use one uniform display scale and never invent missing solver placements. */
-export function buildCockpitData(problem: FacilityLayoutProblem | null, layout: ContinuousLayout | null, evaluation: EvaluationReport | null): CockpitData {
+export function buildCockpitData(
+  problem: FacilityLayoutProblem | null,
+  layout: ContinuousLayout | null,
+  evaluation: EvaluationReport | null,
+  validation: LayoutValidationResult | null = null
+): CockpitData {
   if (!problem) return referenceData;
   const matchingLayout = layout && (!layout.problem_id || layout.problem_id === problem.id) ? layout : null;
   const scale = Math.min(278 / problem.facility.width, 237 / problem.facility.height);
@@ -110,6 +119,8 @@ export function buildCockpitData(problem: FacilityLayoutProblem | null, layout: 
   const matchingEvaluation = matchingLayout && evaluation?.problem_id === problem.id
     && !!matchingLayout.layout_signature && matchingLayout.layout_signature === evaluation.layout_signature
     ? evaluation : null;
-  return { departments: liveDepartments, flows: matrix, live: true, problem, layout: matchingLayout, evaluation: matchingEvaluation,
+  const matchingValidation = matchingLayout && (!validation?.signature || !matchingLayout.layout_signature || validation.signature === matchingLayout.layout_signature)
+    ? validation : null;
+  return { departments: liveDepartments, flows: matrix, live: true, problem, layout: matchingLayout, evaluation: matchingEvaluation, validation: matchingValidation,
     metrics: calculateFlowMetrics(problem, matchingLayout, { ...problem.objective_config, ...matchingEvaluation?.evaluation_config }) };
 }
