@@ -24,6 +24,7 @@ from app.models.representation import ContinuousLayout
 from app.models.solution import LayoutSolution, SolverTerminationReason
 from app.services.layout_normalizer import generate_layout_signature
 from app.services.layout_validator import LayoutValidator
+from app.constraints.engine import ConstraintEngine
 from app.evaluation.engine import EvaluationEngine
 
 
@@ -120,6 +121,7 @@ class ALDEPAlgorithm(BaseLayoutAlgorithm):
         total_dept_count = len(problem.departments)
 
         eval_engine = EvaluationEngine()
+        constraint_engine = ConstraintEngine()
         candidates: List[ALDEPCandidateResult] = []
         seen_signatures: Dict[str, int] = {}  # signature -> candidate_index
 
@@ -144,7 +146,9 @@ class ALDEPAlgorithm(BaseLayoutAlgorithm):
 
             # Geometric validation
             val_res = LayoutValidator.validate(problem, cont_layout)
-            is_feasible = is_complete and val_res.is_valid
+            # Problem-level hard constraints (adjacency / separation / custom), as CORELAP, CRAFT and GA do
+            hard_violations = ConstraintEngine.count_hard_violations(constraint_engine.check_all(problem, cont_layout))
+            is_feasible = is_complete and val_res.is_valid and hard_violations == 0
 
             # Termination status
             if is_feasible:

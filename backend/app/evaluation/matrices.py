@@ -215,7 +215,7 @@ class RelationshipMatrixService:
             if idx_a is not None and idx_b is not None:
                 # Determine score from explicit field or standard mapping
                 score = rel.score
-                if score == 0.0 and rel.relationship_type.value != "U":
+                if score is None:  # an explicit 0.0 is a deliberate user weight, keep it
                     score = RELATIONSHIP_DEFAULT_SCORES.get(rel.relationship_type, 0.0)
 
                 # Muther closeness relationships are symmetric between two areas

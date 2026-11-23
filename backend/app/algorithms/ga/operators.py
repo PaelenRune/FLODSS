@@ -214,8 +214,13 @@ def mutate_chromosome(
         else:
             bay_sizes = bay_split_or_merge_mutation(bay_sizes, config.min_bays, config.max_bays, rng)
 
+    # 3. Orientation flip (only when the user let the GA choose the orientation)
+    orientation = chromosome.orientation
+    if str(config.orientation).lower() == "auto" and rng.random() < 0.10:
+        orientation = "vertical" if orientation == "horizontal" else "horizontal"
+
     return BayChromosome(
         order=order,
         bay_sizes=bay_sizes,
-        orientation=chromosome.orientation,
+        orientation=orientation,
     )

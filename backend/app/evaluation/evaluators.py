@@ -23,6 +23,27 @@ from app.constraints.engine import ConstraintEngine
 from app.services.geometry_engine import DistanceMetricType, GeometryEngine
 
 
+def _union_area_in_facility(boxes, fac_w: float, fac_h: float) -> float:
+    """Area of the union of axis-aligned boxes clipped to the facility (overlaps counted once)."""
+    clipped = []
+    for b in boxes:
+        x0, y0 = max(0.0, b.x_min), max(0.0, b.y_min)
+        x1, y1 = min(fac_w, b.x_max), min(fac_h, b.y_max)
+        if x1 > x0 and y1 > y0:
+            clipped.append((x0, y0, x1, y1))
+    if not clipped:
+        return 0.0
+    xs = sorted({c[0] for c in clipped} | {c[2] for c in clipped})
+    ys = sorted({c[1] for c in clipped} | {c[3] for c in clipped})
+    area = 0.0
+    for i in range(len(xs) - 1):
+        for j in range(len(ys) - 1):
+            cx, cy = (xs[i] + xs[i + 1]) / 2.0, (ys[j] + ys[j + 1]) / 2.0
+            if any(c[0] <= cx <= c[2] and c[1] <= cy <= c[3] for c in clipped):
+                area += (xs[i + 1] - xs[i]) * (ys[j + 1] - ys[j])
+    return area
+
+
 def _to_continuous_layout(
     problem: FacilityLayoutProblem,
     solution: Union[LayoutSolution, ContinuousLayout],
@@ -247,7 +268,7 @@ class RelationshipSatisfactionEvaluator(BaseMetricEvaluator):
                 continue
 
             score = rel.score
-            if score == 0.0 and rel.relationship_type.value != "U":
+            if score is None:  # an explicit 0.0 is a deliberate user weight, keep it
                 score = RELATIONSHIP_DEFAULT_SCORES.get(rel.relationship_type, 0.0)
 
             # Proximity factor P in [0.0, 1.0]
@@ -343,7 +364,7 @@ class AreaUtilizationEvaluator(BaseMetricEvaluator):
         facility_area = fac_w * fac_h
 
         # Compute reserved zones area without double counting
-        reserved_area = sum(z.bounding_box.area for z in layout.reserved_zones)
+        reserved_area = _union_area_in_facility([z.bounding_box for z in layout.reserved_zones], fac_w, fac_h)
         usable_area = max(0.0, facility_area - reserved_area)
 
         occupied_area = sum(p.area for p in layout.placements.values())

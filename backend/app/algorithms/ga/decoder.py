@@ -189,6 +189,13 @@ class BayChromosomeDecoder:
                     curr_x += dept_w
                 curr_y += bay_h
 
+        # 4b. Fixed-position anchoring by mirroring.
+        # The bay structure always grows from the bottom-left corner, so a department fixed at another
+        # corner could never be satisfied. Mirroring the whole layout (in X, Y or both) keeps it
+        # overlap-free and inside the facility; pick the mirror that satisfies the most fixed positions
+        # without adding reserved-zone overlaps.
+        placements = cls._anchor_fixed_by_mirroring(problem, placements, dept_map, fac_w, fac_h, tolerance)
+
         layout = ContinuousLayout(
             problem_id=problem.id,
             facility_width=fac_w,
@@ -239,12 +246,11 @@ class BayChromosomeDecoder:
                     )
                     is_feasible = False
 
-            # Fixed position check
+            # Fixed position check (origin or centroid, consistent with ConstraintEngine)
             if dept.fixed_position is not None:
                 fx = dept.fixed_position.x
                 fy = dept.fixed_position.y
-                # Allow tolerance of up to 1.0 meter for grid snapping if close
-                if abs(p.x - fx) > 1.0 or abs(p.y - fy) > 1.0:
+                if not cls._matches_fixed(p, dept, 1.0):
                     violations.append(
                         f"Department '{did}' fixed position mismatch: placed at ({p.x:.2f}, {p.y:.2f}), expected ({fx:.2f}, {fy:.2f})"
                     )
@@ -269,3 +275,58 @@ class BayChromosomeDecoder:
             is_feasible = False
 
         return layout, is_feasible, violations
+
+    @staticmethod
+    def _matches_fixed(p: ContinuousPlacement, dept: Department, tol: float) -> bool:
+        fp = dept.fixed_position
+        if fp is None:
+            return True
+        origin_ok = abs(p.x - fp.x) <= tol and abs(p.y - fp.y) <= tol
+        cx, cy = p.x + p.width / 2.0, p.y + p.height / 2.0
+        centroid_ok = abs(cx - fp.x) <= tol and abs(cy - fp.y) <= tol
+        return origin_ok or centroid_ok
+
+    @classmethod
+    def _anchor_fixed_by_mirroring(
+        cls,
+        problem: FacilityLayoutProblem,
+        placements: Dict[str, ContinuousPlacement],
+        dept_map: Dict[str, Department],
+        fac_w: float,
+        fac_h: float,
+        tolerance: float,
+    ) -> Dict[str, ContinuousPlacement]:
+        fixed = [dept_map[did] for did in placements if dept_map[did].fixed_position is not None]
+        if not fixed:
+            return placements
+        reserved_zones = getattr(problem, "reserved_zones", None) or getattr(problem.facility, "reserved_zones", None) or []
+
+        def mirrored(flip_x: bool, flip_y: bool) -> Dict[str, ContinuousPlacement]:
+            out: Dict[str, ContinuousPlacement] = {}
+            for did, p in placements.items():
+                out[did] = ContinuousPlacement(
+                    department_id=did,
+                    x=round(fac_w - p.x - p.width, 4) if flip_x else p.x,
+                    y=round(fac_h - p.y - p.height, 4) if flip_y else p.y,
+                    width=p.width,
+                    height=p.height,
+                )
+            return out
+
+        def score(pl: Dict[str, ContinuousPlacement]) -> Tuple[int, int]:
+            misses = sum(1 for d in fixed if not cls._matches_fixed(pl[d.id], d, 1.0))
+            rz_hits = 0
+            for p in pl.values():
+                box_p = BoundingBox(x_min=p.x, y_min=p.y, x_max=p.x + p.width, y_max=p.y + p.height)
+                rz_hits += sum(1 for rz in reserved_zones if GeometryEngine.overlap_area(box_p, rz.bounding_box) > tolerance)
+            return misses, rz_hits
+
+        best, (best_miss, base_rz) = placements, score(placements)
+        if best_miss == 0:
+            return placements
+        for fx, fy in ((True, False), (False, True), (True, True)):
+            cand = mirrored(fx, fy)
+            miss, rz = score(cand)
+            if rz <= base_rz and miss < best_miss:
+                best, best_miss = cand, miss
+        return best

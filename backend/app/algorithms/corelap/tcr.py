@@ -49,8 +49,9 @@ def calculate_tcr(problem: FacilityLayoutProblem) -> Dict[str, float]:
         score = rel.score
         if score is None:
             score = RELATIONSHIP_DEFAULT_SCORES.get(rel.relationship_type, 0.0)
-        rel_weights[(rel.department_a, rel.department_b)] = float(score)
-        rel_weights[(rel.department_b, rel.department_a)] = float(score)
+        # First definition wins (same rule as get_relationship_weight) if a pair is listed twice
+        rel_weights.setdefault((rel.department_a, rel.department_b), float(score))
+        rel_weights.setdefault((rel.department_b, rel.department_a), float(score))
 
     for i in dept_ids:
         total = 0.0
@@ -116,8 +117,9 @@ def select_next_department(
         score = rel.score
         if score is None:
             score = RELATIONSHIP_DEFAULT_SCORES.get(rel.relationship_type, 0.0)
-        rel_weights[(rel.department_a, rel.department_b)] = float(score)
-        rel_weights[(rel.department_b, rel.department_a)] = float(score)
+        # First definition wins (same rule as get_relationship_weight) if a pair is listed twice
+        rel_weights.setdefault((rel.department_a, rel.department_b), float(score))
+        rel_weights.setdefault((rel.department_b, rel.department_a), float(score))
 
     def scoring_key(dept: Department) -> Tuple[float, float, float, str]:
         # Sum of affinities with already placed departments

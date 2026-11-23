@@ -250,7 +250,12 @@ def create_strip_sweep_layout(
     # 1. Position pre-fixed departments if any
     for d in problem.departments:
         if d.fixed_position is not None:
-            w = d.min_width or math.sqrt(d.required_area)
+            # Width: square-ish, clamped into the department's own [min_width, max_width] range
+            w = math.sqrt(d.required_area)
+            if d.min_width is not None:
+                w = max(w, d.min_width)
+            if d.max_width is not None:
+                w = min(w, d.max_width)
             h = d.required_area / w
             c_start = max(0, int(round(d.fixed_position.x / cell_size)))
             c_end = min(cols, max(c_start + 1, int(round((d.fixed_position.x + w) / cell_size))))
@@ -260,11 +265,16 @@ def create_strip_sweep_layout(
             f_cells = []
             for r in range(r_start, r_end):
                 for c in range(c_start, c_end):
+                    # Never claim reserved cells or cells of another fixed department; a fixed position
+                    # that conflicts with them is reported by the validator instead of silently overwritten.
+                    if (r, c) in reserved_cells or (r, c) in preoccupied_cells:
+                        continue
                     f_cells.append((r, c))
                     preoccupied_cells.add((r, c))
                     occupancy_matrix[r][c] = d.id
 
-            placed_blocks[d.id] = GridDepartmentBlock(department_id=d.id, cells=f_cells)
+            if f_cells:
+                placed_blocks[d.id] = GridDepartmentBlock(department_id=d.id, cells=f_cells)
 
     unplaced_departments: List[str] = []
 

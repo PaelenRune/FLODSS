@@ -128,6 +128,21 @@ def initialize_population(
     rng: random.Random,
 ) -> List[Individual]:
     """Construct and evaluate the initial GA population using domain heuristics and diversity."""
+    if str(config.orientation).lower() == "auto":
+        # 'auto' = let evolution decide: seed half the population with horizontal bays and half with
+        # vertical bays (mutation can also flip orientation later).
+        n_vertical = max(1, config.population_size // 2)
+        n_horizontal = max(1, config.population_size - n_vertical)
+        horiz = initialize_population(
+            problem, config.model_copy(update={"orientation": "horizontal", "population_size": n_horizontal}), evaluator, rng
+        )
+        vert = initialize_population(
+            problem, config.model_copy(update={"orientation": "vertical", "population_size": n_vertical}), evaluator, rng
+        )
+        merged = horiz + vert
+        merged.sort(key=individual_sort_key)
+        return merged[: config.population_size]
+
     dept_ids = [d.id for d in problem.departments]
     n = len(dept_ids)
     population: List[Individual] = []
@@ -212,9 +227,14 @@ def initialize_population(
     add_chromosome(BayChromosome(order=sorted_by_area, bay_sizes=std_bay_sizes, orientation=config.orientation))
 
     # Fixed-origin & multi-wing corridor-aware seeds
+    # All fixed departments go first (origin-fixed ones leading); the decoder mirrors the layout so a
+    # leading department can also reach the other facility corners.
+    fixed_depts = [d for d in problem.departments if d.fixed_position is not None]
     origin_fixed = [
-        d.id for d in problem.departments
-        if d.fixed_position is not None and abs(d.fixed_position.x) < 1.0 and abs(d.fixed_position.y) < 1.0
+        d.id for d in sorted(
+            fixed_depts,
+            key=lambda d: not (abs(d.fixed_position.x) < 1.0 and abs(d.fixed_position.y) < 1.0),
+        )
     ]
     if origin_fixed or getattr(problem, "reserved_zones", None):
         non_fixed_by_area = [did for did in sorted_by_area if did not in origin_fixed]
