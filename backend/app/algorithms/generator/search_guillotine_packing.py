@@ -207,6 +207,9 @@ class GuillotineRowPackingEngine:
             val = LayoutValidator.validate(problem, best_layout)
             if not val.is_valid:
                 success = False
+                # The DFS reported success, but the independent validator rejected the layout:
+                # do not leak SUCCESS_FEASIBLE_FOUND together with feasible=False.
+                termination_reason = GeneratorTerminationReason.SEARCH_SPACE_EXHAUSTED
 
         sig = generate_layout_signature(best_layout) if best_layout and success else None
 

@@ -246,6 +246,20 @@ def test_overlapping_reserved_zones_are_not_double_counted():
     assert _union_area_in_facility(boxes, 20.0, 20.0) == pytest.approx(175.0)
 
 
+def test_pre_feasibility_subtracts_reserved_zones():
+    from app.algorithms.generator.pre_feasibility import PreFeasibilityAnalyzer
+    from app.models.geometry import ReservedZone
+    # 4 x 100 m² = 400 m² fits a 20 x 20 plant, but not once a 10 x 20 m keep-out zone is removed.
+    problem = _square_problem()
+    assert PreFeasibilityAnalyzer.analyze(problem).is_feasible
+    problem.facility.reserved_zones = [
+        ReservedZone(id="RZ", name="Aisle", bounding_box=BoundingBox(x_min=0, y_min=0, x_max=10, y_max=20))
+    ]
+    report = PreFeasibilityAnalyzer.analyze(problem)
+    assert not report.is_feasible
+    assert report.facility_available_area == pytest.approx(200.0)
+
+
 def test_aldep_classical_mode_still_available_and_flagged():
     problem = _problem(120.0, 120.0, 75.0)
     _, result = ALDEPAlgorithm().solve_with_result(

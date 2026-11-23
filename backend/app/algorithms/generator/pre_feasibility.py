@@ -3,6 +3,7 @@
 from typing import Dict, List
 
 from app.algorithms.generator.models import PreFeasibilityReport
+from app.evaluation.evaluators import _union_area_in_facility
 from app.feasibility.dimension_generator import LegalDimensionGenerator
 from app.models.problem import FacilityLayoutProblem
 from app.models.constraint import ConstraintClassification
@@ -31,11 +32,17 @@ class PreFeasibilityAnalyzer:
 
         # 1. Total Area Capacity Check
         req_area_total = problem.total_required_area
-        utilization = req_area_total / fac_area if fac_area > 0 else 1.0
+        # Reserved / keep-out zones cannot host departments: compare against the usable area
+        reserved_area = _union_area_in_facility(
+            [rz.bounding_box for rz in (problem.reserved_zones or [])], fac_w, fac_h
+        )
+        usable_area = max(0.0, fac_area - reserved_area)
+        utilization = req_area_total / usable_area if usable_area > 0 else 1.0
 
-        if req_area_total > fac_area + tolerance:
+        if req_area_total > usable_area + tolerance:
             errors.append(
-                f"Total required department area ({req_area_total:.1f} m²) exceeds facility capacity ({fac_area:.1f} m²). "
+                f"Total required department area ({req_area_total:.1f} m²) exceeds usable facility capacity "
+                f"({usable_area:.1f} m² = {fac_area:.1f} m² minus {reserved_area:.1f} m² reserved). "
                 f"Area utilization is {utilization * 100.0:.1f}%."
             )
         elif utilization > 0.95:
@@ -110,7 +117,7 @@ class PreFeasibilityAnalyzer:
             errors=errors,
             warnings=warnings,
             total_required_area=round(req_area_total, 2),
-            facility_available_area=round(fac_area, 2),
+            facility_available_area=round(usable_area, 2),
             area_utilization=round(utilization, 4),
             unconstrained_departments=sorted(unconstrained),
             constrained_departments=sorted(constrained),
